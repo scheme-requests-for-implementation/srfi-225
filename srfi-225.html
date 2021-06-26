@@ -18,7 +18,7 @@
 The procedures of this SRFI allow callers to
 manipulate an object that maps keys to values
 without the caller needing to know exactly what the type
-of the object is.  Such an object is called a *dictionary* in this SRFI.
+of the object is.  Such an object is called a <em>dictionary</em> in this SRFI.
 
 <h2 id="issues">Issues</h2>
 
@@ -59,12 +59,12 @@ similar to an existing hash table.</p>
 <p><code>(dict-contains?</code>&nbsp;<em>dictionary key</em><code>)</code></p>
 <blockquote><pre>(dict-contains? dict 1) =&gt; #t
 (dict-contains? dict 2) =&gt; #f</code></blockquote>
-<p>Returns <code>#t</code>if one of the keys of <em>dictionary</em> is the same as <em>key</em> and <code>#f</code> otherwise.</p>
+<p>Returns <code>#t</code> if one of the keys of <em>dictionary</em> is the same as <em>key</em>, and <code>#f</code> otherwise.</p>
 <h3 id="lookup">Lookup</h3>
 <p><code>(dict-ref</code>&nbsp;<em>dictionary key</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dictionary</em>, then invokes <em>success</em> on the corresponding value and returns its result. If <em>key</em> is not a key of <em>dictionary</em>, then invokes the thunk <em>failure</em> and returns its result. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
-<blockquote><pre>(dict-ref dict 1 (lambda () &#39;() list) =&gt; (1)  ; success wraps value in a list
-(dict-ref dict 2 (lambda () &#39;() list)) =&gt; ()  ; failure returns empty list</code></blockquote>
+<blockquote><pre>(dict-ref dict 1 (lambda () &#39;()) list) =&gt; (1) ; Success wraps value in a list
+(dict-ref dict 2 (lambda () &#39;()) list) =&gt; ()  ; Failure returns empty list</code></blockquote>
 <p><code>(dict-ref/default</code>&nbsp;<em>dictionary key default</em><code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dictionary</em> then returns the corresponding value. If not, then returns <em>default</em>.</p>
 <blockquote><pre>(dict-ref/default dict 1 #f) =&gt; 1
@@ -191,15 +191,15 @@ one for each of the four continuations:
   ; writes &quot;135&quot; to current output</code></blockquote>
 <p><code>(dict-count</code>&nbsp;<em>pred dictionary</em><code>)</code></p>
 <p>Passes each association of dictionary as two arguments to <em>pred</em> and returns the number of times that <em>pred</em> returned true as an an exact integer.</p>
-<blockquote><pre>(dict-count dict (lambda (k v) (even? k) =&gt; 0</code></blockquote>
+<blockquote><pre>(dict-count dict (lambda (k v) (even? k))) =&gt; 0</code></blockquote>
 <p><code>(dict-any</code>&nbsp;<em>pred dictionary</em><code>)</code></p>
 <p>Passes each association of <em>dictionary</em> as two arguments to <em>pred</em> and returns the value of the first call to <em>pred</em> that returns true, after which no further calls are made. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. If all calls return false, <code>dict-any</code> returns false.</p>
-<blockquote><pre>(define (both-even? k v) (and (even? k) (even? v))
+<blockquote><pre>(define (both-even? k v) (and (even? k) (even? v)))
 (dict-any both-even? &#39;((2 . 4) (3 . 5))) =&gt; #t
 (dict-any both-even? &#39;((1 . 2) (3 . 4))) =&gt; #f</code></blockquote>
 <p><code>(dict-every</code>&nbsp;<em>pred dictionary</em><code>)</code></p>
-<p>Passes each association of <em>dictionary</em> as two arguments to <em>pred</em> and returns <code>#f</code> after the first call to <em>pred</em> that returns false after which no further calls are made. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. If all calls return true, <code>dict-any</code> returns the value of the last call, or <code>#t</code> if no calls are made.</p>
-<blockquote><pre>(define (some-even? k v) (or (even? k) (even? v))
+<p>Passes each association of <em>dictionary</em> as two arguments to <em>pred</em> and returns <code>#f</code> after the first call to <em>pred</em> that returns false, after which no further calls are made. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. If all calls return true, <code>dict-any</code> returns the value of the last call, or <code>#t</code> if no calls are made.</p>
+<blockquote><pre>(define (some-even? k v) (or (even? k) (even? v)))
 (dict-every some-even? &#39;((2 . 3) (3 . 4))) =&gt; #t
 (dict-every some-even? &#39;((1 . 3) (3 . 4))) =&gt; #f</code></blockquote>
 <p><code>(dict-keys</code>&nbsp;<em>dictionary</em><code>)</code></p>
@@ -209,7 +209,7 @@ one for each of the four continuations:
 <p>Returns a list of the values of <em>dictionary</em>. The results returned by <code>dict-keys</code> and <code>dict-values</code> are ordered consistently.</p>
 <blockquote><pre>(dict-values dict) =&gt; (2 4 6)</code></blockquote>
 <p><code>(dict-entries</code>&nbsp;<em>dictionary</em><code>)</code></p>
-<p>Returns two values, the result of calling <code>dict-keys</code> and the result of calling <code>dict-values</code> on <em>dictionary</em>.</p>
+<p>Returns two values, the results of calling <code>dict-keys</code> and the result of calling <code>dict-values</code> on <em>dictionary</em>.</p>
 <blockquote><pre>(dict-entries dict) =&gt; ; 2 values
   (1 3 5)
   (2 4 6)</code></blockquote>
