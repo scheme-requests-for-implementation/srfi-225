@@ -1,4 +1,4 @@
-* SRFI 225: Integer Mappings
+* SRFI 225: Dictionaries
 
 ** by John Cowan (spec) and Arvydas Silanskas (implementation)
 
@@ -6,7 +6,7 @@
 
 keywords: [[https://srfi.schemers.org/?keywords=data-structure][Data Structure]]
 
-This repository hosts [[https://srfi.schemers.org/srfi-225/][SRFI 225]]: Integer Mappings, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
+This repository hosts [[https://srfi.schemers.org/srfi-225/][SRFI 225]]: Dictionaries, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
 This SRFI is in /draft/ status.
 
