@@ -1,50 +1,50 @@
 (define (register-srfi-125!)
-  
+
   (define (hash-table-set!* table . obj)
     (apply hash-table-set! (cons table obj))
     table)
-  
+
   (define (hash-table-update!* table key updater fail success)
     (hash-table-update! table key updater fail success)
     table)
-  
+
   (define (hash-table-update!/default* table key proc default)
     (hash-table-update!/default table key proc default)
     table)
-  
+
   (define (hash-table-intern!* table key failure)
     (define val (hash-table-intern! table key failure))
     (values table val))
-  
+
   (define (hash-table-pop!* table)
     (if (hash-table-empty? table)
         (error "popped empty dictionary")
         (call-with-values
           (lambda () (hash-table-pop! table))
           (lambda (key value) (values table key value)))))
-  
+
   (define (hash-table-delete-all!* table keys)
     (for-each
       (lambda (key)
         (hash-table-delete! table key))
       keys)
     table)
-  
+
   (define (hash-table-map!* proc table)
     (hash-table-map! proc table)
     table)
-  
+
   (define (hash-table-filter* proc table)
-    (hash-table-prune! 
+    (hash-table-prune!
       (lambda (key value)
         (not (proc key value)))
       table)
     table)
-  
+
   (define (hash-table-remove!* proc table)
     (hash-table-prune! proc table)
     table)
-  
+
   (define (hash-table-search* table key fail success)
     (define (handle-success value)
       (define (update new-key new-value obj)
@@ -57,16 +57,16 @@
         (values table obj))
       (success key value update remove))
     (define (handle-fail)
-      (define (ignore obj) 
+      (define (ignore obj)
         (values table obj))
       (define (insert value obj)
         (hash-table-set! table key value)
         (values table obj))
       (fail insert ignore))
-    
+
     (define default (cons #f #f))
     (hash-table-ref table key handle-fail handle-success))
-  
+
   (register-dictionary!
     'dictionary? hash-table?
     'dict-empty? hash-table-empty?
@@ -82,7 +82,7 @@
     'dict-map! hash-table-map!*
     'dict-filter! hash-table-filter*
     'dict-remove! hash-table-remove!*
-    'dict-search! hash-table-search* 
+    'dict-search! hash-table-search*
     'dict-size hash-table-size
     'dict-for-each hash-table-for-each
     'dict-keys hash-table-keys

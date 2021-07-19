@@ -7,7 +7,7 @@
 ;;; Vec argument is not used except to pass to dcalls
 ;;; External procedures with a rest argument use a list argument here
 ;;; External procedures with optional arguments are not optional here
- 
+
 (define-syntax dcall
   (syntax-rules ()
     ((dcall dproc vec dictionary arg ...)
@@ -26,7 +26,7 @@
 (define (idict-ref vec dictionary key failure success)
   (define-values
     (new-dict result)
-    (dcall dsearch! vec dictionary key 
+    (dcall dsearch! vec dictionary key
            (lambda (_ ignore)
              (ignore (failure)))
            (lambda (key value update _)
@@ -43,7 +43,7 @@
   (let loop ((objs objs)
              (dictionary dictionary))
     (cond
-      ((null? objs) 
+      ((null? objs)
        dictionary)
       ((null? (cdr objs))
        (error "mismatch of key / values argument list" objs))
@@ -72,10 +72,10 @@
              (dictionary dictionary))
     (cond
       ((null? keylist) dictionary)
-      (else (let*-values 
+      (else (let*-values
               (((key) (car keylist))
                ((new-d _) (dcall dsearch! vec dictionary key
-                                 (lambda (_ ignore) 
+                                 (lambda (_ ignore)
                                    (ignore #f))
                                  (lambda (key old-value _ delete)
                                    (delete #f)))))
@@ -123,7 +123,7 @@
                (lambda (key value)
                  (define new-dict
                    (dcall ddelete! vec dictionary (list key)))
-                 (cont new-dict key value)) 
+                 (cont new-dict key value))
                dictionary))))
   (define empty? (dcall dempty? vec dictionary))
   (if empty?
@@ -133,7 +133,7 @@
 (define (idict-map! vec proc dictionary)
   (error "dict-map method not defined"))
 
-(define (idict-filter! vec pred dictionary)  
+(define (idict-filter! vec pred dictionary)
   (error "dict-filter! method not defined"))
 
 (define (idict-remove! vec pred dictionary)
@@ -198,14 +198,14 @@
          dictionary)))
 
 (define (idict-entries vec dictionary)
-  (define pair 
+  (define pair
     (dcall dfold vec
            (lambda (key value acc)
              (cons (cons key (car acc))
                    (cons value (cdr acc))))
            (cons '() '())
            dictionary))
-  (values (reverse (car pair)) 
+  (values (reverse (car pair))
           (reverse (cdr pair))))
 
 (define (idict-fold vec proc knil dictionary)
@@ -220,7 +220,7 @@
   (define reverse-lst
     (dcall dfold vec
          (lambda (key value lst)
-           (cons (proc key value) lst)) 
+           (cons (proc key value) lst))
          '()
          dictionary))
   (reverse reverse-lst))
@@ -230,13 +230,13 @@
          cons
          dictionary))
 
-(define model-vec 
+(define model-vec
   (vector
     idictionary?  idict-empty?  idict-contains?  idict-ref
     idict-ref/default idict-set!  idict-adjoin!  idict-delete!
     idict-delete-all!  idict-replace!  idict-intern!
     idict-update! idict-update/default! idict-pop!  idict-map!
-    idict-filter!  idict-remove!  idict-search!  idict-size 
+    idict-filter!  idict-remove!  idict-search!  idict-size
     idict-for-each idict-count idict-any idict-every idict-keys
     idict-values idict-entries idict-fold idict-map->list
     idict->alist))

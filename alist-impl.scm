@@ -1,24 +1,24 @@
 (define (register-alist!)
-  
+
   (define (alist? l)
     (and (list? l)
          (or (null? l)
              (pair? (car l)))))
 
   (define (alist-map! proc alist)
-    (map 
+    (map
       (lambda (e)
         (define key (car e))
         (define value (cdr e))
-        (cons key (proc key value))) 
+        (cons key (proc key value)))
       alist))
 
   (define (alist-filter! pred alist)
     (filter
       (lambda (e)
-        (pred (car e) (cdr e))) 
+        (pred (car e) (cdr e)))
       alist))
-  
+
   (define (alist-delete key alist)
     ;; find the tail of alist that will be kept
     ;; ie rest entries after the last entry with matched key
@@ -27,7 +27,7 @@
                  (lst alist))
       (cond
         ((null? lst) tail)
-        (else 
+        (else
           (if (equal? key (caar lst))
               (loop (cdr lst) (cdr lst))
               (loop tail (cdr lst)))))))
@@ -41,7 +41,7 @@
               (append (reverse result/reversed) kept-tail)
               (let* ((entry (car lst))
                      (keep? (not (equal? key (car entry))))
-                     (result/reversed* (if keep? 
+                     (result/reversed* (if keep?
                                            (cons entry result/reversed)
                                            result/reversed)))
                 (loop (cdr lst) result/reversed*))))))
@@ -51,14 +51,14 @@
       (define old-key (car pair))
       (define old-value (cdr pair))
       (define (update new-key new-value obj)
-        (cond 
+        (cond
           ((and (eq? old-key
                      new-key)
                 (eq? old-value
                      new-value))
            (values alist obj))
           (else
-            (let ((new-list 
+            (let ((new-list
                     (alist-cons
                       new-key new-value
                       (alist-delete old-key alist))))
@@ -85,11 +85,11 @@
     (define (proc* e)
       (proc (car e) (cdr e)))
     (for-each proc* alist))
-  
+
   (define (alist->alist alist)
     alist)
 
-  (register-dictionary! 
+  (register-dictionary!
     'dictionary? alist?
     'dict-map! alist-map!
     'dict-filter! alist-filter!

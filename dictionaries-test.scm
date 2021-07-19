@@ -100,9 +100,9 @@
 
     ;; intern existing
     (let ()
-     (define-values 
-       (d value) 
-       (dict-intern! (alist->dict '((a . b))) 'a (lambda () 'd))) 
+     (define-values
+       (d value)
+       (dict-intern! (alist->dict '((a . b))) 'a (lambda () 'd)))
      (test-equal 'b (dict-ref d 'a))
      (test-equal 'b value))
 
@@ -120,38 +120,38 @@
 
     ;; update existing
     (let ()
-     (define d (dict-update! (alist->dict '((a . "b"))) 'a 
-                      (lambda (value) 
+     (define d (dict-update! (alist->dict '((a . "b"))) 'a
+                      (lambda (value)
                         (string-append value "2"))
                       error
-                      (lambda (x) (string-append x "1")))) 
+                      (lambda (x) (string-append x "1"))))
      (test-equal "b12" (dict-ref d 'a)))
 
     ;; update missing
     (let ()
      (define d (dict-update! (alist->dict '((a . "b"))) 'c
-                      (lambda (value) 
+                      (lambda (value)
                         (string-append value "2"))
                       (lambda () "d1")
-                      (lambda (x) (string-append x "1")))) 
+                      (lambda (x) (string-append x "1"))))
      (test-equal "d12" (dict-ref d 'c))))
 
   (test-group
     "dict-update/default!"
     ;; update existing
     (let ()
-     (define d (dict-update/default!  (alist->dict '((a . "b"))) 'a 
-                      (lambda (value) 
+     (define d (dict-update/default!  (alist->dict '((a . "b"))) 'a
+                      (lambda (value)
                         (string-append value "2"))
-                      "d1")) 
+                      "d1"))
      (test-equal "b2" (dict-ref d 'a)))
 
     ;; update missing
     (let ()
      (define d (dict-update/default!  (alist->dict '((a . "b"))) 'c
-                      (lambda (value) 
+                      (lambda (value)
                         (string-append value "2"))
-                      "d1")) 
+                      "d1"))
      (test-equal "d12" (dict-ref d 'c))))
 
   (test-group
@@ -160,18 +160,18 @@
       (new-dict key value)
       (dict-pop! (alist->dict '((a . b) (c . d)))))
     (test-assert
-      (or 
+      (or
         (and (equal? (dict->alist new-dict) '((c . d)))
              (equal? key 'a)
              (equal? value 'b))
-        
+
         (and (equal? (dict->alist new-dict) '((a . b)))
              (equal? key 'c)
              (equal? value 'd)))))
 
   (test-group
     "dict-map!"
-    (define d (dict-map!  
+    (define d (dict-map!
                      (lambda (key value)
                        (string-append value "2"))
                      (alist->dict '((a . "a") (b . "b")))))
@@ -180,7 +180,7 @@
 
   (test-group
     "dict-filter!"
-    (define d (dict-filter! 
+    (define d (dict-filter!
                      (lambda (key value)
                        (equal? value 'b))
                      (alist->dict '((a . b) (c . d)))))
@@ -188,7 +188,7 @@
 
   (test-group
     "dict-remove!"
-    (define d (dict-remove! 
+    (define d (dict-remove!
                      (lambda (key value)
                        (equal? value 'b))
                      (alist->dict '((a . b) (c . d)))))
@@ -197,9 +197,9 @@
   (test-group
     "dict-search!"
 
-    ;; ignore 
+    ;; ignore
     (let ()
-     (define-values 
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b))) 'c
               (lambda (insert ignore)
@@ -211,7 +211,7 @@
 
     ;; insert
     (let ()
-     (define-values 
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b))) 'c
               (lambda (insert ignore)
@@ -224,7 +224,7 @@
 
     ;; update
     (let ()
-     (define-values 
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b))) 'a
               (lambda args
@@ -236,7 +236,7 @@
 
     ;; delete
     (let ()
-     (define-values 
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b) (c . d))) 'a
               (lambda args
@@ -254,7 +254,7 @@
   (test-group
     "dict-for-each"
     (define lst '())
-    (dict-for-each 
+    (dict-for-each
            (lambda (key value)
              (set! lst (append lst (list key value))))
            (alist->dict '((a . b) (c . d))))
@@ -264,7 +264,7 @@
 
   (test-group
     "dict-count"
-    (define count (dict-count 
+    (define count (dict-count
                          (lambda (key value)
                            (equal? value 'b))
                          (alist->dict '((a . b) (c . d)))))
@@ -274,16 +274,16 @@
     "dict-any"
 
     (let ()
-     (define value 
-       (dict-any 
+     (define value
+       (dict-any
               (lambda (key value)
                 (if (equal? 'b value) 'foo #f))
               (alist->dict '((a . b) (c . d)))))
      (test-equal value 'foo))
 
     (let ()
-     (define value 
-       (dict-any 
+     (define value
+       (dict-any
               (lambda (key value)
                 (if (equal? 'e value) 'foo #f))
               (alist->dict '((a . b) (c . d)))))
@@ -293,7 +293,7 @@
     "dict-every"
     (let ()
      (define value
-       (dict-every 
+       (dict-every
               (lambda (key value)
                 (if (equal? 'b value) 'foo #f))
               (alist->dict '((a . b) (c . b)))))
@@ -301,7 +301,7 @@
 
     (let ()
      (define value
-       (dict-every 
+       (dict-every
               (lambda (key value)
                 (if (equal? 'b value) 'foo #f))
               (alist->dict '())))
@@ -309,7 +309,7 @@
 
     (let ()
      (define value
-       (dict-every 
+       (dict-every
               (lambda (key value)
                 (if (equal? 'b value) 'foo #f))
               (alist->dict '((a . b) (c . d)))))
@@ -345,7 +345,7 @@
   (test-group
     "dict-fold"
     (define value
-      (dict-fold 
+      (dict-fold
              (lambda (key value acc)
                (append acc (list key value)))
              '()
@@ -357,7 +357,7 @@
   (test-group
     "dict-map->list"
     (define lst
-      (dict-map->list 
+      (dict-map->list
              (lambda (key value)
                (string-append (symbol->string key)
                               value))
@@ -376,7 +376,7 @@
 
 (test-begin "Dictionaries")
 
-(test-group 
+(test-group
   "alist"
   (include "alist-impl.scm")
   (clear-registry!)
@@ -392,11 +392,11 @@
   (clear-registry!)
   (register-plist!)
   (register-alist!)
-  (do-test 
-    (lambda (alist) 
-      (apply append 
-             (map (lambda (pair) 
-                    (list (car pair) (cdr pair))) 
+  (do-test
+    (lambda (alist)
+      (apply append
+             (map (lambda (pair)
+                    (list (car pair) (cdr pair)))
                   alist)))))
 
 (cond-expand
@@ -408,7 +408,7 @@
      (include "srfi-69-impl.scm")
      (clear-registry!)
      (register-srfi-69!)
-     (do-test (lambda (alist) 
+     (do-test (lambda (alist)
                 (define table (make-hash-table equal?))
                 (for-each
                   (lambda (pair)
@@ -425,7 +425,7 @@
      (include "srfi-125-impl.scm")
      (clear-registry!)
      (register-srfi-125!)
-     (do-test (lambda (alist) 
+     (do-test (lambda (alist)
                 (define table (make-hash-table equal?))
                 (for-each
                   (lambda (pair)
@@ -442,7 +442,7 @@
      (include "srfi-126-impl.scm")
      (clear-registry!)
      (register-srfi-126!)
-     (do-test (lambda (alist) 
+     (do-test (lambda (alist)
                 (define table (make-eqv-hashtable))
                 (for-each
                   (lambda (pair)

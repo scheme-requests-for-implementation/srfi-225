@@ -9,7 +9,7 @@
 
 (let ()
  (include "plist-impl.scm")
- (register-plist!)) 
+ (register-plist!))
 
 (cond-expand
   ((library (srfi 126))

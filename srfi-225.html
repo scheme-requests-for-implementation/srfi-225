@@ -136,8 +136,8 @@ Otherwise, returns two values, a dictionary that contains all the associations o
 <p>Here are four examples of <code>dict-search!</code>,
 one for each of the four continuations:
 <blockquote><pre>
-     ;; ignore 
-     (define-values 
+     ;; ignore
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b))) 'c
               (lambda (insert ignore)
@@ -148,7 +148,7 @@ one for each of the four continuations:
      value => 'foo
 
      ;; insert
-     (define-values 
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b))) 'c
               (lambda (insert ignore)
@@ -160,7 +160,7 @@ one for each of the four continuations:
      value => foo
 
      ;; update
-     (define-values 
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b))) 'a
               (lambda args
@@ -171,7 +171,7 @@ one for each of the four continuations:
      value => foo
 
      ;; delete
-     (define-values 
+     (define-values
        (dict value)
        (dict-search! (alist->dict '((a . b) (c . d))) 'a
               (lambda args
@@ -234,7 +234,7 @@ one for each of the four continuations:
 in the sample implementation; the procedures referred to are also in
 that file.<p>
 <blockquote><pre>
-  (register-dictionary-type! 
+  (register-dictionary-type!
     'dictionary? alist?
     'dict-map! alist-map!
     'dict-filter! alist-filter!

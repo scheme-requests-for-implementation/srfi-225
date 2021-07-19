@@ -38,7 +38,7 @@
 
 ;;; Maps names to indexes
 
-(define dname-map 
+(define dname-map
   `((dictionary? . ,d?)
     (dict-empty? . ,dempty?)
     (dict-contains? . ,dcontains?)

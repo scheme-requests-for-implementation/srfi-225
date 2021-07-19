@@ -1,5 +1,5 @@
 (define (register-plist!)
-  
+
   (define (plist?  l)
     (and (list? l)
          (not (null? l))
@@ -10,7 +10,7 @@
      (cond
        ((null? pl) plist)
        ((null? (cdr pl)) (error "Malformed plist" plist))
-       (else 
+       (else
          (let ((key (car pl))
                (value (cadr pl))
                (rest (cddr pl)))
@@ -25,7 +25,7 @@
      (cond
        ((null? pl) (cdr head))
        ((null? (cdr pl)) (error "Malformed plist" plist))
-       (else 
+       (else
          (let ((key (car pl))
                (value (cadr pl))
                (rest (cddr pl)))
@@ -48,7 +48,7 @@
       ((null? plist) #f)
       ((equal? key (car plist)) head)
       (else (find-plist-entry key (cdr plist)))))
-  
+
   (define (plist-search!  plist key failure success)
     (define plist-head (cons #t plist))
     (define (handle-success head)
@@ -83,8 +83,8 @@
          (begin
            (proc (car pl) (cadr pl))
            (loop (cddr pl))))))
-  
-  (register-dictionary! 
+
+  (register-dictionary!
     'dictionary? plist?
     'dict-map! plist-map!
     'dict-filter! plist-filter!

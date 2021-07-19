@@ -29,7 +29,7 @@
       (let ((proc-name (car lst))
             (proc (cadr lst)))
         (define index
-          (cond 
+          (cond
             ((assoc proc-name dname-map) => cdr)
             (else (error "Unrecognized procedure name" proc-name))))
         (unless (procedure? proc)
