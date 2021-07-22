@@ -131,10 +131,10 @@ Otherwise, returns two values, a dictionary that contains all the associations o
 <p>Returns a dictionary that contains all the associations of <em>dictionary</em> except those that satisfy <em>pred</em> when called on the key and value.</p>
 <blockquote><pre>(dict-remove! (lambda (k) (= k 1)) dict) =&gt; ((3 . 4) (5 . 6))</pre></blockquote>
 <p><code>(dict-search!</code>&nbsp;<em>dictionary key failure success</em><code>)</code></p>
-<p>This procedure is a workhorse for dictionary lookup, insert, and delete. The dictionary <em>dictionary</em> is searched for an association whose key is the same as <em>key</em> in the sense of <em>dictionary</em>. If one is not found, then the <em>failure</em> procedure is tail-called with two continuation arguments, <em>insert</em> and <em>ignore</em>, and is expected to tail-call one of them.</p>
-<p>However, if such an association is found, then the <em>success</em> procedure is tail-called with the matching key of <em>dictionary</em>, the associated value, and two continuation arguments, <em>update</em> and <em>remove</em>, and is expected to tail-call one of them.</p>
-<p>It is an error if the continuation arguments are invoked other than in tail position in the <em>failure</em> and <em>success</em> procedures. It is also an error if the <em>failure</em> and <em>success</em> procedures return to their implicit continuation without invoking one of their arguments.</p>
-<p>The behaviors of the continuations are as follows (where <em>obj</em> is any Scheme object):</p>
+<p>This procedure is a workhorse for dictionary lookup, insert, and delete. The dictionary <em>dictionary</em> is searched for an association whose key is the same as <em>key</em> in the sense of <em>dictionary</em>. If one is not found, then the <em>failure</em> procedure is tail-called with two procedure arguments, <em>insert</em> and <em>ignore</em>, and is expected to tail-call one of them.</p>
+<p>However, if such an association is found, then the <em>success</em> procedure is tail-called with the matching key of <em>dictionary</em>, the associated value, and two procedure arguments, <em>update</em> and <em>remove</em>, and is expected to tail-call one of them.</p>
+<p>It is an error if the procedure arguments are invoked other than in tail position in the <em>failure</em> and <em>success</em> procedures. It is also an error if the <em>failure</em> and <em>success</em> procedures return to their implicit continuation without invoking one of their arguments.</p>
+<p>The behaviors of the procedures are as follows (where <em>obj</em> is any Scheme object):</p>
 <ul>
 <li><p>Invoking <code>(</code><em>insert value obj</em><code>)</code> returns a dictionary that contains all the associations of <em>dictionary</em>, and in addition a new association that maps <em>key</em> to <em>value</em>.</p></li>
 <li><p>Invoking <code>(</code><em>ignore obj</em><code>)</code> has no effects and returns <em>dictionary</em> unchanged.</p></li>
@@ -143,7 +143,7 @@ Otherwise, returns two values, a dictionary that contains all the associations o
 </ul>
 <p>In all cases, <em>obj</em> is returned as a second value.</p>
 <p>Here are four examples of <code>dict-search!</code>,
-one for each of the four continuations:
+one for each of the four procedures:
 <blockquote><pre>
      ;; ignore
      (define-values
