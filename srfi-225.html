@@ -56,6 +56,9 @@ similar to an existing hash table.</p>
 <p>If the car of a list is a symbol, then the list is assumed to be a property list, alternating symbol keys with values. Mutation operations actually mutate the property list whenever possible. The equality predicate of this type of dictionary is <code>eq?</code>.</p>
 <p>If a list is empty, or its car is a pair, then the list is assumed to be an alist. New values are added to the beginning of an alist and the new alist is returned; deletion does not mutate the alist, but returns an alist that may or may not share storage with the original alist. If an association has been updated, then both the new and the old association may be processed by the whole-dictionary procedures. The equality predicate of this type of dictionary is <code>equal?</code>. The examples in this SRFI use alists.</p>
 <p>In all other cases, lists are not treated as dictionaries unless an appropriate dictionary type has been registered.</p>
+In the following examples, <code>dict</code> has the value of
+<code>(list '(1 . 2) '(3 . 4) '(5 . 6))</code> at the beginning of the example.
+Consequently, previous examples don't affect later ones.
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to some registered predicate, and <code>#f</code> otherwise.</p>
@@ -87,7 +90,7 @@ similar to an existing hash table.</p>
 (dict-set! dict 3 5) =&gt; ((3 . 5) (1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
 <p><code>(dict-adjoin!</code>&nbsp;<em>dictionary objs</em><code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dictionary</em> plus those specified by <em>objs</em>, which alternate between keys and values. If a key to be added already exists in <em>dictionary</em>, the old value prevails.</p>
-<blockquote><pre>; new values are prepended
+<blockquote><pre>; new values are prepended to alists
 (dict-adjoin! dict 7 8) =&gt; ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
 (dict-adjoin! dict 3 5) =&gt; ((1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
 <p><code>(dict-delete!</code>&nbsp;<em>dictionary key</em> …<code>)</code></p>
