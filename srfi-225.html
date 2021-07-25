@@ -240,6 +240,8 @@ one for each of the four procedures:
 <blockquote><pre>; plist to alist
 (dict-&gt;alist &#39;(1 2 3 4 5 6)) =&gt; ((1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
 <h3 id="dictionary-type-descriptors">Dictionary type descriptors</h3>
+<p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
+<p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
 <p><code>(make-dtd</code>&nbsp;<em>arg</em> …<code>)</code></p>
 <p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type. The <em>args</em> are alternately <em>procnames</em> and corresponding <em>procs</em>.</p>
 <p>A <em>procname</em> argument is a symbol which is the same as one of the procedures defined in this SRFI (other than those in this section), and a <em>proc</em> argument is the specific procedure implementing it for this type. These procedures only need to handle a full-length argument list (except when defining <code>dict-ref</code> and <code>dict-update!</code>), as the other defaults have already been supplied by the framework.</p>
@@ -262,8 +264,8 @@ that file.<p>
 <p>Returns a DTD for manipulating an alist using the equality predicate <em>equal</em>.</p>
 <blockquote><code>(make-alist-dtd =) =&gt; a DTD for alists using numeric equality</code></blockquote>
 <p>The following DTDs are also exported from this SRFI:
-<code>srfi-69-dtd</code>, <code>srfi-125-dtd</code>, <code>srfi-126</code>,
-<code>srfi-146-dtd</code>, <code>srfi-224-dtd</code>, <code>plist-dtd</code>,
+<code>srfi-69-dtd</code>, <code>hash-table-dtd</code>, <code>srfi-126</code>,
+<code>mapping-dtd</code>, <code>hash-mapping-dtd</code>, <code>plist-dtd</code>,
 <code>alist-eqv-dtd</code>, and <code>alist-equal-dtd</code>.
 The last two provide DTDs for alists using <code>eqv?</code>
 and <code>equal?</code> respectively.</p>
