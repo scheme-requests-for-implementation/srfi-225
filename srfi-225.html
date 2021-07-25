@@ -234,7 +234,10 @@ one for each of the four procedures:
 <blockquote><pre>(dict-fold + 0 &#39;((1 . 2) (3 . 4))) =&gt; 10</pre></blockquote>
 <p><code>(dict-map-&gt;list</code>&nbsp;<em>dtd proc dictionary</em><code>)</code></p>
 <p>Returns a list of values that result from invoking <em>proc</em> on the keys and corresponding values of <em>dictionary</em>.</p>
-<blockquote><pre>(dict-map-&gt;list - aed dict) =&gt; (-1 -1 -1)</pre></blockquote>
+<blockquote><pre>
+(dict-map->list (lambda (k v) v) dict) =>gt; (2 4 6),
+(dict-map->list - aed dict) =&gt; (-1 -1 -1) ; subtract value from key
+</pre></blockquote>
 <p><code>(dict-&gt;alist</code>&nbsp;<em>dtd dictionary</em><code>)</code></p>
 <p>Returns an alist whose keys and values are the keys and values of <em>dictionary</em>.</p>
 <blockquote><pre>; plist to alist
