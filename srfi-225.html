@@ -266,8 +266,22 @@ that file.<p>
 <p><code>(make-alist-dtd</code>&nbsp;<em>equal</em><code>)</code></p>
 <p>Returns a DTD for manipulating an alist using the equality predicate <em>equal</em>.</p>
 <blockquote><code>(make-alist-dtd =) =&gt; a DTD for alists using numeric equality</code></blockquote>
+<h3 id="exceptions">Exceptions</h3>
+<p><code>dictionary-error</code>&nbsp;<em>message irritant</em> ... <code>)</code></p>
+<p>Returns a dictionary error with the given <em>message</em> (a string) and
+<em>irritants</em> (any objects).
+If a particular procedure in a DTD cannot be implemented, it instead
+should signal an appropriate dictionary exception that can be reliably caught.
+<p><code>dictionary-error?</code>&nbsp;<em>obj</em><code>)</code></p>
+<p>Returns <code>#t</code> if <em>obj</em> is a dictionary error
+and <code>#f</code> otherwise.
+<p><code>dictionary-message</code>&nbsp<em>dictionary-error</em><code>)</code></p>
+<p>Returns the message associated with <em>dictionary-error.</em></p>
+<p><code>(dictionary-irritants</code>&nbsp<em>dictionary-error</em><code>)</code></p>
+<p>Returns a list of the irritants associated with <em>dictionary-error</em>.</p>
+<h3 id="variables">Variables</h3>
 <p>The following DTDs are also exported from this SRFI:
-<code>srfi-69-dtd</code>, <code>hash-table-dtd</code>, <code>srfi-126</code>,
+<code>srfi-69-dtd</code>, <code>hash-table-dtd</code>, <code>srfi-126-dtd</code>,
 <code>mapping-dtd</code>, <code>hash-mapping-dtd</code>, <code>plist-dtd</code>,
 <code>alist-eqv-dtd</code>, and <code>alist-equal-dtd</code>.
 The last two provide DTDs for alists using <code>eqv?</code>
