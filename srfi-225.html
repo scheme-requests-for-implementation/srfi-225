@@ -18,6 +18,7 @@
   <li>Received: 2021-06-26</li>
   <li>60-day deadline: 2021-09-16</li>
   <li>Draft #1 published: 2021-07-18</li>
+  <li>Draft #2 published: 2021-07-26</li>
   <li>John Cowan's <a href="https://github.com/pre-srfi/dictionaries">personal
     Git repo for this SRFI</a> for reference while the SRFI is in
     <em>draft</em> status (<a href="https://htmlpreview.github.io/?https://github.com/johnwcowan/srfi-225/blob/master/srfi-225.html">preview</a>)</li>
@@ -67,7 +68,7 @@ Consequently, previous examples don't affect later ones.
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dtd obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to some registered predicate, and <code>#f</code> otherwise.</p>
-<blockquote><pre>(define aed dict (list '(1 . 2) '(3 . 4) '(5 . 6)))
+<blockquote><pre>(define dict (list '(1 . 2) '(3 . 4) '(5 . 6)))
 (dictionary? aed dict) =&gt; #t</pre></blockquote>
 <p><code>(dict-empty?</code>&nbsp;<code>)</code></p>
 <p>Returns <code>#t</code> if <em>dictionary</em> contains no associations and <code>#f</code> if it does contain associations.</p>
@@ -264,7 +265,7 @@ Returns a dictionary that is similar to <em>dictionary</em> and contains the sam
 <code>dict-filter</code>, <code>dict-remove</code>,
 and <code>dict-search</code>.
 </p>
-<p><code>(dict-comparator</code>&nbsp<em>dtd dictionary</em><code>)</code></p>
+<p><code>(dict-comparator</code>&nbsp;<em>dtd dictionary</em><code>)</code></p>
 <h3 id="dictionary-type-descriptors">Dictionary type descriptors</h3>
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
@@ -300,9 +301,9 @@ should signal an appropriate dictionary exception that can be reliably caught.
 <p><code>dictionary-error?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a dictionary error
 and <code>#f</code> otherwise.
-<p><code>dictionary-message</code>&nbsp<em>dictionary-error</em><code>)</code></p>
+<p><code>dictionary-message</code>&nbsp;<em>dictionary-error</em><code>)</code></p>
 <p>Returns the message associated with <em>dictionary-error.</em></p>
-<p><code>(dictionary-irritants</code>&nbsp<em>dictionary-error</em><code>)</code></p>
+<p><code>(dictionary-irritants</code>&nbsp;<em>dictionary-error</em><code>)</code></p>
 <p>Returns a list of the irritants associated with <em>dictionary-error</em>.</p>
 <h3 id="variables">Variables</h3>
 <p>The following DTDs are also exported from this SRFI:
