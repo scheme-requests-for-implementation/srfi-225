@@ -64,15 +64,17 @@ Consequently, previous examples don't affect later ones.
 <h3 id="constructor">Constructor</h3>
 <p><code>(make-dict</code>&nbsp;<em>dtd comparator obj</em> ...<code>)</code></p>
 <p>Returns an empty dictionary of the type described by the DTD using <em>comparator</em> to specify to specify the dictionary's equality predicate and its ordering predicate and/or hash function.</p>
+<p>If the contents of <em>comparator</em> are inconsistent with the dictionary type, an error satisfying
+<code>dictionary-error?</code> is signaled.
 <p>The meaning of the other arguments depends on the type of dictionary being created.  However, implementations which support the ability to specify the initial capacity of a hash table should interpret a non-negative exact integer as the specification of that capacity.  In addition, if the symbols <code>thread-safe</code>, <code>weak-keys</code>, <code>ephemeral-keys</code>, <code>weak-values</code>, or <code>ephemeral-values</code> are present, implementations should create thread-safe hash tables, hash tables with weak keys or ephemeral keys, or hash tables with weak or ephemeral values respectively. Implementations are free to use ephemeral keys or values when weak keys or values respectively have been requested.</p>
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dtd obj</em><code>)</code></p>
-<p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to some registered predicate, and <code>#f</code> otherwise.</p>
+<p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate stored in the DTD, and <code>#f</code> otherwise.</p>
 <blockquote><pre>(define dict (list '(1 . 2) '(3 . 4) '(5 . 6)))
 (dictionary? aed dict) =&gt; #t</pre></blockquote>
-<p><code>(dict-empty?</code>&nbsp;<code>)</code></p>
+<p><code>(dict-empty?</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dictionary</em> contains no associations and <code>#f</code> if it does contain associations.</p>
-<blockquote><pre>(dict-empty? &#39;()) =&gt; #t
+<blockquote><pre>(dict-empty? aed '()) =&gt; #t
 (dict-empty? aed dict) =&gt; #f</pre></blockquote>
 <p><code>(dict-contains?</code>&nbsp;<em>dtd dictionary key</em><code>)</code></p>
 <blockquote><pre>(dict-contains? aed dict 1) =&gt; #t
@@ -266,6 +268,7 @@ Returns a dictionary that is similar to <em>dictionary</em> and contains the sam
 and <code>dict-search</code>.
 </p>
 <p><code>(dict-comparator</code>&nbsp;<em>dtd dictionary</em><code>)</code></p>
+<p>Return a comparator representing the type predicate, equality predicate, ordering predicate, and hash function of <em>dict</em>.  The last two may be <code>#f</code> if the dictionary does not make use of these functions.</p>
 <h3 id="dictionary-type-descriptors">Dictionary type descriptors</h3>
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
