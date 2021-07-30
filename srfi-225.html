@@ -40,7 +40,7 @@ None at present.
 <p>Until recently there was only one universally available mechanism for managing key-value pairs: alists. Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations do not provide that interface.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables, there are persistent ordered and hashed mappings from SRFI 146 and ordered key-value stores (often on a disk or a remote machine) from SRFI 167.</p>
 <p>It’s inconvenient for users if SRFIs or other libraries have to insist on accepting only a specific type of dictionary. This SRFI exposes a number of accessors, mutators, and other procedures that can be called on any dictionary, provided that a <em>dictionary type descriptor</em> (DTD, with apologies to SGML and XML users) is available for it: either exported from this SRFI, or from other SRFIs or libraries, or created by the user. DTDs are of an unspecified type.</p>
-<p>This in turn requires that the DTD provides a predicate that can recognize its dictionaries, plus at least these primitive operations: create an empty dictionary from a comparator; determine a dictionary’s current size; reference, update, or insert an element of the dictionary depending on its current contents; map over all the elements with a function mapping each old value to a new one; filter the elements based on their keys or values; and process all the elements using a procedure invoked for its side effects.</p>
+<p>This in turn requires that the DTD provides a predicate that can recognize its dictionaries, plus at least these primitive operations: create an empty dictionary from a comparator; determine a dictionary’s current size; reference, update, or insert an element of the dictionary depending on its current contents; and process all the elements using a procedure invoked for its side effects.</p>
 <p>By using the procedures of this SRFI, a procedure can take a DTD and a dictionary as an argument and make flexible use of the dictionary without knowing its exact type.</p>
 <p>Note that dictionaries must still be constructed using type-specific constructors, as the required and optional arguments differ in each case.</p>
 <h2 id="specification">Specification</h2>
@@ -272,25 +272,33 @@ and <code>dict-search</code>.
 <h3 id="dictionary-type-descriptors">Dictionary type descriptors</h3>
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
-<p><code>(make-dtd</code>&nbsp;<em>arg</em> …<code>)</code></p>
+<p><code>(make-dtd</code>&nbsp;<em>arg</em> …<code>)</code><br>
+<code>(dtd</code>&nbsp;(<em>procname proc</em>) …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
 <p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type. The <em>args</em> are alternately <em>procnames</em> and corresponding <em>procs</em>.</p>
 <p>A <em>procname</em> argument is a symbol which is the same as one of the procedures defined in this SRFI (other than those in this section), and a <em>proc</em> argument is the specific procedure implementing it for this type. These procedures only need to handle a full-length argument list (except when defining <code>dict-ref</code> and <code>dict-update!</code>), as the other defaults have already been supplied by the framework.</p>
 <p>
-<i>Shrink this list if possible:</i>
-Arguments for the seven procedures <code>make-dict</code>, <code>dictionary?</code>, <code>dict-size</code>, <code>dict-search!</code>, <code>dict-map!</code>, <code>dict-filter!</code>, and <code>dict-for-each</code> are required. The others are optional, but if provided can be more efficient than the versions automatically provided by the implementation of this SRFI.</p>
-
-<p>The following example is from the file <code>plist-impl.scm</code>
+Arguments for the four procedures <code>make-dict</code>, <code>dictionary?</code>, <code>dict-size</code>, <code>dict-search</code>, <code>dict-search!</code>, and <code>dict-for-each</code> are required. The others are optional, but if provided can be more efficient than the versions automatically provided by the implementation of this SRFI.</p>
+<p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code>, but may also verify that the <em>procnames</em> are valid, that there are no duplicates, etc.</p>
+<p>The following examples are from the file <code>plist-impl.scm</code>
 in the sample implementation; the procedures referred to are also in
 that file.<p>
 <blockquote><pre>
   (make-dtd
     'dictionary? plist?
-    'dict-map! plist-map!
-    'dict-filter! plist-filter!
+    'dict-search plist-search
     'dict-search! plist-search!
     'dict-size plist-size
     'dict-for-each plist-foreach
     'dict->alist plist->alist)) =&gt; a DTD for plists
+
+  (dtd
+    (dictionary? plist?)
+    (dict-search plist-search)
+    (dict-search! plist-search!)
+    (dict-size plist-size)
+    (dict-for-each plist-foreach)
+    (dict->alist plist->alist)) =&gt; a DTD for plists
+
 </pre></blockquote>
 <p><code>(make-alist-dtd</code>&nbsp;<em>equal</em><code>)</code></p>
 <p>Returns a DTD for manipulating an alist using the equality predicate <em>equal</em>.</p>
