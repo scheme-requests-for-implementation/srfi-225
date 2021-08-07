@@ -322,15 +322,15 @@ arguments to the underlying dictionary-type-specific constructor.
 <p>Returns the procedure designated by <em>procindex</em> from <em>dtd</em>.
 This allows the ability to call a particular DTD procedure more efficiently multiple times.</p>
 <h3 id="exceptions">Exceptions</h3>
-<p><code>dictionary-error</code>&nbsp;<em>message irritant</em> ... <code>)</code></p>
+<p><code>(dictionary-error</code>&nbsp;<em>message irritant</em> ... <code>)</code></p>
 <p>Returns a dictionary error with the given <em>message</em> (a string) and
 <em>irritants</em> (any objects).
 If a particular procedure in a DTD cannot be implemented, it instead
 should signal an appropriate dictionary exception that can be reliably caught.
-<p><code>dictionary-error?</code>&nbsp;<em>obj</em><code>)</code></p>
+<p><code>(dictionary-error?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a dictionary error
 and <code>#f</code> otherwise.
-<p><code>dictionary-message</code>&nbsp;<em>dictionary-error</em><code>)</code></p>
+<p><code>(dictionary-message</code>&nbsp;<em>dictionary-error</em><code>)</code></p>
 <p>Returns the message associated with <em>dictionary-error.</em></p>
 <p><code>(dictionary-irritants</code>&nbsp;<em>dictionary-error</em><code>)</code></p>
 <p>Returns a list of the irritants associated with <em>dictionary-error</em>.</p>
