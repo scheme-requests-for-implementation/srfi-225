@@ -130,7 +130,7 @@ Otherwise, returns two values, a dictionary that contains all the associations o
 <code>(dict-update!</code>&nbsp;<em>dtd dictionary key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
 <code>(dict-update/default</code>&nbsp;<em>dtd dictionary key updater default</em><code>)</code><br>
-<code>(dict-update/default!</code>&nbsp;<em>dtd dictionary key updater default</em><code>)</code></p>
+<code>(dict-update/default!</code>&nbsp;<em>dtd dictionary key updater default</em><code>)</code>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref/default</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary.</p>
 <p><code>(dict-pop</code>&nbsp;<em>dtd dictionary</em><code>)</code><br>
 <code>(dict-pop!</code>&nbsp;<em>dtd dictionary</em><code>)</code></p>
@@ -305,7 +305,7 @@ except that the alternating <em>procindexes</em> and <em>procs</em>
 are used to replace the corresponding entries in <em>dtd</em>.
 Caution should be used when replacing any procedure
 other than the six listed in the definition of <code>make-dtd</code>.</p>
-<p>A common use of this is to replace the 
+<p>A common use of this is to replace the
 implementation of <code>make-dictionary</code> with one that provides specific
 arguments to the underlying dictionary-type-specific constructor.
 (<code>make-hash-table</code>, e.g.)</p>
@@ -314,7 +314,7 @@ arguments to the underlying dictionary-type-specific constructor.
   make-dictionary-index
     (lambda (dtd comparator)
       (make-hash-table comparator 'weak-keys))) =&gt;
-  a DTD for weak hash tables</code></blockquote>
+  a DTD for weak hash tables</pre></blockquote>
 <p><code>(make-alist-dtd</code>&nbsp;<em>equal</em><code>)</code></p>
 <p>Returns a DTD for manipulating an alist using the equality predicate <em>equal</em>.</p>
 <blockquote><code>(make-alist-dtd =) =&gt; a DTD for alists using numeric equality</code></blockquote>
@@ -401,7 +401,7 @@ new dictionary types that may not have complete dictionary APIs:</p>
 <li><code>dict-entries</code> depends on <code>dict-fold</code></li>
 <li><code>dict-fold</code> depends on <code>dict-for-each</code></li>
 <li><code>dict-map->list</code> depends on <code>dict-fold</code></li>
-<li><code>dict->alist</code> depends on <code>dict-map->list</code></li>
+<li><code>dict->alist</code> depends on <code>dict-map->list</code></li></ul>
 
 <p>For example, the first dependency means that if a DTD
 being created has something corresponding to <code>dict-ref</code> it need not
