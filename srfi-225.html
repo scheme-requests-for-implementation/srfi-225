@@ -33,7 +33,22 @@ of the object is.  Such an object is called a <em>dictionary</em> in this SRFI.<
 
 <h2 id="issues">Issues</h2>
 
-None at present.
+
+<p>dict-unfold: as you would think.</p>
+
+<p>dict=?, dict&lt;?, etc.  Compare dictionaries for equality, subset, etc.
+A value comparator is passed in.</p>
+
+<p>dict-union(!), dict-intersection(!), etc.
+Functional and linear-update versions of these operations.</p>
+
+<p>dict-range=(!), dict-range<(!), etc.  Return subsets whose keys are =, &lt;, etc.</p>
+
+<p>-dict-fold/reverse (maybe)</p>
+
+<p>dict-min-key, dict-max-key: Returns the smallest and largest key in the dictionary.</p>
+
+<p>dict-key-successor, dict-key-predecessor: Return preceding and following key.</p>
 
 <h2 id="rationale">Rationale</h2>
 
@@ -64,8 +79,7 @@ Consequently, previous examples don't affect later ones.
 <h3 id="constructor">Constructor</h3>
 <p><code>(make-dictionary</code>&nbsp;<em>dtd comparator</em><code>)</code></p>
 <p>Returns an empty dictionary of the type described by the DTD using <em>comparator</em> to specify the dictionary's equality predicate and its ordering predicate and/or hash function.</p>
-<p>If the contents of <em>comparator</em> are inconsistent with the dictionary type, an error satisfying
-<code>dictionary-error?</code> is signaled.
+<p>If the contents of <em>comparator</em> are inconsistent with the dictionary type, it is an error.
 If the dictionary type does not accept a comparator, <code>#f</code> should be passed instead.</p>
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dtd obj</em><code>)</code></p>
