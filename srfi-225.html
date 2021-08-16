@@ -34,17 +34,17 @@ of the object is.  Such an object is called a <em>dictionary</em> in this SRFI.<
 <h2 id="issues">Issues</h2>
 
 
-<p>dict-unfold: as you would think.</p>
 
 <p>dict=?, dict&lt;?, etc.  Compare dictionaries for equality, subset, etc.
 A value comparator is passed in.</p>
 
-<p>dict-union(!), dict-intersection(!), etc.
-Functional and linear-update versions of these operations.</p>
+<p>dict-union(!), dict-intersection(!), dict-difference(!), dict-xor(!).</p>
 
-<p>dict-range=(!), dict-range<(!), etc.  Return subsets whose keys are =, &lt;, etc.</p>
+<p>dict-range=(!), dict-range<(!), etc.  Return subsets whose keys are =, &lt;, etc.
+of a provided value.</p>
 
-<p>-dict-fold/reverse (maybe)</p>
+<p>dict-open-mapping, dict-closed mapping, dict-open-closed-mapping, dict-closed-open-mapping.
+Returns subsets whose keys are in a certain interval specified by upper and lower bounds.</p>
 
 <p>dict-min-key, dict-max-key: Returns the smallest and largest key in the dictionary.</p>
 
@@ -81,6 +81,17 @@ Consequently, previous examples don't affect later ones.
 <p>Returns an empty dictionary of the type described by the DTD using <em>comparator</em> to specify the dictionary's equality predicate and its ordering predicate and/or hash function.</p>
 <p>If the contents of <em>comparator</em> are inconsistent with the dictionary type, it is an error.
 If the dictionary type does not accept a comparator, <code>#f</code> should be passed instead.</p>
+<p><code>(dict-unfold</code>&nbsp;<em>dtd comparator stop? mapper successor seed</em><code>)</code></p>
+<p>
+Create a new dictionary as if by <code>make-dictionary</code> using
+<em>dtd</em> and <em>comparator</em>.  If the result of applying
+the predicate <em>stop?</em> to <em>seed</em> is true, return the dictionary.
+Otherwise, apply the procedure <em>mapper</em> to <em>seed</em>.
+<em>Mapper</em> returns two values, which are inserted into the dictionary
+as the key and the value respectively.  Then get a new seed by
+applying the procedure <em>successor</em> to <em>seed</em>, and repeat
+this algorithm.
+</p>
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dtd obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate stored in the DTD, and <code>#f</code> otherwise.</p>
