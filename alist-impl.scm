@@ -1,4 +1,4 @@
-(define (register-alist!)
+(define (make-alist-dtd key=)
 
   (define (alist? l)
     (and (list? l)
@@ -13,40 +13,31 @@
         (cons key (proc key value)))
       alist))
 
-  (define (alist-filter! pred alist)
+  (define (alist-filter pred alist)
     (filter
       (lambda (e)
         (pred (car e) (cdr e)))
       alist))
 
-  (define (alist-delete key alist)
-    ;; find the tail of alist that will be kept
-    ;; ie rest entries after the last entry with matched key
-    (define kept-tail
-      (let loop ((tail alist)
-                 (lst alist))
-      (cond
-        ((null? lst) tail)
-        (else
-          (if (equal? key (caar lst))
-              (loop (cdr lst) (cdr lst))
-              (loop tail (cdr lst)))))))
-    ;; if tail == alist; just return,
-    ;; else filter elements before the tail, and append the tail
-    (if (eq? alist kept-tail)
-        alist
-        (let loop ((lst alist)
-                   (result/reversed '()))
-          (if (eq? lst kept-tail)
-              (append (reverse result/reversed) kept-tail)
-              (let* ((entry (car lst))
-                     (keep? (not (equal? key (car entry))))
-                     (result/reversed* (if keep?
-                                           (cons entry result/reversed)
-                                           result/reversed)))
-                (loop (cdr lst) result/reversed*))))))
+  (define (alist-filter! pred alist)
+    (filter!
+      (lambda (e)
+        (pred (car e) (cdr e)))
+      alist))
 
-  (define (alist-search! alist key failure success)
+  (define (alist-delete dtd key alist)
+    (filter
+     (lambda (entry)
+       (not (key= (car entry) key)))
+     alist))
+
+  (define (alist-delete! dtd key alist)
+    (filter!
+     (lambda (entry)
+       (not (key= (car entry) key)))
+     alist))
+
+  (define (alist-search* dtd alist-delete-proc alist key failure success)
     (define (handle-success pair)
       (define old-key (car pair))
       (define old-value (cdr pair))
@@ -61,7 +52,7 @@
             (let ((new-list
                     (alist-cons
                       new-key new-value
-                      (alist-delete old-key alist))))
+                      (alist-delete-proc old-key alist))))
               (values new-list obj)))))
       (define (remove obj)
         (values (alist-delete old-key alist) obj))
@@ -78,6 +69,12 @@
       ((assoc key alist) => handle-success)
       (else (handle-failure))))
 
+  (define (alist-search dtd alist key failure success)
+    (alist-search* dtd alist-delete alist key failure success))
+
+  (define (alist-search! dtd alist key failure success)
+    (alist-search* dtd alist-delete! alist key failure success))
+
   (define (alist-size alist)
     (length alist))
 
@@ -89,7 +86,7 @@
   (define (alist->alist alist)
     alist)
 
-  (register-dictionary!
+  (-dictionary!
     'dictionary? alist?
     'dict-map! alist-map!
     'dict-filter! alist-filter!

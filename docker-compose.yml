@@ -1,0 +1,16 @@
+version: "3"
+services:
+  srfi_225_test:
+    build: .
+    volumes:
+      - test-volume:/test
+  gauche:
+    image: "schemers/gauche"
+    depends_on:
+      - srfi_225_test
+    volumes:
+      - test-volume:/test
+    command: ["gosh", "-I", "/test/srfi-225", "/test/srfi-225/srfi-225-test.scm"]
+
+volumes:
+  test-volume:

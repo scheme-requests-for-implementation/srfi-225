@@ -96,8 +96,8 @@ If the dictionary type does not accept a comparator, <code>#f</code> should be p
 <blockquote><pre>; new values are prepended
 (dict-set aed dict 7 8) =&gt; ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
 (dict-set aed dict 3 5) =&gt; ((3 . 5) (1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
-<p><code>(dict-adjoin</code>&nbsp;<em>dtd dictionary objs</em><code>)</code><br>
-<code>(dict-adjoin!</code>&nbsp;<em>dtd dictionary objs</em><code>)</code></p>
+<p><code>(dict-adjoin</code>&nbsp;<em>dtd dictionary obj</em> ...<code>)</code><br>
+<code>(dict-adjoin!</code>&nbsp;<em>dtd dictionary obj</em> ...<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dictionary</em> plus those specified by <em>objs</em>, which alternate between keys and values. If a key to be added already exists in <em>dictionary</em>, the old value prevails.</p>
 <blockquote><pre>; new values are prepended to alists
 (dict-adjoin aed dict 7 8) =&gt; ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
