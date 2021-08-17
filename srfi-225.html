@@ -298,7 +298,8 @@ and <code>dict-search</code>.
 <p><code>(make-dtd</code>&nbsp;<em>arg</em> …<code>)</code><br>
 <code>(dtd</code>&nbsp;(<em>procindex proc</em>) …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
 <p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type. The <em>args</em> are alternately <em>procindex</em> names and corresponding <em>procs</em>.</p>
-<p>A <em>procindex</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-index</code> is the same as one of the procedures defined in this SRFI (other than those in this section), and a <em>proc</em> argument is the specific procedure implementing it for this type. These procedures only need to handle a full-length argument list (except when defining <code>dict-ref</code> and <code>dict-update!</code>), as the other defaults have already been supplied by the framework.</p>
+<p>A <em>procindex</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-index</code> and a <em>proc</em> argument is the specific procedure implementing it for this type.  These procedures only need to handle a full-length argument list (except when defining <code>dict-ref</code> and <code>dict-update!</code>), as the other defaults have already been supplied by the framework.</p>
+<p><b>FIXME: Is the last sentence still true?</b>
 <p>
 Arguments for the six procedures <code>make-dictionary</code>, <code>dictionary?</code>, <code>dict-size</code>, <code>dict-search</code>, <code>dict-search!</code>, and <code>dict-for-each</code> are needed to make a fully functional DTD, but it is not an error to omit them. The others are optional, but if provided can be more efficient than the versions automatically provided by the implementation of this SRFI.</p>
 <p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code>, but may also verify that the <em>procindex</em> names are valid, that there are no duplicates, etc.</p>
@@ -362,6 +363,7 @@ and <code>#f</code> otherwise.
 <h3 id="variables">Variables</h3>
 <p>The following procindex variables are exported from this DTD:
 <code>make-dictionary-index</code>,
+<code>dict-unfold</code>,
 <code>dictionary?-index</code>,
 <code>dict-empty?-index</code>,
 <code>dict-contains?-index</code>,
