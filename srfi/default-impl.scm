@@ -219,9 +219,12 @@
       (default-dict-remove* dtd dict-filter! pred dictionary))
 
     (define (default-dict-copy dtd dictionary)
-      (dict-map dtd
-                (lambda (key value) value)
-                dictionary))
+      (define dict (make-dictionary (dict-comparator dtd dictionary)))
+      (dict-for-each dtd
+                     (lambda (key value)
+                       (set! dict (dict-set! dtd key value)))
+                     dictionary)
+      dict)
 
     (define (default-dict-count dtd pred dictionary)
       (dict-fold dtd

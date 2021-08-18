@@ -282,22 +282,32 @@ in the sample implementation; the procedures referred to are also in
 that file.<p>
 <blockquote><pre>
   (make-dtd
-    make-dictionary-index '()
-    dictionary?-index plist?
-    dict-search-index plist-search
-    dict-search!-index plist-search!
-    dict-size-index plist-size
-    dict-for-each-index plist-foreach
-    dict->alist-index plist->alist)) =&gt; a DTD for plists
+     make-dictionary-index make-plist
+     dictionary?-index plist?
+     dict-map-index plist-map
+     dict-map!-index plist-map!
+     dict-filter-index plist-filter
+     dict-filter!-index plist-filter!
+     dict-search-index plist-search
+     dict-search!-index plist-search!
+     dict-copy-index plist-copy
+     dict-size-index plist-size
+     dict-for-each-index plist-foreach
+     dict-comparator-index plist-comparator)) =&gt; a DTD for plists
 
   (dtd
-    (make-dictionary-index '())
-    (dictionary?-index plist?)
-    (dict-search-index plist-search)
-    (dict-search!-index plist-search!)
-    (dict-size-index plist-size)
-    (dict-for-each-index plist-foreach)
-    (dict->alist-index plist->alist)) =&gt; a DTD for plists
+     (make-dictionary-index make-plist)
+     (dictionary?-index plist?)
+     (dict-map-index plist-map)
+     (dict-map!-index plist-map!)
+     (dict-filter-index plist-filter)
+     (dict-filter!-index plist-filter!)
+     (dict-search-index plist-search)
+     (dict-search!-index plist-search!)
+     (dict-copy-index plist-copy)
+     (dict-size-index plist-size)
+     (dict-for-each-index plist-foreach)
+     (dict-comparator-index plist-comparator)) =&gt; a DTD for plists
 </pre></blockquote>
 <p><code>(make-modified-dtd</code>&nbsp;<em>dtd obj</em> ...<code>)</code></p>
 <p>Returns a DTD that is equivalent to <em>dtd</em>
@@ -381,18 +391,33 @@ new dictionary types that may not have complete dictionary APIs:</p>
 <ul>
 <li><code>dict-empty?</code> depends on <code>dict-size</code></li>
 <li><code>dict-contains?</code> depends on <code>dict-ref</code></li>
-<li><code>dict-ref</code> depends on <code>dict-search!</code></li>
+<li><code>dict-ref</code> depends on <code>dict-search</code></li>
 <li><code>dict-ref/default</code> depends on <code>dict-ref</code></li>
 <li><code>dict-set!</code> depends on <code>dict-search!</code></li>
+<li><code>dict-set</code> depends on <code>dict-search</code></li>
 <li><code>dict-adjoin!</code> depends on <code>dict-search!</code></li>
+<li><code>dict-adjoin</code> depends on <code>dict-search</code></li>
 <li><code>dict-delete!</code> depends on <code>dict-delete-all!</code></li>
+<li><code>dict-delete</code> depends on <code>dict-delete-all</code></li>
 <li><code>dict-delete-all!</code> depends on <code>dict-search!</code></li>
+<li><code>dict-delete-all</code> depends on <code>dict-search</code></li>
 <li><code>dict-replace!</code> depends on <code>dict-search!</code></li>
+<li><code>dict-replace</code> depends on <code>dict-search</code></li>
 <li><code>dict-intern!</code> depends on <code>dict-search!</code></li>
+<li><code>dict-intern</code> depends on <code>dict-search</code></li>
 <li><code>dict-update!</code> depends on <code>dict-search!</code></li>
+<li><code>dict-update</code> depends on <code>dict-search</code></li>
 <li><code>dict-update/default!</code> depends on <code>dict-update!</code></li>
+<li><code>dict-update/default</code> depends on <code>dict-update</code></li>
 <li><code>dict-pop!</code> depends on <code>dict-for-each</code>, <code>dict-delete!</code>, <code>dict-empty?</code></li>
+<li><code>dict-pop</code> depends on <code>dict-for-each</code>, <code>dict-delete</code>, <code>dict-empty?</code></li>
+<li><code>dict-map</code> depends on <code>dict-keys</code> and <code>dict-repalce</code></li>
+<li><code>dict-map!</code> depends on <code>dict-keys</code> and <code>dict-repalce!</code></li>
+<li><code>dict-filter</code> depends on <code>dict-keys</code>, <code>dict-ref</code> and <code>dict-delete-all</code></li>
+<li><code>dict-filter!</code> depends on <code>dict-keys</code>, <code>dict-ref</code> and <code>dict-delete-all!</code></li>
 <li><code>dict-remove!</code> depends on <code>dict-filter!</code></li>
+<li><code>dict-remove</code> depends on <code>dict-filter</code></li>
+<li><code>dict-copy</code> depends on <code>make-dictionary</code>, <code>dict-comparator</code>, <code>dict-for-each</code> and <code>dict-set!</code></li>
 <li><code>dict-count</code> depends on <code>dict-fold</code></li>
 <li><code>dict-any</code> depends on <code>dict-for-each</code></li>
 <li><code>dict-every</code> depends on <code>dict-for-each</code></li>

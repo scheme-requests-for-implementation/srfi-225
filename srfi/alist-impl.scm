@@ -96,8 +96,14 @@
       (proc (car e) (cdr e)))
     (for-each proc* alist))
 
+  (define (alist-copy dtd alist)
+    (map
+     (lambda (e)
+       (cons (car e) (cdr e)))
+     alist))
+
   (define (alist->alist dtd alist)
-    alist)
+    (alist-copy dtd alist))
 
   (define (alist-comparator dtd dictionary)
     (make-comparator (lambda args #t)
@@ -117,7 +123,8 @@
    dict-size-index alist-size
    dict-for-each-index alist-foreach
    dict->alist-index alist->alist
-   dict-comparator-index alist-comparator))
+   dict-comparator-index alist-comparator
+   dict-copy-index alist-copy))
 
 (define alist-eqv-dtd (make-alist-dtd eqv?))
 (define alist-equal-dtd (make-alist-dtd equal?))

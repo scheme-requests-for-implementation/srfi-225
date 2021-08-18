@@ -120,5 +120,4 @@
      dict-copy-index plist-copy
      dict-size-index plist-size
      dict-for-each-index plist-foreach
-     dict-comparator-index plist-comparator)
-    ))
+     dict-comparator-index plist-comparator)))
