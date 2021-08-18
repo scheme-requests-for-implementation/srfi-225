@@ -25,7 +25,7 @@
 
   (cond-expand
     (guile)
-    ((library (srfi 126)) (import (srfi 126)))
+    ((library (srfi 126)) (import (prefix (srfi 126) t126:)))
     (else))
 
   ;; exports
@@ -176,4 +176,10 @@
         ((library (srfi 125))
          (include "srfi-125-impl.scm")
          (export hash-table-dtd))
+        (else))
+
+    (cond-expand
+        ((library (srfi 126))
+         (include "srfi-126-impl.scm")
+         (export srfi-126-dtd))
         (else)))

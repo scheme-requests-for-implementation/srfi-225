@@ -1,16 +1,37 @@
-version: "3"
+version: "3.2"
 services:
   srfi_225_test:
     build: .
     volumes:
-      - test-volume:/test
+      - dependencies-volume:/dependencies
+  akku:
+    image: "akkuscm/akku"
+    depends_on:
+      - srfi_225_test
+    volumes:
+      - dependencies-volume:/dependencies
   gauche:
     image: "schemers/gauche"
     depends_on:
       - srfi_225_test
     volumes:
-      - test-volume:/test
-    command: ["gosh", "-I", "/test/srfi-225", "/test/srfi-225/srfi-225-test.scm"]
+      - dependencies-volume:/dependencies
+    command: ["gosh", "-I", "/dependencies/srfi-225", "/dependencies/srfi-225/srfi-225-dependencies.scm"]
+  chibi:
+    image: "schemers/chibi"
+    depends_on:
+      - srfi_225_test
+    volumes:
+      - dependencies-volume:/dependencies
+      - type: bind
+        source: .
+        target: /test/srfi-225
+    command: ["chibi-scheme", "-I", "/test/srfi-225",
+                              "-I", "/dependencies/srfi-126",
+                              "-I", "/dependencies/r6rs-enums-0.0.1",
+                              "-I", "/dependencies/r6rs-lists-0.0.1",
+                              "-I", "/dependencies/r6rs-sorting-0.0.1",
+                              "/test/srfi-225/srfi-225-test.scm"]
 
 volumes:
-  test-volume:
+  dependencies-volume:

@@ -3,6 +3,7 @@
         (srfi 1)
         (prefix (srfi 69) t69:)
         (prefix (srfi 125) t125:)
+        (prefix (srfi 126) t126:)
         (srfi 128)
         (srfi 225))
 
@@ -36,7 +37,7 @@
    (apply make-dtd wrapper-dtd-args)
    counter))
 
-(define (do-test real-dtd alist->dict comparator)
+(define (do-test real-dtd alist->dict comparator test-get-comparator)
 
   (define-values
       (dtd counter)
@@ -600,12 +601,15 @@
    "dict-comparator"
    ;; extremelly basic generic test; more useful specific tests defined separately
    ;; for each dtd
-   (test-assert (comparator? (dict-comparator dtd (alist->dict '((a . b)))))))
+   (when test-get-comparator
+     (test-assert (comparator? (dict-comparator dtd (alist->dict '((a . b))))))))
 
   ;; check all procs were called
   (for-each
    (lambda (index)
-     (when (= 0 (vector-ref counter index))
+     (when (and (= 0 (vector-ref counter index))
+                (or test-get-comparator
+                    (not (= index dict-comparator-index))))
        (error "Untested procedure" index)))
    (iota (vector-length counter))))
 
@@ -626,7 +630,8 @@
  (do-test
   default-dtd
   alist-copy
-  #f))
+  #f
+  #t))
 
 (test-group
   "alist"
@@ -635,7 +640,8 @@
    ;; copy to a mutable list
    ;; so that mutating procedures don't fail
    alist-copy
-   #f)
+   #f
+   #t)
 
   ;; TODO test alist handling with different alist-dtd variants
   ;; TODO test comparator
@@ -650,7 +656,8 @@
              (map (lambda (pair)
                     (list (car pair) (cdr pair)))
                   alist)))
-    #f)
+    #f
+    #t)
   ;; TODO test comparator
   )
 
@@ -668,7 +675,8 @@
   (make-comparator (lambda args #t)
                    equal?
                    #f
-                   #f))
+                   #f)
+  #t)
  ;; TODO test comparator
  )
 
@@ -686,28 +694,27 @@
   (make-comparator (lambda args #t)
                    equal?
                    #f
-                   default-hash))
+                   default-hash)
+  #t)
  ;; TODO test comparator
  )
 
-#|
-(cond-expand
-  (guile)
-  ((library (srfi 126))
-   (test-group
-     "srfi-126 (r6rs)"
-     (include "srfi-126-impl.scm")
-     (clear-registry!)
-     (register-srfi-126!)
-     (do-test (lambda (alist)
-                (define table (make-eqv-hashtable))
-                (for-each
-                  (lambda (pair)
-                    (hashtable-set! table (car pair) (cdr pair)))
-                  alist)
-                table))))
-  (else))
-|#
+(test-group
+ "srfi-126 (r6rs)"
+ (do-test
+  srfi-126-dtd
+  (lambda (alist)
+    (define table (t126:make-eqv-hashtable))
+    (for-each
+     (lambda (pair)
+       (t126:hashtable-set! table (car pair) (cdr pair)))
+     alist)
+    table)
+  (make-comparator (lambda args #t)
+                   equal?
+                   #f
+                   default-hash)
+  #f))
 
 
 (test-end)
