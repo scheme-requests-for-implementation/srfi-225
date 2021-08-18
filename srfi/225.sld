@@ -1,7 +1,6 @@
 (define-library
   (srfi 225)
 
-  ;; imports
   (import (scheme base)
           (scheme case-lambda)
           (scheme write)
@@ -12,23 +11,6 @@
     ((library (srfi 145)) (import (srfi 145)))
     (else (include "assumptions.scm")))
 
-  (cond-expand
-    (kawa (import (prefix (srfi 69 basic-hash-tables) t69:)))
-    (guile (import (prefix (srfi srfi-69) t69:)))
-    ((library (srfi 69)) (import (prefix (srfi 69) t69:)))
-    (else))
-
-  (cond-expand
-    (guile)
-    ((library (srfi 125)) (import (prefix (srfi 125) t125:)))
-    (else))
-
-  (cond-expand
-    (guile)
-    ((library (srfi 126)) (import (prefix (srfi 126) t126:)))
-    (else))
-
-  ;; exports
   (export
 
     ;; constructor
@@ -166,20 +148,33 @@
     ;;srfi-126-dtd
     ;;mapping-dtd
     ;;hash-mapping-dtd
+
     (cond-expand
         ((library (srfi 69))
+         (import (prefix (srfi 69) t69:))
          (include "srfi-69-impl.scm")
          (export srfi-69-dtd))
         (else))
 
     (cond-expand
         ((library (srfi 125))
+         (import (prefix (srfi 125) t125:))
          (include "srfi-125-impl.scm")
          (export hash-table-dtd))
         (else))
 
     (cond-expand
         ((library (srfi 126))
+         (import (prefix (srfi 126) t126:))
          (include "srfi-126-impl.scm")
          (export srfi-126-dtd))
-        (else)))
+        (else))
+
+    (cond-expand
+        ((library (srfi 146))
+         (import (srfi 146)
+                 (srfi 146 hash))
+         (include "srfi-146-impl.scm"
+                  "srfi-146-hash-impl.scm")
+         (export mapping-dtd
+                 hash-mapping-dtd))))
