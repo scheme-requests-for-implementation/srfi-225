@@ -21,7 +21,7 @@
 ;; which counts how often each dtd's method was called
 ;; verify that all functions were tested
 (define (wrap-dtd dtd)
-  (define proc-count (+ 1 dict-comparator-index))
+  (define proc-count (+ 1 dict-comparator-id))
   (define counter (make-vector proc-count 0))
   (define wrapper-dtd-args
     (let loop ((indexes (iota proc-count))
@@ -40,7 +40,7 @@
    (apply make-dtd wrapper-dtd-args)
    counter))
 
-(define (do-test real-dtd alist->dict comparator test-get-comparator)
+(define (do-test real-dtd alist->dict comparator)
 
   (define dtd real-dtd)
 
@@ -52,6 +52,17 @@
    (define dict (make-dictionary dtd comparator))
    (test-assert (dictionary? dtd dict))
    (test-assert (dict-empty? dtd dict)))
+
+  (test-group
+   "dict-unfold"
+   (define (stop? value) (> value 1))
+   (define seed 0)
+   (define (mapper seed) (values (number->string seed) seed))
+   (define (successor seed) (+ 1 seed))
+   (define dict (dict-unfold dtd comparator stop? mapper successor seed))
+   (test-equal 2 (dict-size dtd dict))
+   (test-equal 0 (dict-ref dtd dict "0"))
+   (test-equal 1 (dict-ref dtd dict "1")))
 
   (test-group
    "dictionary?"
@@ -469,7 +480,6 @@
    "dict-copy"
    (define original-dict (alist->dict '((a . b))))
    (define copied-dict (dict-copy dtd original-dict))
-                                        ;(test-assert (not (eq? original-dict copied-dict))) ;
    (set! original-dict (dict-set! dtd original-dict 'c 'd))
    (test-equal 'd (dict-ref dtd original-dict 'c))
    (test-equal #f (dict-ref/default dtd copied-dict 'c #f)))
@@ -606,15 +616,14 @@
    "dict-comparator"
    ;; extremelly basic generic test; more useful specific tests defined separately
    ;; for each dtd
-   (when test-get-comparator
-     (test-assert (comparator? (dict-comparator dtd (alist->dict '((a . b))))))))
+   (let ((cmp (dict-comparator dtd (alist->dict '((a . b))))))
+     (test-assert (or (not cmp)
+                      (comparator? cmp)))))
 
   ;; check all procs were called
   (for-each
    (lambda (index)
-     (when (and (= 0 (vector-ref counter index))
-                (or test-get-comparator
-                    (not (= index dict-comparator-index))))
+     (when (= 0 (vector-ref counter index))
        (error "Untested procedure" index)))
    (iota (vector-length counter))))
 
@@ -626,18 +635,17 @@
  (define alist-dtd (make-alist-dtd equal?))
  (define minimal-alist-dtd
    (make-dtd
-    make-dictionary-index (dtd-ref alist-dtd make-dictionary-index)
-    dictionary?-index (dtd-ref alist-dtd dictionary?-index)
-    dict-size-index (dtd-ref alist-dtd dict-size-index)
-    dict-search-index (dtd-ref alist-dtd dict-search-index)
-    dict-search!-index (dtd-ref alist-dtd dict-search!-index)
-    dict-for-each-index (dtd-ref alist-dtd dict-for-each-index)
-    dict-comparator-index (dtd-ref alist-dtd dict-comparator-index)))
+    make-dictionary-id (dtd-ref alist-dtd make-dictionary-id)
+    dictionary?-id (dtd-ref alist-dtd dictionary?-id)
+    dict-size-id (dtd-ref alist-dtd dict-size-id)
+    dict-search-id (dtd-ref alist-dtd dict-search-id)
+    dict-search!-id (dtd-ref alist-dtd dict-search!-id)
+    dict-for-each-id (dtd-ref alist-dtd dict-for-each-id)
+    dict-comparator-id (dtd-ref alist-dtd dict-comparator-id)))
  (do-test
   minimal-alist-dtd
   alist-copy
-  #f
-  #t))
+  #f))
 
 (test-group
  "alist"
@@ -646,13 +654,11 @@
   ;; copy to a mutable list instead of using identity function
   ;; so that mutating procedures don't fail
   alist-copy
-  #f
-  #t)
+  #f)
 
  (test-group
   "alist dict-comparator"
-  (test-assert (eq? eqv? (comparator-equality-predicate (dict-comparator alist-eqv-dtd '()))))
-  (test-assert (eq? equal? (comparator-equality-predicate (dict-comparator alist-equal-dtd '()))))))
+  (test-assert (not (dict-comparator alist-equal-dtd '())))))
 
 (test-group
  "plist"
@@ -663,13 +669,10 @@
            (map (lambda (pair)
                   (list (car pair) (cdr pair)))
                 alist)))
-  #f
-  #t)
+  #f)
  (test-group
   "plist dict-comparator"
-  (define cmp (dict-comparator plist-dtd '()))
-  (test-assert (eq? symbol? (comparator-type-test-predicate cmp)))
-  (test-assert (eq? equal? (comparator-equality-predicate cmp)))))
+  (test-assert (not (dict-comparator plist-dtd '())))))
 
 (test-group
  "srfi-69"
@@ -682,8 +685,7 @@
        (t69:hash-table-set! table (car pair) (cdr pair)))
      alist)
     table)
-  (make-default-comparator)
-  #t))
+  (make-default-comparator)))
 
 (test-group
  "srfi-125"
@@ -696,8 +698,7 @@
        (t125:hash-table-set! table (car pair) (cdr pair)))
      alist)
     table)
-  (make-default-comparator)
-  #t))
+  (make-default-comparator)))
 
 (test-group
  "srfi-126 (r6rs)"
@@ -710,8 +711,7 @@
        (t126:hashtable-set! table (car pair) (cdr pair)))
      alist)
     table)
-  (make-default-comparator)
-  #f))
+  (make-default-comparator)))
 
 (test-group
  "srfi-146"
@@ -725,8 +725,7 @@
           table
           (loop (mapping-set! table (caar entries) (cdar entries))
                 (cdr entries)))))
-  cmp
-  #t)
+  cmp)
  (test-group
   "srfi-146 dict-comparator"
   (test-equal cmp (dict-comparator mapping-dtd (make-dictionary mapping-dtd cmp)))))
@@ -743,8 +742,7 @@
           table
           (loop (hashmap-set! table (caar entries) (cdar entries))
                 (cdr entries)))))
-  cmp
-  #t)
+  cmp)
  (test-group
   "srfi-146 hash dict-comparator"
   (test-equal cmp (dict-comparator hash-mapping-dtd (make-dictionary hash-mapping-dtd cmp)))))

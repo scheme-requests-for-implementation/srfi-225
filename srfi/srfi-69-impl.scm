@@ -99,24 +99,24 @@
                        (t69:hash-table-hash-function table)))
 
     (make-dtd
-     make-dictionary-index t69:make-hash-table*
-     dictionary?-index (prep-dtd-arg t69:hash-table?)
-     dict-ref-index t69:hash-table-ref*
-     dict-ref/default-index (prep-dtd-arg t69:hash-table-ref/default)
-     dict-set!-index t69:hash-table-set!*
-     dict-delete-all!-index t69:hash-table-delete-all!*
-     dict-contains?-index (prep-dtd-arg t69:hash-table-exists?)
-     dict-update/default!-index t69:hash-table-update!/default*
-     dict-size-index (prep-dtd-arg t69:hash-table-size)
-     dict-keys-index (prep-dtd-arg t69:hash-table-keys)
-     dict-values-index (prep-dtd-arg t69:hash-table-values)
-     dict-map!-index t69:hash-table-map!*
-     dict-filter!-index t69:hash-table-filter!*
-     dict-filter-index t69:hash-table-filter*
-     dict-for-each-index t69:hash-table-foreach*
-     dict-fold-index t69:hash-table-fold*
-     dict->alist-index (prep-dtd-arg t69:hash-table->alist)
-     dict-search-index t69:hash-table-search*
-     dict-search!-index t69:hash-table-search!*
-     dict-comparator-index t69:hash-table-comparator*
-     dict-copy-index (prep-dtd-arg t69:hash-table-copy))))
+     make-dictionary-id t69:make-hash-table*
+     dictionary?-id (prep-dtd-arg t69:hash-table?)
+     dict-ref-id t69:hash-table-ref*
+     dict-ref/default-id (prep-dtd-arg t69:hash-table-ref/default)
+     dict-set!-id t69:hash-table-set!*
+     dict-delete-all!-id t69:hash-table-delete-all!*
+     dict-contains?-id (prep-dtd-arg t69:hash-table-exists?)
+     dict-update/default!-id t69:hash-table-update!/default*
+     dict-size-id (prep-dtd-arg t69:hash-table-size)
+     dict-keys-id (prep-dtd-arg t69:hash-table-keys)
+     dict-values-id (prep-dtd-arg t69:hash-table-values)
+     dict-map!-id t69:hash-table-map!*
+     dict-filter!-id t69:hash-table-filter!*
+     dict-filter-id t69:hash-table-filter*
+     dict-for-each-id t69:hash-table-foreach*
+     dict-fold-id t69:hash-table-fold*
+     dict->alist-id (prep-dtd-arg t69:hash-table->alist)
+     dict-search-id t69:hash-table-search*
+     dict-search!-id t69:hash-table-search!*
+     dict-comparator-id t69:hash-table-comparator*
+     dict-copy-id (prep-dtd-arg t69:hash-table-copy))))

@@ -15,6 +15,7 @@
 
     ;; constructor
     make-dictionary
+    dict-unfold
 
     ;; predicates
     dictionary?
@@ -82,51 +83,52 @@
     dictionary-irritants
 
     ;; proc indeces
-    make-dictionary-index
-    dictionary?-index
-    dict-empty?-index
-    dict-contains?-index
-    dict-ref-index
-    dict-ref/default-index
-    dict-set-index
-    dict-set!-index
-    dict-adjoin-index
-    dict-adjoin!-index
-    dict-delete-index
-    dict-delete!-index
-    dict-delete-all-index
-    dict-delete-all!-index
-    dict-replace-index
-    dict-replace!-index
-    dict-intern-index
-    dict-intern!-index
-    dict-update-index
-    dict-update!-index
-    dict-update/default-index
-    dict-update/default!-index
-    dict-pop-index
-    dict-pop!-index
-    dict-map-index
-    dict-map!-index
-    dict-filter-index
-    dict-filter!-index
-    dict-remove-index
-    dict-remove!-index
-    dict-search-index
-    dict-search!-index
-    dict-copy-index
-    dict-size-index
-    dict-for-each-index
-    dict-count-index
-    dict-any-index
-    dict-every-index
-    dict-keys-index
-    dict-values-index
-    dict-entries-index
-    dict-fold-index
-    dict-map->list-index
-    dict->alist-index
-    dict-comparator-index
+    make-dictionary-id
+    dict-unfold-id
+    dictionary?-id
+    dict-empty?-id
+    dict-contains?-id
+    dict-ref-id
+    dict-ref/default-id
+    dict-set-id
+    dict-set!-id
+    dict-adjoin-id
+    dict-adjoin!-id
+    dict-delete-id
+    dict-delete!-id
+    dict-delete-all-id
+    dict-delete-all!-id
+    dict-replace-id
+    dict-replace!-id
+    dict-intern-id
+    dict-intern!-id
+    dict-update-id
+    dict-update!-id
+    dict-update/default-id
+    dict-update/default!-id
+    dict-pop-id
+    dict-pop!-id
+    dict-map-id
+    dict-map!-id
+    dict-filter-id
+    dict-filter!-id
+    dict-remove-id
+    dict-remove!-id
+    dict-search-id
+    dict-search!-id
+    dict-copy-id
+    dict-size-id
+    dict-for-each-id
+    dict-count-id
+    dict-any-id
+    dict-every-id
+    dict-keys-id
+    dict-values-id
+    dict-entries-id
+    dict-fold-id
+    dict-map->list-id
+    dict->alist-id
+    dict-comparator-id
 
     ;; basic DTDs
     plist-dtd

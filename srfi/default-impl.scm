@@ -15,6 +15,17 @@
     (define default-dict-search! (not-implemented "dict-search!"))
     (define default-dict-for-each (not-implemented "dict-for-each"))
 
+    (define (default-dict-unfold dtd comparator stop? mapper successor seed)
+      (let loop ((dict (make-dictionary dtd comparator))
+                 (seed seed))
+        (if (stop? seed)
+            dict
+            (let ()
+              (define-values (key value) (mapper seed))
+              (define new-seed (successor seed))
+              (loop (dict-set! dtd dict key value)
+                    new-seed)))))
+
     (define (default-dict-empty? dtd dictionary)
       (= 0 (dict-size dtd dictionary)))
 
@@ -218,17 +229,8 @@
     (define (default-dict-remove! dtd pred dictionary)
       (default-dict-remove* dtd dict-filter! pred dictionary))
 
-    (define (create-fresh-dict-from-existing dtd dictionary)
-      (call/cc
-       (lambda (k)
-         (with-exception-handler
-             (lambda (err)
-               (k (make-dictionary dtd #f)))
-           (lambda ()
-             (make-dictionary dtd (dict-comparator dictionary)))))))
-
     (define (default-dict-copy dtd dictionary)
-      (define dict (create-fresh-dict-from-existing dtd dictionary))
+      (define dict (make-dictionary dtd (dict-comparator dtd dictionary)))
       (dict-for-each dtd
                      (lambda (key value)
                        (set! dict (dict-set! dtd dict key value)))
@@ -324,51 +326,52 @@
       (define default-dtd
         (make-modified-dtd
          null-dtd
-         make-dictionary-index default-make-dictionary
-         dictionary?-index default-dictionary?
-         dict-empty?-index default-dict-empty?
-         dict-contains?-index default-dict-contains?
-         dict-ref-index default-dict-ref
-         dict-ref/default-index default-dict-ref/default
-         dict-set-index default-dict-set
-         dict-set!-index default-dict-set!
-         dict-adjoin-index default-dict-adjoin
-         dict-adjoin!-index default-dict-adjoin!
-         dict-delete-index default-dict-delete
-         dict-delete!-index default-dict-delete!
-         dict-delete-all-index default-dict-delete-all
-         dict-delete-all!-index default-dict-delete-all!
-         dict-replace-index default-dict-replace
-         dict-replace!-index default-dict-replace!
-         dict-intern-index default-dict-intern
-         dict-intern!-index default-dict-intern!
-         dict-update-index default-dict-update
-         dict-update!-index default-dict-update!
-         dict-update/default-index default-dict-update/default
-         dict-update/default!-index default-dict-update/default!
-         dict-pop-index default-dict-pop
-         dict-pop!-index default-dict-pop!
-         dict-map-index default-dict-map
-         dict-map!-index default-dict-map!
-         dict-filter-index default-dict-filter
-         dict-filter!-index default-dict-filter!
-         dict-remove-index default-dict-remove
-         dict-remove!-index default-dict-remove!
-         dict-search-index default-dict-search
-         dict-search!-index default-dict-search!
-         dict-copy-index default-dict-copy
-         dict-size-index default-dict-size
-         dict-for-each-index default-dict-for-each
-         dict-count-index default-dict-count
-         dict-any-index default-dict-any
-         dict-every-index default-dict-every
-         dict-keys-index default-dict-keys
-         dict-values-index default-dict-values
-         dict-entries-index default-dict-entries
-         dict-fold-index default-dict-fold
-         dict-map->list-index default-dict-map->list
-         dict->alist-index default-dict->alist
-         dict-comparator-index default-dict-comparator))
+         make-dictionary-id default-make-dictionary
+         dict-unfold-id default-dict-unfold
+         dictionary?-id default-dictionary?
+         dict-empty?-id default-dict-empty?
+         dict-contains?-id default-dict-contains?
+         dict-ref-id default-dict-ref
+         dict-ref/default-id default-dict-ref/default
+         dict-set-id default-dict-set
+         dict-set!-id default-dict-set!
+         dict-adjoin-id default-dict-adjoin
+         dict-adjoin!-id default-dict-adjoin!
+         dict-delete-id default-dict-delete
+         dict-delete!-id default-dict-delete!
+         dict-delete-all-id default-dict-delete-all
+         dict-delete-all!-id default-dict-delete-all!
+         dict-replace-id default-dict-replace
+         dict-replace!-id default-dict-replace!
+         dict-intern-id default-dict-intern
+         dict-intern!-id default-dict-intern!
+         dict-update-id default-dict-update
+         dict-update!-id default-dict-update!
+         dict-update/default-id default-dict-update/default
+         dict-update/default!-id default-dict-update/default!
+         dict-pop-id default-dict-pop
+         dict-pop!-id default-dict-pop!
+         dict-map-id default-dict-map
+         dict-map!-id default-dict-map!
+         dict-filter-id default-dict-filter
+         dict-filter!-id default-dict-filter!
+         dict-remove-id default-dict-remove
+         dict-remove!-id default-dict-remove!
+         dict-search-id default-dict-search
+         dict-search!-id default-dict-search!
+         dict-copy-id default-dict-copy
+         dict-size-id default-dict-size
+         dict-for-each-id default-dict-for-each
+         dict-count-id default-dict-count
+         dict-any-id default-dict-any
+         dict-every-id default-dict-every
+         dict-keys-id default-dict-keys
+         dict-values-id default-dict-values
+         dict-entries-id default-dict-entries
+         dict-fold-id default-dict-fold
+         dict-map->list-id default-dict-map->list
+         dict->alist-id default-dict->alist
+         dict-comparator-id default-dict-comparator))
 
       ;; sanity check
       (vector-for-each

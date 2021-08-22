@@ -106,25 +106,22 @@
     (alist-copy dtd alist))
 
   (define (alist-comparator dtd dictionary)
-    (make-comparator (lambda args #t)
-                     key=
-                     #f
-                     #f))
+    #f)
 
   (make-dtd
-   make-dictionary-index make-alist
-   dictionary?-index alist?
-   dict-map-index alist-map
-   dict-map!-index alist-map!
-   dict-filter-index alist-filter
-   dict-filter!-index alist-filter!
-   dict-search-index alist-search
-   dict-search!-index alist-search!
-   dict-size-index alist-size
-   dict-for-each-index alist-foreach
-   dict->alist-index alist->alist
-   dict-comparator-index alist-comparator
-   dict-copy-index alist-copy))
+   make-dictionary-id make-alist
+   dictionary?-id alist?
+   dict-map-id alist-map
+   dict-map!-id alist-map!
+   dict-filter-id alist-filter
+   dict-filter!-id alist-filter!
+   dict-search-id alist-search
+   dict-search!-id alist-search!
+   dict-size-id alist-size
+   dict-for-each-id alist-foreach
+   dict->alist-id alist->alist
+   dict-comparator-id alist-comparator
+   dict-copy-id alist-copy))
 
 (define alist-eqv-dtd (make-alist-dtd eqv?))
 (define alist-equal-dtd (make-alist-dtd equal?))

@@ -103,21 +103,18 @@
               (loop (cddr pl))))))
 
     (define (plist-comparator dtd plist)
-      (make-comparator symbol?
-                       equal?
-                       #f
-                       #f))
+      #f)
 
     (make-dtd
-     make-dictionary-index make-plist
-     dictionary?-index plist?
-     dict-map-index plist-map
-     dict-map!-index plist-map!
-     dict-filter-index plist-filter
-     dict-filter!-index plist-filter!
-     dict-search-index plist-search
-     dict-search!-index plist-search!
-     dict-copy-index plist-copy
-     dict-size-index plist-size
-     dict-for-each-index plist-foreach
-     dict-comparator-index plist-comparator)))
+     make-dictionary-id make-plist
+     dictionary?-id plist?
+     dict-map-id plist-map
+     dict-map!-id plist-map!
+     dict-filter-id plist-filter
+     dict-filter!-id plist-filter!
+     dict-search-id plist-search
+     dict-search!-id plist-search!
+     dict-copy-id plist-copy
+     dict-size-id plist-size
+     dict-for-each-id plist-foreach
+     dict-comparator-id plist-comparator)))

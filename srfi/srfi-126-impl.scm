@@ -120,29 +120,33 @@
     (define (t126:hashtable-copy* dtd table)
       (t126:hashtable-copy table #t))
 
+    (define (t126:hashtable-comparator* dtd table)
+      #f)
+
     (make-dtd
-     make-dictionary-index t126:make-hashtable*
-     dictionary?-index (prep-dtd-arg t126:hashtable?)
-     dict-empty?-index (prep-dtd-arg t126:hashtable-empty?)
-     dict-contains?-index (prep-dtd-arg t126:hashtable-contains?)
-     dict-ref-index t126:hashtable-ref*
-     dict-ref/default-index t126:hashtable-ref/default*
-     dict-set!-index t126:hashtable-set!*
-     dict-delete-all!-index t126:hashtable-delete-all!*
-     dict-intern!-index t126:hashtable-intern!*
-     dict-update/default!-index t126:hashtable-update/default!*
-     dict-pop!-index t126:hashtable-pop!*
-     dict-map!-index t126:hashtable-update-all!*
-     dict-filter!-index t126:hashtable-filter!*
-     dict-filter-index t126:hashtable-filter*
-     dict-remove!-index t126:hashtable-remove!*
-     dict-remove-index t126:hashtable-remove*
-     dict-search!-index t126:hashtable-search!*
-     dict-search-index t126:hashtable-search*
-     dict-size-index (prep-dtd-arg t126:hashtable-size)
-     dict-for-each-index t126:hashtable-for-each*
-     dict-keys-index t126:hashtable-keys*
-     dict-values-index t126:hashtable-values*
-     dict-entries-index t126:hashtable-entries*
-     dict-map->list-index t126:hashtable-map->lset*
-     dict-copy-index t126:hashtable-copy*)))
+     make-dictionary-id t126:make-hashtable*
+     dictionary?-id (prep-dtd-arg t126:hashtable?)
+     dict-empty?-id (prep-dtd-arg t126:hashtable-empty?)
+     dict-contains?-id (prep-dtd-arg t126:hashtable-contains?)
+     dict-ref-id t126:hashtable-ref*
+     dict-ref/default-id t126:hashtable-ref/default*
+     dict-set!-id t126:hashtable-set!*
+     dict-delete-all!-id t126:hashtable-delete-all!*
+     dict-intern!-id t126:hashtable-intern!*
+     dict-update/default!-id t126:hashtable-update/default!*
+     dict-pop!-id t126:hashtable-pop!*
+     dict-map!-id t126:hashtable-update-all!*
+     dict-filter!-id t126:hashtable-filter!*
+     dict-filter-id t126:hashtable-filter*
+     dict-remove!-id t126:hashtable-remove!*
+     dict-remove-id t126:hashtable-remove*
+     dict-search!-id t126:hashtable-search!*
+     dict-search-id t126:hashtable-search*
+     dict-size-id (prep-dtd-arg t126:hashtable-size)
+     dict-for-each-id t126:hashtable-for-each*
+     dict-keys-id t126:hashtable-keys*
+     dict-values-id t126:hashtable-values*
+     dict-entries-id t126:hashtable-entries*
+     dict-map->list-id t126:hashtable-map->lset*
+     dict-copy-id t126:hashtable-copy*
+     dict-comparator-id t126:hashtable-comparator*)))

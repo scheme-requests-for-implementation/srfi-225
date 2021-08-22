@@ -34,7 +34,22 @@ of the object is.  Such an object is called a <em>dictionary</em> in this SRFI.<
 
 <h2 id="issues">Issues</h2>
 
-None at present.
+
+
+<p>dict=?, dict&lt;?, etc.  Compare dictionaries for equality, subset, etc.
+A value comparator is passed in.</p>
+
+<p>dict-union(!), dict-intersection(!), dict-difference(!), dict-xor(!).</p>
+
+<p>dict-range=(!), dict-range<(!), etc.  Return subsets whose keys are =, &lt;, etc.
+of a provided value.</p>
+
+<p>dict-open-mapping, dict-closed mapping, dict-open-closed-mapping, dict-closed-open-mapping.
+Returns subsets whose keys are in a certain interval specified by upper and lower bounds.</p>
+
+<p>dict-min-key, dict-max-key: Returns the smallest and largest key in the dictionary.</p>
+
+<p>dict-key-successor, dict-key-predecessor: Return preceding and following key.</p>
 
 <h2 id="rationale">Rationale</h2>
 
@@ -53,7 +68,7 @@ Two dictionaries are <i>similar</i> if they are of the same type and have the sa
 <p>Lists are supported as dictionaries using the specification in this section. If two keys are the same (in the sense of the specified equality predicate), then all but the first are treated as if they did not exist.</p>
 <p>If <code>plist-dtd</code> (see below) is used with a list, then the list is assumed to be a property list, alternating symbol keys with values. The linear-update mutation operations actually mutate the property list whenever possible. The equality predicate of this type of dictionary is <code>eq?</code>.</p>
 <p>If a list is empty or its car is a pair, then the list can be treated as an alist. New values are added to the beginning of an alist and the new alist is returned; linear-update operations do not mutate the alist, but return an alist that may or may not share storage with the original alist. If an association has been updated, then both the new and the old association may be processed by the whole-dictionary procedures.  The examples in this SRFI use alists.</p>
-<p>However, an alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTD for alists, this SRFI provides a procedure <code>make-alist-dtd</code> that takes an equality predicate and returns a DTD specialized for manipulation of alists using that predicate.</p>
+<p>However, an alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTD for all alists, this SRFI provides a procedure <code>make-alist-dtd</code> that takes an equality predicate and returns a DTD specialized for manipulation of alists using that predicate.</p>
 <p>In all other cases, lists cannot be treated as dictionaries unless a DTD exists.</p>
 <h3>Procedures</h3>
 <p>Each of the following examples is assumed to be prefixed by the following definitions:</p>
@@ -65,9 +80,19 @@ Consequently, previous examples don't affect later ones.
 <h3 id="constructor">Constructor</h3>
 <p><code>(make-dictionary</code>&nbsp;<em>dtd comparator</em><code>)</code></p>
 <p>Returns an empty dictionary of the type described by the DTD using <em>comparator</em> to specify the dictionary's equality predicate and its ordering predicate and/or hash function.</p>
-<p>If the contents of <em>comparator</em> are inconsistent with the dictionary type, an error satisfying
-<code>dictionary-error?</code> is signaled.
+<p>If the contents of <em>comparator</em> are inconsistent with the dictionary type, it is an error.
 If the dictionary type does not accept a comparator, <code>#f</code> should be passed instead.</p>
+<p><code>(dict-unfold</code>&nbsp;<em>dtd comparator stop? mapper successor seed</em><code>)</code></p>
+<p>
+Create a new dictionary as if by <code>make-dictionary</code> using
+<em>dtd</em> and <em>comparator</em>.  If the result of applying
+the predicate <em>stop?</em> to <em>seed</em> is true, return the dictionary.
+Otherwise, apply the procedure <em>mapper</em> to <em>seed</em>.
+<em>Mapper</em> returns two values, which are inserted into the dictionary
+as the key and the value respectively.  Then get a new seed by
+applying the procedure <em>successor</em> to <em>seed</em>, and repeat
+this algorithm.
+</p>
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dtd obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate stored in the DTD, and <code>#f</code> otherwise.</p>
@@ -131,11 +156,7 @@ Otherwise, returns two values, a dictionary that contains all the associations o
 <code>(dict-update!</code>&nbsp;<em>dtd dictionary key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
 <code>(dict-update/default</code>&nbsp;<em>dtd dictionary key updater default</em><code>)</code><br>
-<<<<<<< HEAD
 <code>(dict-update/default!</code>&nbsp;<em>dtd dictionary key updater default</em><code>)</code></p>
-=======
-<code>(dict-update/default!</code>&nbsp;<em>dtd dictionary key updater default</em><code>)</code>
->>>>>>> ffd17d798ba88943d709a266e7478507f96349ab
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref/default</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary.</p>
 <p><code>(dict-pop</code>&nbsp;<em>dtd dictionary</em><code>)</code><br>
 <code>(dict-pop!</code>&nbsp;<em>dtd dictionary</em><code>)</code></p>
@@ -272,51 +293,54 @@ and <code>dict-search</code>.
 </p>
 <p><code>(dict-comparator</code>&nbsp;<em>dtd dictionary</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate, ordering predicate, and hash function of <em>dict</em>.  The last two may be <code>#f</code> if the dictionary does not make use of these functions.</p>
+<p>If no comparator is relative to the dictionary type, returns <code>#f</code>.</p>
 <h3 id="dictionary-type-descriptors">Dictionary type descriptors</h3>
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
 <p><code>(make-dtd</code>&nbsp;<em>arg</em> …<code>)</code><br>
-<code>(dtd</code>&nbsp;(<em>procindex proc</em>) …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
-<p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type. The <em>args</em> are alternately <em>procindex</em> names and corresponding <em>procs</em>.</p>
-<p>A <em>procindex</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-index</code> is the same as one of the procedures defined in this SRFI (other than those in this section), and a <em>proc</em> argument is the specific procedure implementing it for this type. These procedures only need to handle a full-length argument list (except when defining <code>dict-ref</code> and <code>dict-update!</code>), as the other defaults have already been supplied by the framework.</p>
+<code>(dtd</code>&nbsp;(<em>proc-id proc</em>) …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
+<p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type. The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
+<p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-id</code>, and a <em>proc</em> argument is the specific procedure implementing it for this type.  These procedures only need to handle a full-length argument list (except when defining <code>dict-ref</code> and <code>dict-update!</code>), as the other defaults have already been supplied by the framework.</p>
+<p><b>FIXME: Is the parenthesized part still true?</b></p>
 <p>
 Arguments for the six procedures <code>make-dictionary</code>, <code>dictionary?</code>, <code>dict-size</code>, <code>dict-search</code>, <code>dict-search!</code>, and <code>dict-for-each</code> are needed to make a fully functional DTD, but it is not an error to omit them. The others are optional, but if provided can be more efficient than the versions automatically provided by the implementation of this SRFI.</p>
-<p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code>, but may also verify that the <em>procindex</em> names are valid, that there are no duplicates, etc.</p>
+<p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code>, but may also verify that the <em>proc-ids</em> are valid, that there are no duplicates, etc.</p>
 <p>The following examples are from the file <code>plist-impl.scm</code>
 in the sample implementation; the procedures referred to are also in
 that file.<p>
 <blockquote><pre>
   (make-dtd
-     make-dictionary-index make-plist
-     dictionary?-index plist?
-     dict-map-index plist-map
-     dict-map!-index plist-map!
-     dict-filter-index plist-filter
-     dict-filter!-index plist-filter!
-     dict-search-index plist-search
-     dict-search!-index plist-search!
-     dict-copy-index plist-copy
-     dict-size-index plist-size
-     dict-for-each-index plist-foreach
-     dict-comparator-index plist-comparator)) =&gt; a DTD for plists
+     make-dictionary-id make-plist
+     dictionary?-id plist?
+     dict-map-id plist-map
+     dict-map!-id plist-map!
+     dict-filter-id plist-filter
+     dict-filter!-id plist-filter!
+     dict-search-id plist-search
+     dict-search!-id plist-search!
+     dict-copy-id plist-copy
+     dict-size-id plist-size
+     dict-for-each-id plist-foreach
+     dict-comparator-id plist-comparator)) =&gt; a DTD for plists
 
   (dtd
-     (make-dictionary-index make-plist)
-     (dictionary?-index plist?)
-     (dict-map-index plist-map)
-     (dict-map!-index plist-map!)
-     (dict-filter-index plist-filter)
-     (dict-filter!-index plist-filter!)
-     (dict-search-index plist-search)
-     (dict-search!-index plist-search!)
-     (dict-copy-index plist-copy)
-     (dict-size-index plist-size)
-     (dict-for-each-index plist-foreach)
-     (dict-comparator-index plist-comparator)) =&gt; a DTD for plists
+     (make-dictionary-id make-plist)
+     (dictionary?-id plist?)
+     (dict-map-id plist-map)
+     (dict-map!-id plist-map!)
+     (dict-filter-id plist-filter)
+     (dict-filter!-id plist-filter!)
+     (dict-search-id plist-search)
+     (dict-search!-id plist-search!)
+     (dict-copy-id plist-copy)
+     (dict-size-id plist-size)
+     (dict-for-each-id plist-foreach)
+     (dict-comparator-id plist-comparator)) =&gt; a DTD for plists
 </pre></blockquote>
-<p><code>(make-modified-dtd</code>&nbsp;<em>dtd obj</em> ...<code>)</code></p>
+<p><code>(make-modified-dtd</code>&nbsp;<em>dtd obj</em> ...<code>)</code><br>
+<code>(modified-dtd</code>&nbsp;<em>dtd</em> <code>(</code><em>proc-id proc</em><code>)</code> ...<code>)</code> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
 <p>Returns a DTD that is equivalent to <em>dtd</em>
-except that the alternating <em>procindexes</em> and <em>procs</em>
+except that the alternating <em>proc-ids</em> and <em>procs</em>
 are used to replace the corresponding entries in <em>dtd</em>.
 Caution should be used when replacing any procedure
 other than the six listed in the definition of <code>make-dtd</code>.</p>
@@ -326,15 +350,21 @@ arguments to the underlying dictionary-type-specific constructor.
 (<code>make-hash-table</code>, e.g.)</p>
 <blockquote><pre>
 (make-modified-dtd hash-table-dtd
-  make-dictionary-index
+ make-dictionary-id
     (lambda (dtd comparator)
       (make-hash-table comparator 'weak-keys))) =&gt;
-  a DTD for weak hash tables</pre></blockquote>
+  a DTD for weak hash tables</code></blockquote>
+<blockquote><pre>
+(modified-dtd hash-table-dtd
+ (make-dictionary-id
+    (lambda (dtd comparator)
+      (make-hash-table comparator 'weak-keys)))) =&gt;
+  a DTD for weak hash tables</code></blockquote>
 <p><code>(make-alist-dtd</code>&nbsp;<em>equal</em><code>)</code></p>
 <p>Returns a DTD for manipulating an alist using the equality predicate <em>equal</em>.</p>
 <blockquote><code>(make-alist-dtd =) =&gt; a DTD for alists using numeric equality</code></blockquote>
-<p><code>(dtd-ref</code>&nbsp;<em>dtd procindex</em><code>)</code></p>
-<p>Returns the procedure designated by <em>procindex</em> from <em>dtd</em>.
+<p><code>(dtd-ref</code>&nbsp;<em>dtd proc-id</em><code>)</code></p>
+<p>Returns the procedure designated by <em>proc-id</em> from <em>dtd</em>.
 This allows the ability to call a particular DTD procedure more efficiently multiple times.</p>
 <h3 id="exceptions">Exceptions</h3>
 <p><code>(dictionary-error</code>&nbsp;<em>message irritant</em> ... <code>)</code></p>
@@ -350,37 +380,49 @@ and <code>#f</code> otherwise.
 <p><code>(dictionary-irritants</code>&nbsp;<em>dictionary-error</em><code>)</code></p>
 <p>Returns a list of the irritants associated with <em>dictionary-error</em>.</p>
 <h3 id="variables">Variables</h3>
-<p>The following procindex variables are exported from this DTD:
-<code>make-dictionary-index</code>,
-<code>dictionary?-index</code>,
-<code>dict-empty?-index</code>,
-<code>dict-contains?-index</code>,
-<code>dict-ref-index</code>,
-<code>dict-ref/default-index</code>,
-<code>dict-set-index</code>,
-<code>dict-adjoin-index</code>,
-<code>dict-delete-index</code>,
-<code>dict-delete-all-index</code>,
-<code>dict-replace-index</code>,
-<code>dict-update-index</code>,
-<code>dict-update/default-index</code>,
-<code>dict-pop-index</code>,
-<code>dict-map-index</code>,
-<code>dict-filter-index</code>,
-<code>dict-remove-index</code>,
-<code>dict-search-index</code>,
-<code>dict-copy-index</code>,
-<code>dict-size-index</code>,
-<code>dict-count-index</code>,
-<code>dict-any-index</code>,
-<code>dict-every-index</code>,
-<code>dict-keys-index</code>,
-<code>dict-values-index</code>,
-<code>dict-entries-index</code>,
-<code>dict-fold-index</code>,
-<code>dict-map-&gt;list-index</code>,
-<code>dict-dict-&gt;alist-index</code>,
-<code>dict-comparator-index</code>.
+<p>The following proc-id variables are exported from this DTD:
+<code>make-dictionary-id</code>,
+<code>dict-unfold</code>,
+<code>dictionary?-id</code>,
+<code>dict-empty?-id</code>,
+<code>dict-contains?-id</code>,
+<code>dict-ref-id</code>,
+<code>dict-ref/default-id</code>,
+<code>dict-set-id</code>,
+<code>dict-adjoin-id</code>,
+<code>dict-adjoin!-id</code>,
+<code>dict-delete-id</code>,
+<code>dict-delete!-id</code>,
+<code>dict-delete-all-id</code>,
+<code>dict-delete-all!-id</code>,
+<code>dict-replace-id</code>,
+<code>dict-replace!-id</code>,
+<code>dict-update-id</code>,
+<code>dict-update!-id</code>,
+<code>dict-update/default-id</code>,
+<code>dict-update/default!-id</code>,
+<code>dict-pop-id</code>,
+<code>dict-pop!-id</code>,
+<code>dict-map-id</code>,
+<code>dict-map!-id</code>,
+<code>dict-filter-id</code>,
+<code>dict-filter!-id</code>,
+<code>dict-remove-id</code>,
+<code>dict-remove!-id</code>,
+<code>dict-search-id</code>,
+<code>dict-search!-id</code>,
+<code>dict-copy-id</code>,
+<code>dict-size-id</code>,
+<code>dict-count-id</code>,
+<code>dict-any-id</code>,
+<code>dict-every-id</code>,
+<code>dict-keys-id</code>,
+<code>dict-values-id</code>,
+<code>dict-entries-id</code>,
+<code>dict-fold-id</code>,
+<code>dict-map-&gt;list-id</code>,
+<code>dict-dict-&gt;alist-id</code>,
+<code>dict-comparator-id</code>.
 <p>The following DTDs are also exported from this SRFI:
 <code>srfi-69-dtd</code>, <code>hash-table-dtd</code>, <code>srfi-126-dtd</code>,
 <code>mapping-dtd</code>, <code>hash-mapping-dtd</code>, <code>plist-dtd</code>,
@@ -394,6 +436,7 @@ and <code>equal?</code> respectively.</p>
 new dictionary types that may not have complete dictionary APIs:</p>
 
 <ul>
+<li><code>dict-unfold</code> depends on <code>make-dictionary</code> and <code>dict-set!</code></li>
 <li><code>dict-empty?</code> depends on <code>dict-size</code></li>
 <li><code>dict-contains?</code> depends on <code>dict-ref</code></li>
 <li><code>dict-ref</code> depends on <code>dict-search</code></li>
