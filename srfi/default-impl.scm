@@ -77,12 +77,12 @@
 
     (define (default-dict-delete-all* dtd dictionary dict-search-proc keylist)
       (let loop ((keylist keylist)
-                 (dictionary dictionary))
+                 (d dictionary))
         (cond
-         ((null? keylist) dictionary)
+         ((null? keylist) d)
          (else (let*-values
                    (((key) (car keylist))
-                    ((new-d _) (dict-search-proc dtd dictionary key
+                    ((new-d _) (dict-search-proc dtd d key
                                                  (lambda (_ ignore)
                                                    (ignore #f))
                                                  (lambda (key old-value _ delete)
@@ -198,7 +198,7 @@
          (lambda (key)
            (not (pred key (dict-ref dtd dictionary key))))
          keys))
-      (dict-delete-all-proc dtd dictionary keys))
+      (dict-delete-all-proc dtd dictionary keys-to-delete))
 
     (define (default-dict-filter dtd pred dictionary)
       (default-dict-filter* dtd dict-delete-all pred dictionary))
@@ -218,11 +218,20 @@
     (define (default-dict-remove! dtd pred dictionary)
       (default-dict-remove* dtd dict-filter! pred dictionary))
 
+    (define (create-fresh-dict-from-existing dtd dictionary)
+      (call/cc
+       (lambda (k)
+         (with-exception-handler
+             (lambda (err)
+               (k (make-dictionary dtd #f)))
+           (lambda ()
+             (make-dictionary dtd (dict-comparator dictionary)))))))
+
     (define (default-dict-copy dtd dictionary)
-      (define dict (make-dictionary (dict-comparator dtd dictionary)))
+      (define dict (create-fresh-dict-from-existing dtd dictionary))
       (dict-for-each dtd
                      (lambda (key value)
-                       (set! dict (dict-set! dtd key value)))
+                       (set! dict (dict-set! dtd dict key value)))
                      dictionary)
       dict)
 

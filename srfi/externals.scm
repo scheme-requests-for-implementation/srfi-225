@@ -11,12 +11,18 @@
   (message dictionary-message)
   (irritants dictionary-irritants))
 
+(define-syntax dtd-ref-stx
+  (syntax-rules ()
+    ((_ dtd index)
+     (begin
+       (vector-ref (procvec dtd) index)))))
+
 (define-syntax define/dict-proc
   (syntax-rules ()
     ((_ proc index)
      (define (proc dtd . args)
        (assume (dtd? dtd))
-       (apply (vector-ref (procvec dtd) index) dtd args)))))
+       (apply (dtd-ref-stx dtd index) dtd args)))))
 
 (define/dict-proc make-dictionary make-dictionary-index)
 (define/dict-proc dictionary? dictionary?-index)
@@ -35,7 +41,7 @@
 
     ((dtd dict key failure success)
      (assume (dtd? dtd))
-     ((vector-ref (procvec dtd) dict-ref-index) dtd dict key failure success))))
+     ((dtd-ref-stx dtd dict-ref-index) dtd dict key failure success))))
 
 (define/dict-proc dict-ref/default dict-ref/default-index)
 (define/dict-proc dict-set dict-set-index)
@@ -63,7 +69,7 @@
 
     ((dtd dict key updater failure success)
      (assume (dtd? dtd))
-     ((vector-ref (procvec dtd) dict-update-index) dtd dict key updater failure success))))
+     ((dtd-ref-stx dtd dict-update-index) dtd dict key updater failure success))))
 
 (define dict-update!
   (case-lambda
@@ -77,7 +83,7 @@
 
     ((dtd dict key updater failure success)
      (assume (dtd? dtd))
-     ((vector-ref (procvec dtd) dict-update!-index) dtd dict key updater failure success))))
+     ((dtd-ref-stx dtd dict-update!-index) dtd dict key updater failure success))))
 
 (define/dict-proc dict-update/default dict-update/default-index)
 (define/dict-proc dict-update/default! dict-update/default!-index)
@@ -106,7 +112,7 @@
 (define/dict-proc dict-comparator dict-comparator-index)
 
 (define (dtd-ref dtd procindex)
-  (vector-ref (procvec dtd) procindex))
+  (dtd-ref-stx dtd procindex))
 
 (define (make-modified-dtd dtd . lst)
   (define vec (vector-copy (procvec dtd)))
