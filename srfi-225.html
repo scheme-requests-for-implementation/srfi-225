@@ -67,7 +67,7 @@ Two dictionaries are <i>similar</i> if they are of the same type and have the sa
 <p>Lists are supported as dictionaries using the specification in this section. If two keys are the same (in the sense of the specified equality predicate), then all but the first are treated as if they did not exist.</p>
 <p>If <code>plist-dtd</code> (see below) is used with a list, then the list is assumed to be a property list, alternating symbol keys with values. The linear-update mutation operations actually mutate the property list whenever possible. The equality predicate of this type of dictionary is <code>eq?</code>.</p>
 <p>If a list is empty or its car is a pair, then the list can be treated as an alist. New values are added to the beginning of an alist and the new alist is returned; linear-update operations do not mutate the alist, but return an alist that may or may not share storage with the original alist. If an association has been updated, then both the new and the old association may be processed by the whole-dictionary procedures.  The examples in this SRFI use alists.</p>
-<p>However, an alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTD for alists, this SRFI provides a procedure <code>make-alist-dtd</code> that takes an equality predicate and returns a DTD specialized for manipulation of alists using that predicate.</p>
+<p>However, an alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTD for all alists, this SRFI provides a procedure <code>make-alist-dtd</code> that takes an equality predicate and returns a DTD specialized for manipulation of alists using that predicate.</p>
 <p>In all other cases, lists cannot be treated as dictionaries unless a DTD exists.</p>
 <h3>Procedures</h3>
 <p>Each of the following examples is assumed to be prefixed by the following definitions:</p>
@@ -292,6 +292,7 @@ and <code>dict-search</code>.
 </p>
 <p><code>(dict-comparator</code>&nbsp;<em>dtd dictionary</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate, ordering predicate, and hash function of <em>dict</em>.  The last two may be <code>#f</code> if the dictionary does not make use of these functions.</p>
+<p>If no comparator is relative to the dictionary type, returns <code>#f</code>.</p>
 <h3 id="dictionary-type-descriptors">Dictionary type descriptors</h3>
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
@@ -308,7 +309,7 @@ in the sample implementation; the procedures referred to are also in
 that file.<p>
 <blockquote><pre>
   (make-dtd
-    make-dictionary-id '()
+    make-dictionary-id (lambda (comparator) '())
     dictionary?-id plist?
     dict-search-id plist-search
     dict-search!-id plist-search!
@@ -317,7 +318,7 @@ that file.<p>
     dict->alist-id plist->alist)) =&gt; a DTD for plists
 
   (dtd
-    (make-dictionary-id '())
+    (make-dictionary-id (lambda (comparator) '()))
     (dictionary?-id plist?)
     (dict-search-id plist-search)
     (dict-search!-id plist-search!)
