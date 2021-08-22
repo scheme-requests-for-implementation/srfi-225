@@ -643,15 +643,16 @@
  "alist"
  (do-test
   (make-alist-dtd equal?)
-  ;; copy to a mutable list
+  ;; copy to a mutable list instead of using identity function
   ;; so that mutating procedures don't fail
   alist-copy
   #f
   #t)
 
- ;; TODO test alist handling with different alist-dtd variants
- ;; TODO test comparator
- )
+ (test-group
+  "alist dict-comparator"
+  (test-assert (eq? eqv? (comparator-equality-predicate (dict-comparator alist-eqv-dtd '()))))
+  (test-assert (eq? equal? (comparator-equality-predicate (dict-comparator alist-equal-dtd '()))))))
 
 (test-group
  "plist"
@@ -664,8 +665,12 @@
                 alist)))
   #f
   #t)
- ;; TODO test comparator
- )
+ (test-group
+  "plist dict-comparator"
+  (define cmp (dict-comparator plist-dtd '()))
+  (test-assert (eq? symbol? (comparator-type-test-predicate cmp)))
+  (test-assert (eq? equal? (comparator-equality-predicate cmp)))))
+
 (test-group
  "srfi-69"
  (do-test
@@ -677,13 +682,9 @@
        (t69:hash-table-set! table (car pair) (cdr pair)))
      alist)
     table)
-  (make-comparator (lambda args #t)
-                   equal?
-                   #f
-                   #f)
-  #t)
- ;; TODO test comparator
- )
+  (make-default-comparator)
+  #t))
+
 (test-group
  "srfi-125"
  (do-test
@@ -695,13 +696,8 @@
        (t125:hash-table-set! table (car pair) (cdr pair)))
      alist)
     table)
-  (make-comparator (lambda args #t)
-                   equal?
-                   #f
-                   default-hash)
-  #t)
- ;; TODO test comparator
- )
+  (make-default-comparator)
+  #t))
 
 (test-group
  "srfi-126 (r6rs)"
@@ -714,10 +710,7 @@
        (t126:hashtable-set! table (car pair) (cdr pair)))
      alist)
     table)
-  (make-comparator (lambda args #t)
-                   equal?
-                   #f
-                   default-hash)
+  (make-default-comparator)
   #f))
 
 (test-group
@@ -733,7 +726,10 @@
           (loop (mapping-set! table (caar entries) (cdar entries))
                 (cdr entries)))))
   cmp
-  #t))
+  #t)
+ (test-group
+  "srfi-146 dict-comparator"
+  (test-equal cmp (dict-comparator mapping-dtd (make-dictionary mapping-dtd cmp)))))
 
 (test-group
  "srfi-146 hash"
@@ -748,6 +744,9 @@
           (loop (hashmap-set! table (caar entries) (cdar entries))
                 (cdr entries)))))
   cmp
-  #t))
+  #t)
+ (test-group
+  "srfi-146 hash dict-comparator"
+  (test-equal cmp (dict-comparator hash-mapping-dtd (make-dictionary hash-mapping-dtd cmp)))))
 
 (test-end)
