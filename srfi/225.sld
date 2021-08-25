@@ -153,21 +153,21 @@
 
     (cond-expand
         ((library (srfi 69))
-         (import (prefix (srfi 69) t69:))
+         (import (prefix (srfi 69) t69-))
          (include "srfi-69-impl.scm")
          (export srfi-69-dtd))
         (else))
 
     (cond-expand
         ((library (srfi 125))
-         (import (prefix (srfi 125) t125:))
+         (import (prefix (srfi 125) t125-))
          (include "srfi-125-impl.scm")
          (export hash-table-dtd))
         (else))
 
     (cond-expand
         ((library (srfi 126))
-         (import (prefix (srfi 126) t126:))
+         (import (prefix (srfi 126) t126-))
          (include "srfi-126-impl.scm")
          (export srfi-126-dtd))
         (else))

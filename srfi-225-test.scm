@@ -2,9 +2,9 @@
         (scheme case-lambda)
         (scheme write)
         (srfi 1)
-        (prefix (srfi 69) t69:)
-        (prefix (srfi 125) t125:)
-        (prefix (srfi 126) t126:)
+        (prefix (srfi 69) t69-)
+        (prefix (srfi 125) t125-)
+        (prefix (srfi 126) t126-)
         (srfi 128)
         (srfi 146)
         (srfi 146 hash)
@@ -41,8 +41,6 @@
    counter))
 
 (define (do-test real-dtd alist->dict comparator)
-
-  (define dtd real-dtd)
 
   (define-values
       (dtd counter)
@@ -679,10 +677,10 @@
  (do-test
   srfi-69-dtd
   (lambda (alist)
-    (define table (t69:make-hash-table equal?))
+    (define table (t69-make-hash-table equal?))
     (for-each
      (lambda (pair)
-       (t69:hash-table-set! table (car pair) (cdr pair)))
+       (t69-hash-table-set! table (car pair) (cdr pair)))
      alist)
     table)
   (make-default-comparator)))
@@ -692,10 +690,10 @@
  (do-test
   hash-table-dtd
   (lambda (alist)
-    (define table (t125:make-hash-table equal?))
+    (define table (t125-hash-table-empty-copy (t125-make-hash-table equal?)))
     (for-each
      (lambda (pair)
-       (t125:hash-table-set! table (car pair) (cdr pair)))
+       (t125-hash-table-set! table (car pair) (cdr pair)))
      alist)
     table)
   (make-default-comparator)))
@@ -705,10 +703,10 @@
  (do-test
   srfi-126-dtd
   (lambda (alist)
-    (define table (t126:make-eqv-hashtable))
+    (define table (t126-make-eqv-hashtable))
     (for-each
      (lambda (pair)
-       (t126:hashtable-set! table (car pair) (cdr pair)))
+       (t126-hashtable-set! table (car pair) (cdr pair)))
      alist)
     table)
   (make-default-comparator)))

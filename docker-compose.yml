@@ -10,13 +10,16 @@ services:
       - srfi_225_test
     volumes:
       - dependencies-volume:/dependencies
-  gauche:
-    image: "schemers/gauche"
+  kawa:
+    image: "schemers/kawa"
     depends_on:
       - srfi_225_test
     volumes:
       - dependencies-volume:/dependencies
-    command: ["gosh", "-I", "/dependencies/srfi-225", "/dependencies/srfi-225/srfi-225-dependencies.scm"]
+      - type: bind
+        source: .
+        target: /test/srfi-225
+    command: "sh /test/srfi-225/docker-kawa.sh"
   chibi:
     image: "schemers/chibi"
     depends_on:
@@ -26,12 +29,7 @@ services:
       - type: bind
         source: .
         target: /test/srfi-225
-    command: ["chibi-scheme", "-I", "/test/srfi-225",
-                              "-I", "/dependencies/srfi-126",
-                              "-I", "/dependencies/r6rs-enums-0.0.1",
-                              "-I", "/dependencies/r6rs-lists-0.0.1",
-                              "-I", "/dependencies/r6rs-sorting-0.0.1",
-                              "/test/srfi-225/srfi-225-test.scm"]
+    command: "sh /test/srfi-225/docker-chibi.sh"
 
 volumes:
   dependencies-volume:
