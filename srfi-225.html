@@ -295,62 +295,64 @@ and <code>dict-alter</code>.
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
 <p><code>(make-dtd</code>&nbsp;<em>arg</em> …<code>)</code><br>
-<code>(dtd</code>&nbsp;<em></em>(<em>proc-id proc</em>) …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
+<code>(dtd (</code><em>proc-id procname</em><code>)</code> …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
 <p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type.  The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
-<p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-id</code>, and a <em>proc</em> argument is the specific procedure implementing it for this type.  Note that there is only one proc-id for functional updaters and corresponding mutators.  These procedures only need to handle a full-length argument list (except when defining <code>dict-ref</code> and <code>dict-update!</code>), as the other defaults have already been supplied by the framework.</p>
-<p><b>FIXME: Is the parenthesized part still true?</b></p>
-<p>The following proc-ids (and corresponding procedures) need to be provided in order to support the full set of dictionary procedures:
-<code>dictionary?-id</code>,
-<code>dict-comparator-id</code>,
-<code>dict-mutable?-id</code>,
-<code>dict-map-id</code> (functional-update dictionaries),
-<code>dict-filter-id</code> (functional-update dictionaries),
-<code>dict-alter-id</code>,
-<code>dict-size-id</code>.
-Note that it is not an error to omit any of these, but some dictionary procedures may be unavailable.</p>
-<p>These additional proc-ids (and corresponding procedures) may be provided in order to increase efficiency:
-<code>dict-empty?-id</code>,
-<code>dict-contains?-id</code>,
-<code>dict=?-id</code>,
-<code>dict-ref-id</code>,
-<code>dict-ref/default-id</code>,
-<code>dict-min-key-id</code>,
-<code>dict-max-key-id</code>,
-<code>dict-set-id</code>,
-<code>dict-adjoin-id</code>,
-<code>dict-delete-id</code>,
-<code>dict-delete-all-id</code>,
-<code>dict-replace-id</code>,
-<code>dict-intern-id</code>,
-<code>dict-update-id</code>,
-<code>dict-update/default-id</code>,
-<code>dict-pop-id</code>,
-<code>dict-map-id</code>,
-<code>dict-filter-id</code>,
-<code>dict-remove-id</code>,
-<code>dict-count-id</code>,
-<code>dict-any-id</code>,
-<code>dict-every-id</code>,
-<code>dict-keys-id</code>,
-<code>dict-values-id</code>,
-<code>dict-entries-id</code>,
-<code>dict-fold-id</code>,
-<code>dict-map->list-id</code>,
-<code>dict->alist-id</code>,
-<code>dict-for-each-id</code>,
-<code>dict-for-each&lt;-id</code>,
-<code>dict-for-each&lt;=-id</code>,
-<code>dict-for-each>-id</code>,
-<code>dict-for-each>=-id</code>,
-<code>dict-for-each-in-open-interval-id</code>,
-<code>dict-for-each-in-closed-interval-id</code>,
-<code>dict-for-each-in-open-closed-interval-id</code>,
-<code>dict-for-each-in-closed-open-interval-id</code>,
-<code>make-dict-generator</code>,
-<code>dict-set-accumulator</code>,
-<code>dict-adjoin-accumulator</code>.
-
-<p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code>, but may also verify that the <em>proc-ids</em> are valid, that there are no duplicates, etc.</p>
+<p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-id</code>, and a <em>proc</em> argument is the specific procedure implementing it for this type.</p>
+<p>The following proc-ids (and corresponding procedures) need to be provided in order to support the full set of dictionary procedures:</p>
+<ul>
+<li><code>dictionary?-id</code></li>
+<li><code>dict-comparator-id</code></li>
+<li><code>dict-mutable?-id</code></li>
+<li><code>dict-map-id</code> (for functional-update dictionaries only)</li>
+<li><code>dict-filter-id</code> (for functional-update dictionaries only)</li>
+<li><code>dict-alter-id</code></li>
+<li><code>dict-size-id</code></li>
+</ul>
+<p>Note that it is not an error to omit any of these, but some dictionary procedures may be unavailable.</p>
+<p>There are additional proc-ids (and corresponding procedures) that may be provided in order to increase efficiency.  For example, it is not necessary to provide <code>dict-ref</code>, because the default version is built on top of <code>dict-alter</code> or <code>dict-alter!</code>.  But if the underlying dictionary provides its own <code>-ref</code> procedure, it may be more efficient to specify it to <code>make-dtd</code> using <code>dict-ref-id</code>.  Here is the list of additional proc-ids:</p>
+<ul>
+<li><code>dict-empty?-id</code></li>
+<li><code>dict-contains?-id</code></li>
+<li><code>dict=?-id</code></li>
+<li><code>dict-ref-id</code></li>
+<li><code>dict-ref/default-id</code></li>
+<li><code>dict-min-key-id</code></li>
+<li><code>dict-max-key-id</code></li>
+<li><code>dict-set-id</code></li>
+<li><code>dict-adjoin-id</code></li>
+<li><code>dict-delete-id</code></li>
+<li><code>dict-delete-all-id</code></li>
+<li><code>dict-replace-id</code></li>
+<li><code>dict-intern-id</code></li>
+<li><code>dict-update-id</code></li>
+<li><code>dict-update/default-id</code></li>
+<li><code>dict-pop-id</code></li>
+<li><code>dict-map-id</code></li>
+<li><code>dict-filter-id</code></li>
+<li><code>dict-remove-id</code></li>
+<li><code>dict-count-id</code></li>
+<li><code>dict-any-id</code></li>
+<li><code>dict-every-id</code></li>
+<li><code>dict-keys-id</code></li>
+<li><code>dict-values-id</code></li>
+<li><code>dict-entries-id</code></li>
+<li><code>dict-fold-id</code></li>
+<li><code>dict-map->list-id</code></li>
+<li><code>dict->alist-id</code></li>
+<li><code>dict-for-each-id</code></li>
+<li><code>dict-for-each&lt;-id</code></li>
+<li><code>dict-for-each&lt;=-id</code></li>
+<li><code>dict-for-each>-id</code></li>
+<li><code>dict-for-each>=-id</code></li>
+<li><code>dict-for-each-in-open-interval-id</code></li>
+<li><code>dict-for-each-in-closed-interval-id</code></li>
+<li><code>dict-for-each-in-open-closed-interval-id</code></li>
+<li><code>dict-for-each-in-closed-open-interval-id</code></li>
+<li><code>make-dict-generator-id</code></li>
+<li><code>dict-set-accumulator-id</code></li>
+<li><code>dict-adjoin-accumulator-id</code></li>
+</ul>
+<p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code> with parentheses around each <em>procid-procname</em> pair.  The macro may also verify that the <em>proc-ids</em> are valid, that there are no duplicates, etc.</p>
 <p><code>(make-alist-dtd</code>&nbsp;<em>equal</em><code>)</code></p>
 <p>Returns a DTD for manipulating an alist using the equality predicate <em>equal</em>.</p>
 <blockquote><code>(make-alist-dtd =) =&gt; a DTD for alists using numeric equality</code></blockquote>
@@ -362,7 +364,7 @@ This allows the ability to call a particular DTD procedure multiple times more e
 <p>Returns a dictionary error with the given <em>message</em> (a string) and
 <em>irritants</em> (any objects).
 If a particular procedure in a DTD cannot be implemented, it instead
-should signal an appropriate dictionary exception that can be reliably caught.
+should signal an appropriate dictionary error that can be reliably caught.
 <p><code>(dictionary-error?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a dictionary error
 and <code>#f</code> otherwise.
@@ -380,7 +382,7 @@ and <code>equal?</code> respectively.</p>
 <h2 id="implementation">Implementation</h2>
 
 <p>The sample implementation is found in the GitHub repository.</p>
-<p>The following list of dependencies is designed to ease registering
+<p>The following list of dependencies is designed to ease defining
 new dictionary types that may not have complete dictionary APIs:</p>
 <b>FIXME</b>
 <h2 id="acknowledgements">Acknowledgements</h2>
