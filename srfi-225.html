@@ -44,14 +44,14 @@ that does not provide it, or either procedure on top of an unordered dictionary.
 <p>Until recently there was only one universally available mechanism for managing key-value pairs: alists. Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations do not provide that interface.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables, there are R7RS persistent ordered and hashed mappings from SRFI 146, ordered mappings with fixnum keys from SRFI 224, and ordered key-value stores (often on a disk or a remote machine) from SRFI 167.</p>
 <p>It’s inconvenient for users if SRFIs or other libraries have to insist on accepting only a specific type of dictionary. This SRFI exposes a number of accessors, mutators, and other procedures that can be called on any dictionary, provided that a <em>dictionary type descriptor</em> (DTD, with apologies to SGML and XML users) is available for it: either exported from this SRFI, or from other SRFIs or libraries, or created by the user. DTDs are of an unspecified type.</p>
-<p>This in turn requires that the DTD provides a predicate that can recognize its dictionaries, plus several primitive operations, such as determining a dictionary’s current size; referencing, updating, removing, or inserting an element of the dictionary depending on its current contents; processing all the elements using a procedure invoked for its side effects.</p>
+<p>This in turn requires that the DTD provides a predicate that can recognize its dictionaries, plus several primitive operations, such as determining a dictionary’s current size; referencing, updating, removing, or inserting an element of the dictionary depending on its current contents; and processing all the elements using a procedure invoked for its side effects.</p>
 <p>By using the procedures of this SRFI, a procedure can take a DTD and a dictionary as an argument and make flexible use of the dictionary without knowing its exact type.  For the purposes of this SRFI, such a procedure is called a <em>generic procedure</em>.</p>
 <p>However, dictionaries need to be constructed using type-specific constructors, as the required and optional arguments differ in each case.  In addition, the dictionary type provided by the caller of a generic procedure doesn't necessarily have the right performance characteristics needed by the generic procedure itself.  Consequently there are no <code>make-dict</code>, <code>dict</code>, <code>dict-unfold</code>, <code>dict-copy</code> or similar procedures in this SRFI.</p>
 <h2 id="specification">Specification</h2>
 <p>We call a specific key-value combination an <em>association</em>. This is why an alist, or association list, is called that; it is a list of associations represented as pairs.</p>
-<p>A <em>dict</em> is a collection of associations which may be ordered or unordered.  In principle an <em>equality predicate</em> is enough, given a key, to find if an association with that key exists in the dictionary.  However, for efficiency most dictionaries require an <em>ordering predicate</em> or a <em>hash function</em> as well.
+<p>A <em>dict</em> is a collection of associations which may be ordered or unordered.  In principle an <em>equality predicate</em> is enough, given a key, to determine whether an association with that key exists in the dictionary.  However, for efficiency most dictionaries require an <em>ordering predicate</em> or a <em>hash function</em> as well.
 <p>When a key argument is said to be the same as some key of the dictionary, it means that they are the same in the sense of the dictionary’s implicit or explicit equality predicate. It is assumed that no dictionary contains two keys that are the same in this sense.
-Two dictionaries are <em>similar</em>g if they are of the same type and have the same equality predicate and the same ordering predicate and/or hash function.</p>
+Two dictionaries are <em>similar</em> if they are of the same type and have the same equality predicate and the same ordering predicate and/or hash function.</p>
 <p>If <code>plist-dtd</code> (see below) is used with a list, then the list is assumed to be a property list, alternating symbol keys with values. Unlike the mutation operations provided by Common Lisp, plists in this SRFI are functionally updated. The equality predicate of this type of dictionary is <code>eq?</code>.  If a key to be added already exists in dictionary, the new value prevails.</p>
 <p>If a list is empty or its car is a pair, then the list is assumed to be an alist. New values are added to the beginning of the alist and the new alist is returned. If an association has been updated, then both the new and the old association may be processed by the whole-dictionary procedures.  The examples in this SRFI use alists.</p>
 <p>However, an alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTD for all alists, this SRFI provides a procedure <code>make-alist-dtd</code> that takes an equality predicate and returns a DTD specialized for manipulation of alists using that predicate.  For convenience, DTDs for <code>eqv?</code> and <code>equal?</code> are exported.</p>
@@ -84,7 +84,7 @@ Consequently, previous examples don't affect later ones.
 <p>Returns <code>#t</code> if the dictionary type supports mutations and <code>#f</code> if it supports functional updates.</p>
 <blockquote><pre>
 (dict-mutable? hash-table-dtd (make-hash-table)) => #t
-(dict-mutable? aed dict) =>#f
+(dict-mutable? aed dict) => #f
 </pre></blockquote>
 <h3 id="lookup">Lookup</h3>
 <p><code>(dict-ref</code>&nbsp;<em>dtd dict key</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
@@ -92,11 +92,11 @@ Consequently, previous examples don't affect later ones.
 <blockquote><pre>(dict-ref aed dict 1 (lambda () &#39;()) list) =&gt; (1) ; Success wraps value in a list
 (dict-ref aed dict 2 (lambda () &#39;()) list) =&gt; ()  ; Failure returns empty list</pre></blockquote>
 <p><code>(dict-ref/default</code>&nbsp;<em>dtd dict key default</em><code>)</code></p>
-<p>If <em>key</em> is the same as some key of <em>dict</em> then returns the corresponding value. If not, then returns <em>default</em>.</p>
+<p>If <em>key</em> is the same as some key of <em>dict</em>, returns the corresponding value. If not, returns <em>default</em>.</p>
 <blockquote><pre>(dict-ref/default aed dict 1 #f) =&gt; 1
 (dict-ref/default aed dict 1 #f) =&gt; #f</pre></blockquote>
-<p><code>dict-min-key</code>&nbsp;<em>dtd dict</em><code>)</code><br>
-<code>dict-max-key</code>&nbsp;<em>dtd dict</em><code>)</code></p>
+<p><code>(dict-min-key</code>&nbsp;<em>dtd dict</em><code>)</code><br>
+<code>(dict-max-key</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Return the minimum/maximum key of <em>dict</em>.</p>
 <blockquote><pre>
 (dict-min-key aed dict) => 1
@@ -238,7 +238,7 @@ one for each of the four procedures:
 (dict-every some-even? &#39;((2 . 3) (3 . 4))) =&gt; #t
 (dict-every some-even? &#39;((1 . 3) (3 . 4))) =&gt; #f</pre></blockquote>
 <p><code>(dict-keys</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Returns a list of the keys of <em>dict</em>. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. The order may change when new elements are added to <em>dict</em>.</p>
+<p>Returns a list of the keys of <em>dict</em>. If the dictionary type is inherently ordered, associations appear in the inherent order; otherwise in an arbitrary order. The order may change when new elements are added to <em>dict</em>.</p>
 <blockquote><pre>(dict-keys aed dict) =&gt; (1 3 5)</pre></blockquote>
 <p><code>(dict-values</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns a list of the values of <em>dict</em>. The results returned by <code>dict-keys</code> and <code>dict-values</code> are not necessarily ordered consistently.</p>
@@ -254,17 +254,13 @@ one for each of the four procedures:
 <p><code>(dict-map-&gt;list</code>&nbsp;<em>dtd proc dict</em><code>)</code></p>
 <p>Returns a list of values that result from invoking <em>proc</em> on the keys and corresponding values of <em>dict</em>.</p>
 <blockquote><pre>
-(dict-map->list (lambda (k v) v) dict) =>gt; (2 4 6),
+(dict-map->list (lambda (k v) v) dict) =&gt; (2 4 6),
 (dict-map->list - aed dict) =&gt; (-1 -1 -1) ; subtract value from key
 </pre></blockquote>
 <p><code>(dict-&gt;alist</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns an alist whose keys and values are the keys and values of <em>dict</em>.</p>
 <blockquote><pre>; plist to alist
 (dict-&gt;alist &#39;(1 2 3 4 5 6)) =&gt; ((1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
-<p>Add <code>dict-map</code>,
-<code>dict-filter</code>, <code>dict-remove</code>,
-and <code>dict-alter</code>.
-</p>
 <p><code>(dict-comparator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate, ordering predicate, and hash function of <em>dict</em>.  The last two may be <code>#f</code> if the dictionary does not make use of these functions.</p>
 <p>If no comparator is relevant to the dictionary type, returns <code>#f</code>.</p>
@@ -288,9 +284,9 @@ and <code>dict-alter</code>.
 <p><code>(make-dict-generator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">generator</a> that when invoked returns the associations of <em>dict</em> as pairs.  When no associations are left, returns an end-of-file object.  If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order.</p>
 <p><code>(dict-set-accumulator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Returns a procedure that when invoked on a pair adds the car and cdr of the pair as a key and value.  If a key to be added already exists in dictionary, the new value prevails.</p>
+<p>Returns a procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair as a key and value.  If a key to be added already exists in dictionary, the new value prevails.</p>
 <p><code>(dict-adjoin-accumulator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Returns a procedure that when invoked on a pair adds the car and cdr of the pair as a key and value.  If a key to be added already exists in dictionary, the old value prevails.</p>
+<p>Returns a procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair as a key and value.  If a key to be added already exists in dictionary, the old value prevails.</p>
 <h3 id="dictionary-type-descriptor-procedures">Dictionary type descriptor procedures</h3>
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
