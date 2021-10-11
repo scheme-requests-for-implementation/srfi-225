@@ -143,7 +143,7 @@ Otherwise, returns two values, a dictionary that contains all the associations o
 <p><code>(dict-update</code>&nbsp;<em>dtd dict key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code><br>
 <code>(dict-update!</code>&nbsp;<em>dtd dict key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
-<code>(dict-update/default</code>&nbsp;<em>dtd dict key updater default</em><code>)</code><br>
+<p><code>(dict-update/default</code>&nbsp;<em>dtd dict key updater default</em><code>)</code><br>
 <code>(dict-update/default!</code>&nbsp;<em>dtd dict key updater default</em><code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref/default</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary.</p>
 <p><code>(dict-pop</code>&nbsp;<em>dtd dict</em><code>)</code><br>
@@ -280,7 +280,7 @@ one for each of the four procedures:
 <code>(dict-for-each-in-open-closed-interval</code>&nbsp;<em>dtd proc dict key1 key2</em><code>)</code><br>
 <code>(dict-for-each-in-closed-open-interval</code>&nbsp;<em>dtd proc dict key1 key2</em><code>)</code></p>
 <p>Invokes <em>proc</em> on each key of <em>dict</em> that is that is within the specified interval between <em>key1</em> and <em>key2</em>, and its corresponding value. This procedure is used for doing operations on part of the dictionary. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. Returns an unspecified value.</p>
-<h3 id="generator procedures">Generator procedures</h3>
+<h3 id="generator-procedures">Generator procedures</h3>
 <p><code>(make-dict-generator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">generator</a> that when invoked returns the associations of <em>dict</em> as pairs.  When no associations are left, returns an end-of-file object.  If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order.</p>
 <p><code>(dict-set-accumulator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
