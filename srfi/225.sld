@@ -13,18 +13,18 @@
 
   (export
 
-    ;; constructor
-    make-dictionary
-    dict-unfold
-
     ;; predicates
     dictionary?
     dict-empty?
     dict-contains?
+    dict=?
+    dict-mutable?
 
     ;; lookup
     dict-ref
     dict-ref/default
+    dict-min-key
+    dict-max-key
 
     ;; mutation
     dict-set
@@ -51,13 +51,11 @@
     dict-filter!
     dict-remove
     dict-remove!
-    dict-search
-    dict-search!
+    dict-alter
+    dict-alter!
 
     ;; whole dictionary
-    dict-copy
     dict-size
-    dict-for-each
     dict-count
     dict-any
     dict-every
@@ -69,56 +67,59 @@
     dict->alist
     dict-comparator
 
+    ;; iteration
+    dict-for-each
+    dict-for-each<
+    dict-for-each<=
+    dict-for-each>
+    dict-for-each>=
+    dict-for-each-in-open-interval
+    dict-for-each-in-closed-interval
+    dict-for-each-in-open-closed-interval
+    dict-for-each-in-closed-open-interval
+    
+    ;; generator procedures
+    make-dict-generator
+    dict-set-accumulator
+    dict-adjoin-accumulator
+
     ;; dictionary type descriptors
     dtd?
     make-dtd
     dtd
-    make-modified-dtd
     make-alist-dtd
     dtd-ref
 
     ;; exceptions
+    dictionary-error
     dictionary-error?
     dictionary-message
     dictionary-irritants
 
     ;; proc indeces
-    make-dictionary-id
-    dict-unfold-id
     dictionary?-id
     dict-empty?-id
     dict-contains?-id
+    dict=?-id
+    dict-mutable?-id
     dict-ref-id
     dict-ref/default-id
+    dict-min-key-id
+    dict-max-key-id
     dict-set-id
-    dict-set!-id
     dict-adjoin-id
-    dict-adjoin!-id
     dict-delete-id
-    dict-delete!-id
     dict-delete-all-id
-    dict-delete-all!-id
     dict-replace-id
-    dict-replace!-id
     dict-intern-id
-    dict-intern!-id
     dict-update-id
-    dict-update!-id
     dict-update/default-id
-    dict-update/default!-id
     dict-pop-id
-    dict-pop!-id
     dict-map-id
-    dict-map!-id
     dict-filter-id
-    dict-filter!-id
     dict-remove-id
-    dict-remove!-id
-    dict-search-id
-    dict-search!-id
-    dict-copy-id
+    dict-alter-id
     dict-size-id
-    dict-for-each-id
     dict-count-id
     dict-any-id
     dict-every-id
@@ -129,6 +130,18 @@
     dict-map->list-id
     dict->alist-id
     dict-comparator-id
+    dict-for-each-id
+    dict-for-each<-id
+    dict-for-each<=-id
+    dict-for-each>-id
+    dict-for-each>=-id
+    dict-for-each-in-open-interval-id
+    dict-for-each-in-closed-interval-id
+    dict-for-each-in-open-closed-interval-id
+    dict-for-each-in-closed-open-interval-id
+    make-dict-generator-id
+    dict-set-accumulator-id
+    dict-adjoin-accumulator-id
 
     ;; basic DTDs
     plist-dtd
@@ -158,6 +171,7 @@
          (export srfi-69-dtd))
         (else))
 
+#|
     (cond-expand
         ((library (srfi 125))
          (import (prefix (srfi 125) t125-))
@@ -179,4 +193,7 @@
          (include "srfi-146-impl.scm"
                   "srfi-146-hash-impl.scm")
          (export mapping-dtd
-                 hash-mapping-dtd))))
+                 hash-mapping-dtd))
+        (else))
+|#
+)

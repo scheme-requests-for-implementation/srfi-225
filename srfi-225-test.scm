@@ -3,17 +3,31 @@
         (scheme write)
         (srfi 1)
         (prefix (srfi 69) t69-)
-        (prefix (srfi 125) t125-)
-        (prefix (srfi 126) t126-)
+        ;(prefix (srfi 125) t125-)
+        ;(prefix (srfi 126) t126-)
         (srfi 128)
-        (srfi 146)
-        (srfi 146 hash)
+        ;(srfi 146)
+        ;(srfi 146 hash)
+        (srfi 158)
         (srfi 225))
 
 (cond-expand
   (chibi
    (import (rename (except (chibi test) test-equal)
-                   (test test-equal))))
+                   (test test-equal)
+                   (test-group test-group*)))
+   (define test-skip-count 0)
+   (define (test-skip n)
+     (set! test-skip-count n))
+   (define-syntax test-group
+     (syntax-rules ()
+       ((_ name body ...)
+        (test-group*
+          name
+          (if (> test-skip-count 0)
+              (set! test-skip-count (- test-skip-count 1))
+              (let ()
+               body ...)))))))
   (else
    (import (srfi 64))))
 
@@ -21,7 +35,7 @@
 ;; which counts how often each dtd's method was called
 ;; verify that all functions were tested
 (define (wrap-dtd dtd)
-  (define proc-count (+ 1 dict-comparator-id))
+  (define proc-count (+ 1 dict-adjoin-accumulator-id))
   (define counter (make-vector proc-count 0))
   (define wrapper-dtd-args
     (let loop ((indexes (iota proc-count))
@@ -40,27 +54,29 @@
    (apply make-dtd wrapper-dtd-args)
    counter))
 
-(define (do-test real-dtd alist->dict comparator)
+(define (test-for-each expect-success for-each-proc expected-keys)
+  (call/cc (lambda (cont)
+             (with-exception-handler
+               (lambda (err)
+                 (unless expect-success
+                   (cont #t)))
+               (lambda ()
+                 (define lst '())
+                 (for-each-proc
+                   (lambda (key value)
+                     (set! lst (append lst (list key)))))
+                 (test-equal (length lst) (length expected-keys))
+                 (for-each
+                   (lambda (key)
+                     (test-assert (find (lambda (key*) (equal? key key*)) 
+                                        expected-keys)))
+                   lst))))))
+
+(define (do-test real-dtd alist->dict comparator mutable?)
 
   (define-values
       (dtd counter)
     (wrap-dtd real-dtd))
-  (test-group
-   "make-dictionary"
-   (define dict (make-dictionary dtd comparator))
-   (test-assert (dictionary? dtd dict))
-   (test-assert (dict-empty? dtd dict)))
-
-  (test-group
-   "dict-unfold"
-   (define (stop? value) (> value 1))
-   (define seed 0)
-   (define (mapper seed) (values (number->string seed) seed))
-   (define (successor seed) (+ 1 seed))
-   (define dict (dict-unfold dtd comparator stop? mapper successor seed))
-   (test-equal 2 (dict-size dtd dict))
-   (test-equal 0 (dict-ref dtd dict "0"))
-   (test-equal 1 (dict-ref dtd dict "1")))
 
   (test-group
    "dictionary?"
@@ -78,6 +94,19 @@
    (test-assert (not (dict-contains? dtd (alist->dict '()) 'a)))
    (test-assert (not (dict-contains? dtd (alist->dict '((b . c))) 'a)))
    (test-assert (dict-contains? dtd (alist->dict '((a . b))) 'a)))
+  
+  (test-group
+    "dict=?"
+    (define dict1 (alist->dict '((a . 1) (b . 2))))
+    (define dict2 (alist->dict '((b . 2) (a . 1))))
+    (define dict3 (alist->dict '((a . 1))))
+    (define dict4 (alist->dict '((a . 2) (b . 2))))
+    
+    (test-assert (dict=? dtd = dict1 dict2))
+    (test-assert (not (dict=? dtd = dict1 dict3)))
+    (test-assert (not (dict=? dtd = dict3 dict1)))
+    (test-assert (not (dict=? dtd = dict1 dict4)))
+    (test-assert (not (dict=? dtd = dict4 dict1))))
 
   (test-group
    "dict-ref"
@@ -88,7 +117,37 @@
    "dict-ref/default"
    (test-equal (dict-ref/default dtd (alist->dict '((a . b))) 'a 'c) 'b)
    (test-equal (dict-ref/default dtd (alist->dict '((a* . b))) 'a 'c) 'c))
+  
+  (test-group
+    "dict-min-key"
+    (define dict (alist->dict '((2 . a) (1 . b) (3 . c))))
+    (call/cc (lambda (cont)
+               (with-exception-handler
+                 (lambda (err)
+                   (unless (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                                  (ordering (and cmp (comparator-ordering-predicate cmp))))
+                             ordering)
+                     (cont #t)))
+                 (lambda ()
+                   (define key (dict-min-key dtd dict))
+                   (test-equal 1 key))))))
+  
+  (test-group
+    "dict-max-key"
+    (define dict (alist->dict '((2 . a) (3 . b) (1 . c))))
+    (call/cc (lambda (cont)
+               (with-exception-handler
+                 (lambda (err)
+                   (unless (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                                  (ordering (and cmp (comparator-ordering-predicate cmp))))
+                             ordering)
+                     (cont #t)))
+                 (lambda ()
+                   (define key (dict-max-key dtd dict))
+                   (test-equal 3 key))))))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-set"
    (define dict-original (alist->dict '((a . b))))
@@ -98,12 +157,16 @@
    (test-equal 'b (dict-ref dtd dict-original' a))
    (test-equal #f (dict-ref/default dtd dict-original 'a2 #f)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-set!"
    (define d (dict-set! dtd (alist->dict '((a . b))) 'a 'c 'a2 'b2))
    (test-equal 'c (dict-ref dtd d 'a ))
    (test-equal 'b2 (dict-ref dtd d 'a2)))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-adjoin"
    (define dict-original (alist->dict '((a . b))))
@@ -112,12 +175,16 @@
    (test-equal 'b2 (dict-ref dtd d 'a2))
    (test-equal #f (dict-ref/default dtd dict-original 'a2 #f)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-adjoin!"
    (define d (dict-adjoin! dtd (alist->dict '((a . b))) 'a 'c 'a2 'b2))
    (test-equal 'b (dict-ref dtd d 'a))
    (test-equal 'b2 (dict-ref dtd d 'a2)))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-delete"
    (define dict-original (alist->dict '((a . b) (c . d))))
@@ -125,11 +192,15 @@
    (test-equal (dict->alist dtd d) '((c . d)))
    (test-equal 'b (dict-ref dtd dict-original 'a)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-delete!"
    (define d (dict-delete! dtd (alist->dict '((a . b) (c . d))) 'a 'b))
    (test-equal (dict->alist dtd d) '((c . d))))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-delete-all"
    (define dict-original (alist->dict '((a . b) (c . d))))
@@ -137,11 +208,15 @@
    (test-equal (dict->alist dtd d) '((c . d)))
    (test-equal 'b (dict-ref dtd dict-original 'a)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-delete-all!"
    (define d (dict-delete-all! dtd (alist->dict '((a . b) (c . d))) '(a b)))
    (test-equal (dict->alist dtd d) '((c . d))))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-replace"
    (define dict-original (alist->dict '((a . b) (c . d))))
@@ -150,12 +225,16 @@
    (test-equal 'd (dict-ref dtd d 'c))
    (test-equal 'b (dict-ref dtd dict-original 'a)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-replace!"
    (define d (dict-replace! dtd (alist->dict '((a . b) (c . d))) 'a 'b2))
    (test-equal 'b2 (dict-ref dtd d 'a))
    (test-equal 'd (dict-ref dtd d 'c)))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-intern"
    ;; intern existing
@@ -176,6 +255,8 @@
      (test-equal 'd value)
      (test-equal #f (dict-ref/default dtd dict-original 'c #f))))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-intern!"
    ;; intern existing
@@ -194,6 +275,8 @@
      (test-equal 'd (dict-ref dtd d 'c))
      (test-equal 'd value)))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-update"
    ;; update existing
@@ -216,6 +299,8 @@
      (test-equal "d12" (dict-ref dtd d 'c))
      (test-equal #f (dict-ref/default dtd dict-original 'c #f))))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-update!"
    ;; update existing
@@ -235,6 +320,8 @@
                              (lambda (x) (string-append x "1"))))
      (test-equal "d12" (dict-ref dtd d 'c))))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-update/default"
    ;; update existing
@@ -256,6 +343,8 @@
      (test-equal "d12" (dict-ref dtd d 'c))
      (test-equal #f (dict-ref/default dtd dict-original 'c #f))))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-update/default!"
    ;; update existing
@@ -274,6 +363,8 @@
                                      "d1"))
      (test-equal "d12" (dict-ref dtd d 'c))))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-pop"
    (define dict-original (alist->dict '((a . b) (c . d))))
@@ -292,6 +383,8 @@
    (test-assert 'b (dict-ref dtd dict-original 'a))
    (test-assert 'd (dict-ref dtd dict-original 'c)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-pop!"
    (define-values
@@ -307,6 +400,8 @@
              (equal? key 'c)
              (equal? value 'd)))))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-map"
    (define dict-original (alist->dict '((a . "a") (b . "b"))))
@@ -319,6 +414,8 @@
    (test-equal "a" (dict-ref dtd dict-original 'a))
    (test-equal "b" (dict-ref dtd dict-original 'b)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-map!"
    (define d (dict-map! dtd
@@ -328,6 +425,8 @@
    (test-equal "a2" (dict-ref dtd d 'a))
    (test-equal "b2" (dict-ref dtd d 'b)))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-filter"
    (define dict-original (alist->dict '((a . b) (c . d))))
@@ -339,6 +438,8 @@
    (test-equal '((a . b)) (dict->alist dtd d))
    (test-equal 'd (dict-ref dtd dict-original 'c)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-filter!"
    (define d (dict-filter! dtd
@@ -347,6 +448,8 @@
                            (alist->dict '((a . b) (c . d)))))
    (test-equal '((a . b)) (dict->alist dtd d)))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
    "dict-remove"
    (define dict-original (alist->dict '((a . b) (c . d))))
@@ -357,6 +460,8 @@
    (test-equal '((c . d)) (dict->alist dtd d))
    (test-equal 'd (dict-ref dtd dict-original 'c)))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
    "dict-remove!"
    (define d (dict-remove! dtd
@@ -365,138 +470,99 @@
                            (alist->dict '((a . b) (c . d)))))
    (test-equal '((c . d)) (dict->alist dtd d)))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
-   "dict-search"
+   "dict-alter"
    ;; ignore
    (let ()
-     (define-values
-         (dict value)
-       (dict-search dtd (alist->dict '((a . b))) 'c
-                    (lambda (insert ignore)
-                      (ignore 'foo))
-                    (lambda args
-                      (error "shouldn't happen"))))
-     (test-equal '((a . b)) (dict->alist dtd dict))
-     (test-equal value 'foo))
+     (define dict (dict-alter dtd (alist->dict '((a . b))) 'c
+                              (lambda (insert ignore)
+                                (ignore))
+                              (lambda args
+                                (error "shouldn't happen"))))
+     (test-equal '((a . b)) (dict->alist dtd dict)))
 
    ;; insert
    (let ()
      (define dict-original (alist->dict '((a . b))))
-     (define-values
-         (dict value)
-       (dict-search dtd dict-original 'c
+     (define dict (dict-alter dtd dict-original 'c
                     (lambda (insert ignore)
-                      (insert 'd 'foo))
+                      (insert 'd))
                     (lambda args
                       (error "shouldn't happen"))))
      (test-equal 'b (dict-ref dtd dict 'a))
      (test-equal 'd (dict-ref dtd dict 'c))
-     (test-equal value 'foo)
      (test-equal #f (dict-ref/default dtd dict-original 'c #f)))
 
    ;; update
    (let ()
      (define dict-original (alist->dict '((a . b))))
-     (define-values
-         (dict value)
-       (dict-search dtd dict-original 'a
-                    (lambda args
-                      (error "shouldn't happen"))
-                    (lambda (key value update delete)
-                      (update 'a2 'b2 'foo))))
+     (define dict (dict-alter dtd dict-original 'a
+                              (lambda args
+                                (error "shouldn't happen"))
+                              (lambda (key value update delete)
+                                (update 'a2 'b2))))
      (test-equal '((a2 . b2)) (dict->alist dtd dict))
-     (test-equal value 'foo)
      (test-equal #f (dict-ref/default dtd dict-original 'a2 #f))
      (test-equal 'b (dict-ref dtd dict-original 'a)))
 
    ;; delete
    (let ()
      (define dict-original (alist->dict '((a . b) (c . d))))
-     (define-values
-         (dict value)
-       (dict-search dtd dict-original 'a
-                    (lambda args
-                      (error "shouldn't happen"))
-                    (lambda (key value update delete)
-                      (delete 'foo))))
+     (define dict (dict-alter dtd dict-original 'a
+                              (lambda args
+                                (error "shouldn't happen"))
+                              (lambda (key value update delete)
+                                (delete))))
      (test-equal '((c . d)) (dict->alist dtd dict))
-     (test-equal value 'foo)
      (test-equal 'b (dict-ref dtd dict-original 'a))))
 
+  (unless mutable?
+    (test-skip 1))
   (test-group
-   "dict-search!"
+   "dict-alter!"
    ;; ignore
    (let ()
-     (define-values
-         (dict value)
-       (dict-search! dtd (alist->dict '((a . b))) 'c
-                     (lambda (insert ignore)
-                       (ignore 'foo))
-                     (lambda args
-                       (error "shouldn't happen"))))
-     (test-equal '((a . b)) (dict->alist dtd dict))
-     (test-equal value 'foo))
+    (define dict (dict-alter! dtd (alist->dict '((a . b))) 'c
+                              (lambda (insert ignore)
+                                (ignore))
+                              (lambda args
+                                (error "shouldn't happen"))))
+     (test-equal '((a . b)) (dict->alist dtd dict)))
 
    ;; insert
    (let ()
-     (define-values
-         (dict value)
-       (dict-search! dtd (alist->dict '((a . b))) 'c
-                     (lambda (insert ignore)
-                       (insert 'd 'foo))
-                     (lambda args
-                       (error "shouldn't happen"))))
+     (define dict (dict-alter! dtd (alist->dict '((a . b))) 'c
+                               (lambda (insert ignore)
+                                 (insert 'd))
+                               (lambda args
+                                 (error "shouldn't happen"))))
      (test-equal 'b (dict-ref dtd dict 'a))
-     (test-equal 'd (dict-ref dtd dict 'c))
-     (test-equal value 'foo))
+     (test-equal 'd (dict-ref dtd dict 'c)))
 
    ;; update
    (let ()
-     (define-values
-         (dict value)
-       (dict-search! dtd (alist->dict '((a . b))) 'a
-                     (lambda args
-                       (error "shouldn't happen"))
-                     (lambda (key value update delete)
-                       (update 'a2 'b2 'foo))))
-     (test-equal '((a2 . b2)) (dict->alist dtd dict))
-     (test-equal value 'foo))
+     (define dict (dict-alter! dtd (alist->dict '((a . b))) 'a
+                               (lambda args
+                                 (error "shouldn't happen"))
+                               (lambda (key value update delete)
+                                 (update 'a2 'b2))))
+     (test-equal '((a2 . b2)) (dict->alist dtd dict)))
 
    ;; delete
    (let ()
-     (define-values
-         (dict value)
-       (dict-search! dtd (alist->dict '((a . b) (c . d))) 'a
-                     (lambda args
-                       (error "shouldn't happen"))
-                     (lambda (key value update delete)
-                       (delete 'foo))))
-     (test-equal '((c . d)) (dict->alist dtd dict))
-     (test-equal value 'foo)))
-
-  (test-group
-   "dict-copy"
-   (define original-dict (alist->dict '((a . b))))
-   (define copied-dict (dict-copy dtd original-dict))
-   (set! original-dict (dict-set! dtd original-dict 'c 'd))
-   (test-equal 'd (dict-ref dtd original-dict 'c))
-   (test-equal #f (dict-ref/default dtd copied-dict 'c #f)))
+     (define dict (dict-alter! dtd (alist->dict '((a . b) (c . d))) 'a
+                               (lambda args
+                                 (error "shouldn't happen"))
+                               (lambda (key value update delete)
+                                 (delete))))
+     (test-equal '((c . d)) (dict->alist dtd dict))))
 
   (test-group
    "dict-size"
    (test-equal 2 (dict-size dtd (alist->dict '((a . b) (c . d)))))
    (test-equal 0 (dict-size dtd (alist->dict '()))))
-
-  (test-group
-   "dict-for-each"
-   (define lst '())
-   (dict-for-each dtd
-                  (lambda (key value)
-                    (set! lst (append lst (list key value))))
-                  (alist->dict '((a . b) (c . d))))
-   (test-assert
-       (or (equal? '(a b c d) lst)
-           (equal? '(c d a b) lst))))
 
   (test-group
    "dict-count"
@@ -617,6 +683,166 @@
    (let ((cmp (dict-comparator dtd (alist->dict '((a . b))))))
      (test-assert (or (not cmp)
                       (comparator? cmp)))))
+  
+  (test-group
+    "dict-for-each"
+    (test-for-each #t
+      (lambda (proc)
+        (dict-for-each dtd 
+                       proc 
+                       (alist->dict '((1 . a)
+                                      (2 . b)
+                                      (3 . c)
+                                      (4 . d)))))
+      '(1 2 3 4)))
+
+  (test-group
+    "dict-for-each<"
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each< dtd 
+                        proc 
+                        (alist->dict '((1 . a)
+                                       (2 . b)
+                                       (3 . c)
+                                       (4 . d)))
+                        3))
+      '(1 2)))
+
+  (test-group
+    "dict-for-each<="
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each<= dtd 
+                        proc 
+                        (alist->dict '((1 . a)
+                                       (2 . b)
+                                       (3 . c)
+                                       (4 . d)))
+                        3))
+      '(1 2 3)))
+  
+  (test-group
+    "dict-for-each>"
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each> dtd 
+                        proc 
+                        (alist->dict '((1 . a)
+                                       (2 . b)
+                                       (3 . c)
+                                       (4 . d)))
+                        2))
+      '(3 4)))
+  
+  (test-group
+    "dict-for-each>="
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each>= dtd 
+                        proc 
+                        (alist->dict '((1 . a)
+                                       (2 . b)
+                                       (3 . c)
+                                       (4 . d)))
+                        2))
+      '(2 3 4)))
+  
+  (test-group
+    "dict-for-each-in-open-interval"
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each-in-open-interval dtd 
+                                        proc 
+                                        (alist->dict '((1 . a)
+                                                       (2 . b)
+                                                       (3 . c)
+                                                       (4 . d)))
+                                        1 4))
+      '(2 3)))
+  
+  (test-group
+    "dict-for-each-in-closed-interval"
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each-in-closed-interval dtd 
+                                        proc 
+                                        (alist->dict '((1 . a)
+                                                       (2 . b)
+                                                       (3 . c)
+                                                       (4 . d)))
+                                        1 4))
+      '(1 2 3 4)))
+  
+  (test-group
+    "dict-for-each-in-open-closed-interval"
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each-in-open-closed-interval dtd 
+                                               proc 
+                                               (alist->dict '((1 . a)
+                                                              (2 . b)
+                                                              (3 . c)
+                                                              (4 . d)))
+                                               1 4))
+      '(2 3 4)))
+  
+  (test-group
+    "dict-for-each-in-closed-open-interval"
+    (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
+                          (ordering (and cmp (comparator-ordering-predicate cmp))))
+                     ordering)
+      (lambda (proc)
+        (dict-for-each-in-closed-open-interval dtd 
+                                               proc 
+                                               (alist->dict '((1 . a)
+                                                              (2 . b)
+                                                              (3 . c)
+                                                              (4 . d)))
+                                               1 4))
+      '(1 2 3)))
+  
+  (test-group
+    "make-dict-generator"
+    (test-for-each #t
+      (lambda (proc)
+        (generator-for-each
+          (lambda (entry)
+            (proc (car entry) (cdr entry)))
+          (make-dict-generator dtd (alist->dict '((1 . a) 
+                                                  (2 . b)
+                                                  (3 . c))))))
+      '(1 2 3)))
+  
+  (test-group
+    "dict-set-accumulator"
+    (define acc (dict-set-accumulator dtd (alist->dict '())))
+    (acc (cons 1 'a))
+    (acc (cons 2 'b))
+    (acc (cons 2 'c))
+    (test-assert (dict=? dtd equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . c))))))
+  
+  (test-group
+    "dict-adjoin-accumulator"
+    (define acc (dict-adjoin-accumulator dtd (alist->dict '())))
+    (acc (cons 1 'a))
+    (acc (cons 2 'b))
+    (acc (cons 2 'c))
+    (test-assert (dict=? dtd equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . b))))))
 
   ;; check all procs were called
   (for-each
@@ -633,17 +859,18 @@
  (define alist-dtd (make-alist-dtd equal?))
  (define minimal-alist-dtd
    (make-dtd
-    make-dictionary-id (dtd-ref alist-dtd make-dictionary-id)
     dictionary?-id (dtd-ref alist-dtd dictionary?-id)
+    dict-mutable?-id (dtd-ref alist-dtd dict-mutable?-id)
     dict-size-id (dtd-ref alist-dtd dict-size-id)
-    dict-search-id (dtd-ref alist-dtd dict-search-id)
-    dict-search!-id (dtd-ref alist-dtd dict-search!-id)
+    dict-alter-id (dtd-ref alist-dtd dict-alter-id)
     dict-for-each-id (dtd-ref alist-dtd dict-for-each-id)
     dict-comparator-id (dtd-ref alist-dtd dict-comparator-id)))
  (do-test
   minimal-alist-dtd
   alist-copy
-  #f))
+  #f
+  #f
+  ))
 
 (test-group
  "alist"
@@ -652,7 +879,8 @@
   ;; copy to a mutable list instead of using identity function
   ;; so that mutating procedures don't fail
   alist-copy
-  #f)
+  #f
+  #f) 
 
  (test-group
   "alist dict-comparator"
@@ -667,6 +895,7 @@
            (map (lambda (pair)
                   (list (car pair) (cdr pair)))
                 alist)))
+  #f
   #f)
  (test-group
   "plist dict-comparator"
@@ -683,8 +912,10 @@
        (t69-hash-table-set! table (car pair) (cdr pair)))
      alist)
     table)
-  (make-default-comparator)))
+  (make-default-comparator)
+  #t))
 
+#|
 (test-group
  "srfi-125"
  (do-test
@@ -744,5 +975,6 @@
  (test-group
   "srfi-146 hash dict-comparator"
   (test-equal cmp (dict-comparator hash-mapping-dtd (make-dictionary hash-mapping-dtd cmp)))))
+|#
 
 (test-end)

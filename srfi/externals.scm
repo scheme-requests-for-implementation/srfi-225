@@ -11,12 +11,14 @@
   (message dictionary-message)
   (irritants dictionary-irritants))
 
+;; shorthand access to dtd procedure by index
 (define-syntax dtd-ref-stx
   (syntax-rules ()
     ((_ dtd index)
      (begin
        (vector-ref (procvec dtd) index)))))
 
+;; shorthand to define proc with using proc index
 (define-syntax define/dict-proc
   (syntax-rules ()
     ((_ proc index)
@@ -24,11 +26,43 @@
        (assume (dtd? dtd))
        (apply (dtd-ref-stx dtd index) dtd args)))))
 
-(define/dict-proc make-dictionary make-dictionary-id)
-(define/dict-proc dict-unfold dict-unfold-id)
+;; define mutable and immutable versions of a procedure (such as dict-set! and dict-set)
+;; with appropriate assertion for dict-mutable? value
+;; when dtd is first arg, and dict is second arg
+(define-syntax define/dict-proc-pair
+  (syntax-rules ()
+    ((_ proc-immutable proc-mutable index)
+     (begin
+       (define (proc-mutable dtd dict . args)
+         (assume (dtd? dtd))
+         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict))
+         (apply (dtd-ref-stx dtd index) dtd dict args))
+       (define (proc-immutable dtd dict . args)
+         (assume (dtd? dtd))
+         (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)) index)
+         (apply (dtd-ref-stx dtd index) dtd dict args))))))
+
+;; define mutable and immutable versions of a procedure (such as dict-set! and dict-set)
+;; with appropriate assertion for dict-mutable? value
+;; when dtd is first arg, and dict is third arg (ie filter, map shape signature)
+(define-syntax define/dict-proc-pair*
+  (syntax-rules ()
+    ((_ proc-immutable proc-mutable index)
+     (begin
+       (define (proc-mutable dtd proc dict)
+         (assume (dtd? dtd))
+         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict))
+         ((dtd-ref-stx dtd index) dtd proc dict))
+       (define (proc-immutable dtd proc dict)
+         (assume (dtd? dtd))
+         (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)))
+         ((dtd-ref-stx dtd index) dtd proc dict))))))
+
 (define/dict-proc dictionary? dictionary?-id)
 (define/dict-proc dict-empty? dict-empty?-id)
 (define/dict-proc dict-contains? dict-contains?-id)
+(define/dict-proc dict-mutable? dict-mutable?-id)
+(define/dict-proc dict=? dict=?-id)
 
 (define dict-ref
   (case-lambda
@@ -45,18 +79,14 @@
      ((dtd-ref-stx dtd dict-ref-id) dtd dict key failure success))))
 
 (define/dict-proc dict-ref/default dict-ref/default-id)
-(define/dict-proc dict-set dict-set-id)
-(define/dict-proc dict-set! dict-set!-id)
-(define/dict-proc dict-adjoin dict-adjoin-id)
-(define/dict-proc dict-adjoin! dict-adjoin!-id)
-(define/dict-proc dict-delete dict-delete-id)
-(define/dict-proc dict-delete! dict-delete!-id)
-(define/dict-proc dict-delete-all dict-delete-all-id)
-(define/dict-proc dict-delete-all! dict-delete-all!-id)
-(define/dict-proc dict-replace dict-replace-id)
-(define/dict-proc dict-replace! dict-replace!-id)
-(define/dict-proc dict-intern dict-intern-id)
-(define/dict-proc dict-intern! dict-intern!-id)
+(define/dict-proc dict-min-key dict-min-key-id)
+(define/dict-proc dict-max-key dict-max-key-id)
+(define/dict-proc-pair dict-set dict-set! dict-set-id)
+(define/dict-proc-pair dict-adjoin dict-adjoin! dict-adjoin-id)
+(define/dict-proc-pair dict-delete dict-delete! dict-delete-id)
+(define/dict-proc-pair dict-delete-all dict-delete-all! dict-delete-all-id)
+(define/dict-proc-pair dict-replace dict-replace! dict-replace-id)
+(define/dict-proc-pair dict-intern dict-intern! dict-intern-id)
 
 (define dict-update
   (case-lambda
@@ -70,37 +100,31 @@
 
     ((dtd dict key updater failure success)
      (assume (dtd? dtd))
+     (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)))
      ((dtd-ref-stx dtd dict-update-id) dtd dict key updater failure success))))
 
 (define dict-update!
   (case-lambda
     ((dtd dict key updater)
-     (dict-update! dtd dict key updater
-                   (lambda () (error "Key not found in dictionary" dict key))
-                   values))
+     (dict-update dtd dict key updater
+                  (lambda () (error "Key not found in dictionary" dict key))
+                  values))
 
     ((dtd dict key updater failure)
-     (dict-update! dtd dict key  updater failure values))
+     (dict-update dtd dict key  updater failure values))
 
     ((dtd dict key updater failure success)
      (assume (dtd? dtd))
-     ((dtd-ref-stx dtd dict-update!-id) dtd dict key updater failure success))))
+     (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict))
+     ((dtd-ref-stx dtd dict-update-id) dtd dict key updater failure success))))
 
-(define/dict-proc dict-update/default dict-update/default-id)
-(define/dict-proc dict-update/default! dict-update/default!-id)
-(define/dict-proc dict-pop dict-pop-id)
-(define/dict-proc dict-pop! dict-pop!-id)
-(define/dict-proc dict-map dict-map-id)
-(define/dict-proc dict-map! dict-map!-id)
-(define/dict-proc dict-filter dict-filter-id)
-(define/dict-proc dict-filter! dict-filter!-id)
-(define/dict-proc dict-remove dict-remove-id)
-(define/dict-proc dict-remove! dict-remove!-id)
-(define/dict-proc dict-search dict-search-id)
-(define/dict-proc dict-search! dict-search!-id)
-(define/dict-proc dict-copy dict-copy-id)
+(define/dict-proc-pair dict-update/default dict-update/default! dict-update/default-id)
+(define/dict-proc-pair dict-pop dict-pop! dict-pop-id)
+(define/dict-proc-pair* dict-map dict-map! dict-map-id)
+(define/dict-proc-pair* dict-filter dict-filter! dict-filter-id)
+(define/dict-proc-pair* dict-remove dict-remove! dict-remove-id)
+(define/dict-proc-pair dict-alter dict-alter! dict-alter-id)
 (define/dict-proc dict-size dict-size-id)
-(define/dict-proc dict-for-each dict-for-each-id)
 (define/dict-proc dict-count dict-count-id)
 (define/dict-proc dict-any dict-any-id)
 (define/dict-proc dict-every dict-every-id)
@@ -111,6 +135,18 @@
 (define/dict-proc dict-map->list dict-map->list-id)
 (define/dict-proc dict->alist dict->alist-id)
 (define/dict-proc dict-comparator dict-comparator-id)
+(define/dict-proc dict-for-each dict-for-each-id)
+(define/dict-proc dict-for-each< dict-for-each<-id)
+(define/dict-proc dict-for-each<= dict-for-each<=-id)
+(define/dict-proc dict-for-each> dict-for-each>-id)
+(define/dict-proc dict-for-each>= dict-for-each>=-id)
+(define/dict-proc dict-for-each-in-open-interval dict-for-each-in-open-interval-id)
+(define/dict-proc dict-for-each-in-closed-interval dict-for-each-in-closed-interval-id)
+(define/dict-proc dict-for-each-in-open-closed-interval dict-for-each-in-open-closed-interval-id)
+(define/dict-proc dict-for-each-in-closed-open-interval dict-for-each-in-closed-open-interval-id)
+(define/dict-proc make-dict-generator make-dict-generator-id)
+(define/dict-proc dict-set-accumulator dict-set-accumulator-id)
+(define/dict-proc dict-adjoin-accumulator dict-adjoin-accumulator-id)
 
 (define (dtd-ref dtd procindex)
   (dtd-ref-stx dtd procindex))

@@ -78,8 +78,8 @@ Consequently, previous examples don't affect later ones.
 <blockquote><pre>
 (define dicta '((5 . 6) (3 . 4) (1 . 2))
 (define dictb '((1 . 2) (3 . 4))
-(dict=? aed dict dicta) => #t
-(dict=? aed dict dictb) => #f</pre></blockquote>
+(dict=? aed = dict dicta) => #t
+(dict=? aed = dict dictb) => #f</pre></blockquote>
 <p><code>(dict-mutable?</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if the dictionary type supports mutations and <code>#f</code> if it supports functional updates.</p>
 <blockquote><pre>
@@ -103,7 +103,7 @@ Consequently, previous examples don't affect later ones.
 (dict-max-key aed dict) => 5
 </pre></blockquote>
 <h3 id="mutation">Functional update and mutation</h3>
-<p>All these procedures exist in pairs, with and without a final <code>!</code>.  The ones without <code>!</code> are functional: they never side-effect their arguments, but the result may share structure with the <em>dict</em> argument.  The ones with <code>!</code> are mutations: they they change the <em>dict</em> argument.  However, only one set of procedures is supported in any dictionary: for example, SRFI 125 hash tables support only mutation, whereas SRFI 146 mappings support only functional update.  The <code>dict-mutable?</code> procedure can be used to determine which set is usable.</p>
+<p>All these procedures exist in pairs, with and without a final <code>!</code>.  The ones without <code>!</code> are functional: they never side-effect their arguments, but the result may share structure with the <em>dict</em> argument.  The ones with <code>!</code> are mutations: they change the <em>dict</em> argument.  However, only one set of procedures is supported in any dictionary: for example, SRFI 125 hash tables support only mutation, whereas SRFI 146 mappings support only functional update.  The <code>dict-mutable?</code> procedure can be used to determine which set is usable.</p>
 <p><code>(dict-set</code>&nbsp;<em>dtd dict obj</em> …<code>)</code><br>
 <code>(dict-set!</code>&nbsp;<em>dtd dict obj</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> plus those specified by <em>objs</em>, which alternate between keys and values. If a key to be added already exists in <em>dict</em>, the new value prevails.</p>
@@ -303,6 +303,7 @@ and <code>dict-alter</code>.
 <code>dictionary?-id</code>,
 <code>dict-comparator-id</code>,
 <code>dict-mutable?-id</code>,
+<code>dict-for-each-id</code>,
 <code>dict-map-id</code> (functional-update dictionaries),
 <code>dict-filter-id</code> (functional-update dictionaries),
 <code>dict-alter-id</code>,
@@ -335,20 +336,19 @@ Note that it is not an error to omit any of these, but some dictionary procedure
 <code>dict-values-id</code>,
 <code>dict-entries-id</code>,
 <code>dict-fold-id</code>,
-<code>dict-map->list-id</code>,
-<code>dict->alist-id</code>,
-<code>dict-for-each-id</code>,
+<code>dict-map-&gt;list-id</code>,
+<code>dict-&gt;alist-id</code>,
 <code>dict-for-each&lt;-id</code>,
 <code>dict-for-each&lt;=-id</code>,
-<code>dict-for-each>-id</code>,
-<code>dict-for-each>=-id</code>,
+<code>dict-for-each&gt;-id</code>,
+<code>dict-for-each&gt;=-id</code>,
 <code>dict-for-each-in-open-interval-id</code>,
 <code>dict-for-each-in-closed-interval-id</code>,
 <code>dict-for-each-in-open-closed-interval-id</code>,
 <code>dict-for-each-in-closed-open-interval-id</code>,
-<code>make-dict-generator</code>,
-<code>dict-set-accumulator</code>,
-<code>dict-adjoin-accumulator</code>.
+<code>make-dict-generator-id</code>,
+<code>dict-set-accumulator-id</code>,
+<code>dict-adjoin-accumulator-id</code>.
 
 <p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code>, but may also verify that the <em>proc-ids</em> are valid, that there are no duplicates, etc.</p>
 <p><code>(make-alist-dtd</code>&nbsp;<em>equal</em><code>)</code></p>

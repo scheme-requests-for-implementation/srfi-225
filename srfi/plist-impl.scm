@@ -1,41 +1,29 @@
 (define plist-dtd
   (let ()
 
-    (define (make-plist dtd comparator)
-      (when comparator
-        (raise (dictionary-error "plist dtd doesn't accept comparator" dtd)))
-      '())
-
     (define (plist? dtd l)
       (and (list? l)
            (or (null? l)
                (symbol? (car l)))))
 
     (define (plist-map dtd proc plist)
-      (plist-map! dtd proc (dict-copy dtd plist)))
-
-    (define (plist-map! dtd proc plist)
-      (let loop ((pl plist))
+      (let loop ((pl plist)
+                 (new-pl/rev '()))
         (cond
-         ((null? pl) plist)
+         ((null? pl) (reverse new-pl/rev))
          ((null? (cdr pl)) (error "Malformed plist" plist))
          (else
           (let ((key (car pl))
                 (value (cadr pl))
                 (rest (cddr pl)))
-            (set-car! (cdr pl)
-                      (proc key value))
-            (loop rest))))))
+            (loop rest
+                  (append (list (proc key value) key) new-pl/rev)))))))
 
     (define (plist-filter dtd pred plist)
-      (plist-filter! dtd pred (dict-copy dtd plist)))
-
-    (define (plist-filter! dtd pred plist)
-      (define head (cons #f plist))
       (let loop ((pl plist)
-                 (parent-cell head))
+                 (new-pl/rev '()))
         (cond
-         ((null? pl) (cdr head))
+         ((null? pl) (reverse new-pl/rev))
          ((null? (cdr pl)) (error "Malformed plist" plist))
          (else
           (let ((key (car pl))
@@ -43,54 +31,58 @@
                 (rest (cddr pl)))
             (if (pred key value)
                 (loop rest
-                      (cdr pl))
-                (loop (begin
-                        (set-cdr! parent-cell rest)
-                        rest)
-                      parent-cell)))))))
+                      (append (list value key) new-pl/rev))
+                (loop rest
+                      new-pl/rev)))))))
 
-    ;; head is a pair, whose cdr is the plist
-    ;; if found, returns a pair, whose cdr is rest of plist, and cadr is key that was searched for
-    ;; if not found, returns #f
-    ;;
-    ;; the pair indirection is used so that calling set-cdr! on the result allows the plist to be mutated
-    (define (find-plist-entry key head)
-      (define plist (cdr head))
+    (define (find-plist-entry key plist)
       (cond
        ((null? plist) #f)
-       ((equal? key (car plist)) head)
-       (else (find-plist-entry key (cdr plist)))))
+       ((eq? key (car plist)) plist)
+       (else (find-plist-entry key (cddr plist)))))
+    
+    (define (plist-delete key-to-delete plist)
+      (let loop ((pl plist)
+                 (new-pl/rev '()))
+        (cond
+          ((null? pl) (reverse new-pl/rev))
+          ((null? (cdr pl)) (error "Malformed plist"))
+          (else (let ((key (car pl))
+                      (value (cadr pl))
+                      (rest (cddr pl)))
+                  (if (eq? key-to-delete key)
+                      (loop rest new-pl/rev)
+                      (loop rest (append (list value key) new-pl/rev))))))))
 
-    (define (plist-search dtd plist key failure success)
-      (plist-search! dtd (dict-copy dtd plist) key failure success))
-
-    (define (plist-search! dtd plist key failure success)
-      (define plist-head (cons #t plist))
-      (define (handle-success head)
-        (define key-cell (cdr head))
-        (define val-cell (cddr head))
-        (define (update new-key new-value obj)
-          (set-car! key-cell new-key)
-          (set-car! val-cell new-value)
-          (values plist obj))
-        (define (remove obj)
-          (set-cdr! head (cddr (cdr head)))
-          (values (cdr plist-head) obj))
-        (success (car key-cell) (car val-cell) update remove))
+    (define (plist-alter dtd plist key failure success)
+      (define (handle-success pair)
+        (define old-key (car pair))
+        (define old-value (cadr pair))
+        (define (update new-key new-value)
+          (cond
+            ((and (eq? old-key
+                       new-key)
+                  (eq? old-value
+                       new-value))
+             plist)
+            (else
+              (let ((new-list
+                      (append (list new-key new-value)
+                              (plist-delete old-key plist))))
+                new-list))))
+        (define (remove)
+          (plist-delete old-key plist))
+        (success old-key old-value update remove))
 
       (define (handle-failure)
-        (define (insert value obj)
-          (values (cons key (cons value plist))
-                  obj))
-        (define (ignore obj)
-          (values plist obj))
+        (define (insert value)
+          (append (list key value) plist))
+        (define (ignore)
+          plist)
         (failure insert ignore))
       (cond
-       ((find-plist-entry key plist-head) => handle-success)
-       (else (handle-failure))))
-
-    (define (plist-copy dtd plist)
-      (list-copy plist))
+        ((find-plist-entry key plist) => handle-success)
+        (else (handle-failure))))
 
     (define (plist-size dtd plist)
       (/ (length plist) 2))
@@ -101,20 +93,19 @@
             (begin
               (proc (car pl) (cadr pl))
               (loop (cddr pl))))))
+    
+    (define (plist-mutable? dtd plist)
+      #f)
 
     (define (plist-comparator dtd plist)
       #f)
 
     (make-dtd
-     make-dictionary-id make-plist
      dictionary?-id plist?
+     dict-mutable?-id plist-mutable?
      dict-map-id plist-map
-     dict-map!-id plist-map!
      dict-filter-id plist-filter
-     dict-filter!-id plist-filter!
-     dict-search-id plist-search
-     dict-search!-id plist-search!
-     dict-copy-id plist-copy
+     dict-alter-id plist-alter
      dict-size-id plist-size
      dict-for-each-id plist-foreach
      dict-comparator-id plist-comparator)))
