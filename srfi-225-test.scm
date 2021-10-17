@@ -475,7 +475,7 @@
                             (equal? value 'b))
                           dict-original))
    (test-equal '((c . d)) (dict->alist dtd d))
-   (test-equal 'd (dict-ref dtd dict-original 'c)))
+   (test-equal 'b (dict-ref dtd dict-original 'a)))
 
   (unless mutable?
     (test-skip 1))
