@@ -17,6 +17,26 @@
       (if (dict-mutable? dtd dict)
           (dict-alter! dtd dict key fail success)
           (dict-alter dtd dict key fail success)))
+    
+    (define (dict-delete-all* dtd dict keys)
+      (if (dict-mutable? dtd dict)
+          (dict-delete-all! dtd dict keys)
+          (dict-delete-all dtd dict keys)))
+    
+    (define (dict-update* dtd dict key updater fail success)
+      (if (dict-mutable? dtd dict)
+          (dict-update! dtd dict key updater fail success)
+          (dict-update dtd dict key updater fail success)))
+    
+    (define (dict-filter* dtd pred dictionary)
+      (if (dict-mutable? dtd dictionary)
+          (dict-filter! dtd pred dictionary)
+          (dict-filter dtd pred dictionary)))
+    
+    (define (dict-replace* dtd dict key val)
+      (if (dict-mutable? dtd dict)
+          (dict-replace! dtd dict key val)
+          (dict-replace dtd dict key val)))
 
     (define (default-dict-empty? dtd dictionary)
       (= 0 (dict-size dtd dictionary)))
@@ -101,7 +121,7 @@
       (default-dict-set* dtd dictionary #t objs))
 
     (define (default-dict-delete dtd dictionary . keys)
-      (dict-delete-all dtd dictionary keys))
+      (dict-delete-all* dtd dictionary keys))
 
     (define (default-dict-delete-all dtd dictionary keylist)
       (let loop ((keylist keylist)
@@ -139,15 +159,10 @@
                   (lambda (key value update _)
                     (update key (updater (success value))))))
 
-    (define (default-dict-update/default* dtd dictionary dict-update-proc key updater default)
-      (dict-update-proc dtd dictionary key updater
-                        (lambda () default)
-                        (lambda (x) x)))
-
     (define (default-dict-update/default dtd dictionary key updater default)
-      (dict-update dtd dictionary key updater
-                        (lambda () default)
-                        (lambda (x) x)))
+      (dict-update* dtd dictionary key updater
+                    (lambda () default)
+                    (lambda (x) x)))
 
     (define (default-dict-pop dtd dictionary)
       (define (do-pop)
@@ -156,7 +171,7 @@
            (dict-for-each dtd
                           (lambda (key value)
                             (define new-dict
-                              (dict-delete dtd dictionary key))
+                              (dict-delete-all* dtd dictionary (list key)))
                             (cont new-dict key value))
                           dictionary))))
       (define empty? (dict-empty? dtd dictionary))
@@ -173,7 +188,7 @@
             (let* ((key (car keys))
                    (val (mapper key (dict-ref dtd dict key))))
               (loop (cdr keys)
-                    (dict-replace dtd dict key val))))))
+                    (dict-replace* dtd dict key val))))))
 
     (define (default-dict-filter dtd pred dictionary)
       (define keys (dict-keys dtd dictionary))
@@ -182,12 +197,12 @@
          (lambda (key)
            (not (pred key (dict-ref dtd dictionary key))))
          keys))
-      (dict-delete-all dtd dictionary keys-to-delete))
+      (dict-delete-all* dtd dictionary keys-to-delete))
 
     (define (default-dict-remove dtd pred dictionary)
-      (dict-filter dtd (lambda (key value)
-                         (not (pred key value)))
-                   dictionary))
+      (dict-filter* dtd (lambda (key value)
+                          (not (pred key value)))
+                    dictionary))
 
     (define (default-dict-count dtd pred dictionary)
       (dict-fold dtd
@@ -303,7 +318,7 @@
     (define (default-dict-for-each>= dtd proc dict key)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
-        (>? cmp k key))
+        (>=? cmp k key))
       (default-dict-for-each/filtered dtd pred proc dict))
     
     (define (default-dict-for-each-in-open-interval dtd proc dict key1 key2)
@@ -403,7 +418,7 @@
          dict-for-each<-id default-dict-for-each<
          dict-for-each<=-id default-dict-for-each<=
          dict-for-each>-id default-dict-for-each>
-         dict-for-each>=-id default-dict-for-each>
+         dict-for-each>=-id default-dict-for-each>=
          dict-for-each-in-open-interval-id default-dict-for-each-in-open-interval
          dict-for-each-in-closed-interval-id default-dict-for-each-in-closed-interval
          dict-for-each-in-open-closed-interval-id default-dict-for-each-in-open-closed-interval

@@ -35,7 +35,7 @@
      (begin
        (define (proc-mutable dtd dict . args)
          (assume (dtd? dtd))
-         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict))
+         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict) index)
          (apply (dtd-ref-stx dtd index) dtd dict args))
        (define (proc-immutable dtd dict . args)
          (assume (dtd? dtd))
@@ -51,11 +51,11 @@
      (begin
        (define (proc-mutable dtd proc dict)
          (assume (dtd? dtd))
-         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict))
+         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict) index)
          ((dtd-ref-stx dtd index) dtd proc dict))
        (define (proc-immutable dtd proc dict)
          (assume (dtd? dtd))
-         (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)))
+         (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)) index)
          ((dtd-ref-stx dtd index) dtd proc dict))))))
 
 (define/dict-proc dictionary? dictionary?-id)

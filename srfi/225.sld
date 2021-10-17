@@ -171,7 +171,6 @@
          (export srfi-69-dtd))
         (else))
 
-#|
     (cond-expand
         ((library (srfi 125))
          (import (prefix (srfi 125) t125-))
@@ -187,13 +186,12 @@
         (else))
 
     (cond-expand
-        ((library (srfi 146))
+        ((and (library (srfi 146))
+              (library (srfi 146 hash)))
          (import (srfi 146)
                  (srfi 146 hash))
          (include "srfi-146-impl.scm"
                   "srfi-146-hash-impl.scm")
          (export mapping-dtd
                  hash-mapping-dtd))
-        (else))
-|#
-)
+        (else)))

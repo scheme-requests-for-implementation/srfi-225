@@ -2,14 +2,31 @@
         (scheme case-lambda)
         (scheme write)
         (srfi 1)
-        (prefix (srfi 69) t69-)
-        ;(prefix (srfi 125) t125-)
-        ;(prefix (srfi 126) t126-)
         (srfi 128)
-        ;(srfi 146)
-        ;(srfi 146 hash)
         (srfi 158)
         (srfi 225))
+
+(cond-expand
+  ((library (srfi 69))
+   (import (prefix (srfi 69) t69-)))
+  (else))
+
+(cond-expand
+  ((library (srfi 125))
+   (import (prefix (srfi 125) t125-)))
+  (else))
+
+(cond-expand
+  ((library (srfi 126))
+   (import (prefix (srfi 126) t126-)))
+  (else))
+
+(cond-expand
+  ((and (library (srfi 146))
+        (library (srfi 146 hash)))
+   (import (srfi 146)
+           (srfi 146 hash)))
+  (else))
 
 (cond-expand
   (chibi
@@ -901,80 +918,122 @@
   "plist dict-comparator"
   (test-assert (not (dict-comparator plist-dtd '())))))
 
-(test-group
- "srfi-69"
- (do-test
-  srfi-69-dtd
-  (lambda (alist)
-    (define table (t69-make-hash-table equal?))
-    (for-each
-     (lambda (pair)
-       (t69-hash-table-set! table (car pair) (cdr pair)))
-     alist)
-    table)
-  (make-default-comparator)
-  #t))
+(cond-expand
+  ((and (library (srfi 69))
+        (not gauche)) ;; gauche has bug with comparator retrieval from srfi 69 table
+   (test-group
+     "srfi-69"
+     (do-test
+       srfi-69-dtd
+       (lambda (alist)
+         (define table (t69-make-hash-table equal?))
+         (for-each
+           (lambda (pair)
+             (t69-hash-table-set! table (car pair) (cdr pair)))
+           alist)
+         table)
+       (make-default-comparator)
+       #t)))
+  (else))
 
-#|
-(test-group
- "srfi-125"
- (do-test
-  hash-table-dtd
-  (lambda (alist)
-    (define table (t125-hash-table-empty-copy (t125-make-hash-table equal?)))
-    (for-each
-     (lambda (pair)
-       (t125-hash-table-set! table (car pair) (cdr pair)))
-     alist)
-    table)
-  (make-default-comparator)))
+(cond-expand
+  ((library (srf 125))
+   (test-group
+     "srfi-125 mutable"
+     (do-test
+       hash-table-dtd
+       (lambda (alist)
+         (define table (t125-hash-table-empty-copy (t125-make-hash-table equal?)))
+         (for-each
+           (lambda (pair)
+             (t125-hash-table-set! table (car pair) (cdr pair)))
+           alist)
+         table)
+       (make-default-comparator)
+       #t))
+   (test-group
+     "srfi-125 immutable"
+     (do-test
+       hash-table-dtd
+       (lambda (alist)
+         (define table (t125-hash-table-empty-copy (t125-make-hash-table equal?)))
+         (for-each
+           (lambda (pair)
+             (t125-hash-table-set! table (car pair) (cdr pair)))
+           alist)
+         (t125-hash-table-copy table #f))
+       (make-default-comparator)
+       #f))) 
+  (else))
 
-(test-group
- "srfi-126 (r6rs)"
- (do-test
-  srfi-126-dtd
-  (lambda (alist)
-    (define table (t126-make-eqv-hashtable))
-    (for-each
-     (lambda (pair)
-       (t126-hashtable-set! table (car pair) (cdr pair)))
-     alist)
-    table)
-  (make-default-comparator)))
+(cond-expand
+  ((library (srfi 126))
+   (test-group
+     "srfi-126 (r6rs) mutable"
+     (do-test
+       srfi-126-dtd
+       (lambda (alist)
+         (define table (t126-make-eqv-hashtable))
+         (for-each
+           (lambda (pair)
+             (t126-hashtable-set! table (car pair) (cdr pair)))
+           alist)
+         table)
+       (make-default-comparator)
+       #t))
+   (test-group
+     "srfi-126 (r6rs) immutable"
+     (do-test
+       srfi-126-dtd
+       (lambda (alist)
+         (define table (t126-make-eqv-hashtable))
+         (for-each
+           (lambda (pair)
+             (t126-hashtable-set! table (car pair) (cdr pair)))
+           alist)
+         (t126-hashtable-copy table #f))
+       (make-default-comparator)
+       #f)))
+  (else))
 
-(test-group
- "srfi-146"
- (define cmp (make-default-comparator))
- (do-test
-  mapping-dtd
-  (lambda (alist)
-    (let loop ((table (mapping cmp))
-               (entries alist))
-      (if (null? entries)
-          table
-          (loop (mapping-set! table (caar entries) (cdar entries))
-                (cdr entries)))))
-  cmp)
- (test-group
-  "srfi-146 dict-comparator"
-  (test-equal cmp (dict-comparator mapping-dtd (make-dictionary mapping-dtd cmp)))))
+(cond-expand
+  ((and (library (srfi 146))
+        (library (srfi 146 hash)))
+   (test-group
+     "srfi-146"
+     (define cmp (make-default-comparator))
+     (do-test
+       mapping-dtd
+       (lambda (alist)
+         (let loop ((table (mapping cmp))
+                    (entries alist))
+           (if (null? entries)
+               table
+               (loop (mapping-set! table (caar entries) (cdar entries))
+                     (cdr entries)))))
+       cmp
+       #f)
+     (test-group
+       "srfi-146 dict-comparator"
+       (test-equal cmp (dict-comparator mapping-dtd (mapping cmp)))))
 
-(test-group
- "srfi-146 hash"
- (define cmp (make-default-comparator))
- (do-test
-  hash-mapping-dtd
-  (lambda (alist)
-    (let loop ((table (hashmap cmp))
-               (entries alist))
-      (if (null? entries)
-          table
-          (loop (hashmap-set! table (caar entries) (cdar entries))
-                (cdr entries)))))
-  cmp)
- (test-group
-  "srfi-146 hash dict-comparator"
-  (test-equal cmp (dict-comparator hash-mapping-dtd (make-dictionary hash-mapping-dtd cmp)))))
-|#
+   (test-group
+     "srfi-146 hash"
+     (define cmp (make-default-comparator))
+     (do-test
+       hash-mapping-dtd
+       (lambda (alist)
+         (let loop ((table (hashmap cmp))
+                    (entries alist))
+           (if (null? entries)
+               table
+               (loop (hashmap-set! table (caar entries) (cdar entries))
+                     (cdr entries)))))
+       cmp
+       #f)
+     (test-group
+       "srfi-146 hash dict-comparator"
+       (test-equal cmp (dict-comparator hash-mapping-dtd (hashmap cmp))))))
+  (else))
 
 (test-end)
