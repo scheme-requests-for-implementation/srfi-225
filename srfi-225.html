@@ -30,41 +30,40 @@
 <p>The procedures of this SRFI allow callers to
 manipulate an object that maps keys to values
 without the caller needing to know exactly what the type
-of the object is.  Such an object is called a <em>dict</em> in this SRFI.</p>
+of the object is.  Such an object is called a <em>dict</em> in this SRFI.
 
 <h2 id="issues">Issues</h2>
 
-<p>dict-key-successor, dict-key-predecessor: Return preceding and following key.
-This is dependent on having easy access to these operations in ordered dictionaries:
-it would be very expensive to provide dict-max-key on top of an ordered dictionary
-that does not provide it, or either procedure on top of an unordered dictionary.</p>
+None at present.
 
 <h2 id="rationale">Rationale</h2>
 
 <p>Until recently there was only one universally available mechanism for managing key-value pairs: alists. Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations do not provide that interface.</p>
-<p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables, there are R7RS persistent ordered and hashed mappings from SRFI 146, ordered mappings with fixnum keys from SRFI 224, and ordered key-value stores (often on a disk or a remote machine) from SRFI 167.</p>
+<p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables, there are R7RS persistent ordered and hashed mappings from SRFI 146, ordered mappings with fixnum keys from SRFI 224, and ordered bytevector key-value stores (often on a disk or a remote machine) from SRFI 167.</p>
 <p>It’s inconvenient for users if SRFIs or other libraries have to insist on accepting only a specific type of dictionary. This SRFI exposes a number of accessors, mutators, and other procedures that can be called on any dictionary, provided that a <em>dictionary type descriptor</em> (DTD, with apologies to SGML and XML users) is available for it: either exported from this SRFI, or from other SRFIs or libraries, or created by the user. DTDs are of an unspecified type.</p>
-<p>This in turn requires that the DTD provides a predicate that can recognize its dictionaries, plus several primitive operations, such as determining a dictionary’s current size; referencing, updating, removing, or inserting an element of the dictionary depending on its current contents; and processing all the elements using a procedure invoked for its side effects.</p>
+<p>This in turn requires that the DTD provides a predicate that can recognize its dictionaries, plus several primitive generic procedures.</p>
 <p>By using the procedures of this SRFI, a procedure can take a DTD and a dictionary as an argument and make flexible use of the dictionary without knowing its exact type.  For the purposes of this SRFI, such a procedure is called a <em>generic procedure</em>.</p>
 <p>However, dictionaries need to be constructed using type-specific constructors, as the required and optional arguments differ in each case.  In addition, the dictionary type provided by the caller of a generic procedure doesn't necessarily have the right performance characteristics needed by the generic procedure itself.  Consequently there are no <code>make-dict</code>, <code>dict</code>, <code>dict-unfold</code>, <code>dict-copy</code> or similar procedures in this SRFI.</p>
 <h2 id="specification">Specification</h2>
 <p>We call a specific key-value combination an <em>association</em>. This is why an alist, or association list, is called that; it is a list of associations represented as pairs.</p>
-<p>A <em>dict</em> is a collection of associations which may be ordered or unordered.  In principle an <em>equality predicate</em> is enough, given a key, to determine whether an association with that key exists in the dictionary.  However, for efficiency most dictionaries require an <em>ordering predicate</em> or a <em>hash function</em> as well.
+<p>A <em>dictionary</em> or <em>dict</em> is a collection of associations which may be ordered or unordered.  In principle an <em>equality predicate</em> is enough, given a key, to determine whether an association with that key exists in the dictionary.  However, for efficiency most dictionaries require an <em>ordering predicate</em> or a <em>hash function</em> as well.
 <p>When a key argument is said to be the same as some key of the dictionary, it means that they are the same in the sense of the dictionary’s implicit or explicit equality predicate. It is assumed that no dictionary contains two keys that are the same in this sense.
 Two dictionaries are <em>similar</em> if they are of the same type and have the same equality predicate and the same ordering predicate and/or hash function.</p>
-<p>If <code>plist-dtd</code> (see below) is used with a list, then the list is assumed to be a property list, alternating symbol keys with values. Unlike the mutation operations provided by Common Lisp, plists in this SRFI are functionally updated. The equality predicate of this type of dictionary is <code>eq?</code>.  If a key to be added already exists in dictionary, the new value prevails.</p>
-<p>If a list is empty or its car is a pair, then the list is assumed to be an alist. New values are added to the beginning of the alist and the new alist is returned. If an association has been updated, then both the new and the old association may be processed by the whole-dictionary procedures.  The examples in this SRFI use alists.</p>
-<p>However, an alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTD for all alists, this SRFI provides a procedure <code>make-alist-dtd</code> that takes an equality predicate and returns a DTD specialized for manipulation of alists using that predicate.  For convenience, DTDs for <code>eqv?</code> and <code>equal?</code> are exported.</p>
+<h3 id="alists">Alists</h3>
+<p>Alists are supported as dictionaries, but are given special treatment.  New values are added to the beginning of the alist and the new alist is returned. If an association has been updated, then both the new and the old association may be processed by the whole-dictionary procedures; by the same token, if an association is removed, any later association with the same key will be exposed.  The examples in this SRFI use alists.</p>
+<p>An alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTD for all alists, this SRFI provides a procedure <code>make-alist-dtd</code> that takes an equality predicate and returns a DTD specialized for manipulation of alists using that predicate.  For convenience, DTDs for <code>eqv?</code> and <code>equal?</code> are exported.</p>
 <p>Each of the following examples is assumed to be prefixed by the following definitions:</p>
 <blockquote><pre>(define dict (list '(1 . 2) '(3 . 4) '(5 . 6)))
 (define aed alist-eqv-dtd)
 </pre></blockquote>
 Consequently, previous examples don't affect later ones.
-<p>The <em>dtd</em> argument is not discussed in the individual procedure descriptions below, but it is an error if invoking <code>dictionary?</code> on <em>dtd</em> and <em>dict</em> would return <code>#f</code>.</p>
+<p>The <em>dtd</em> argument is not discussed in the individual procedure descriptions below, but it is an error if invoking <code>dictionary?</code> on <em>dtd</em> and <em>dict</em> would return <code>#f</code>.  The <code>dictionary?</code> procedure itself is an exception to this.</p>
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dtd obj</em><code>)</code></p>
-<p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate stored in the DTD, and <code>#f</code> otherwise.</p>
-<blockquote><pre>(dictionary? aed dict) =&gt; #t</pre></blockquote>
+<p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate stored in <em>dtd</em> and <code>#f</code> otherwise.</p>
+<blockquote><pre>(dictionary? aed dict) =&gt; #t
+(dictionary? aed 35) =&gt; #t</pre></blockquote>
+</blockquote>
 <p><code>(dict-empty?</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dict</em> contains no associations and <code>#f</code> if it does contain associations.</p>
 <blockquote><pre>(dict-empty? aed '()) =&gt; #t
@@ -89,39 +88,40 @@ Consequently, previous examples don't affect later ones.
 <h3 id="lookup">Lookup</h3>
 <p><code>(dict-ref</code>&nbsp;<em>dtd dict key</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, then invokes <em>success</em> on the corresponding value and returns its result. If <em>key</em> is not a key of <em>dict</em>, then invokes the thunk <em>failure</em> and returns its result. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
-<blockquote><pre>(dict-ref aed dict 1 (lambda () &#39;()) list) =&gt; (1) ; Success wraps value in a list
-(dict-ref aed dict 2 (lambda () &#39;()) list) =&gt; ()  ; Failure returns empty list</pre></blockquote>
+<blockquote><pre>(dict-ref aed dict 1 (lambda () &#39;()) list) =&gt;
+  (1) ; Success wraps value in a list
+(dict-ref aed dict 2 (lambda () &#39;()) list) =&gt;
+  ()  ; Failure returns empty list</pre></blockquote>
 <p><code>(dict-ref/default</code>&nbsp;<em>dtd dict key default</em><code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, returns the corresponding value. If not, returns <em>default</em>.</p>
 <blockquote><pre>(dict-ref/default aed dict 1 #f) =&gt; 1
 (dict-ref/default aed dict 1 #f) =&gt; #f</pre></blockquote>
-<p><code>(dict-min-key</code>&nbsp;<em>dtd dict</em><code>)</code><br>
-<code>(dict-max-key</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Return the minimum/maximum key of <em>dict</em>.</p>
-<blockquote><pre>
-(dict-min-key aed dict) => 1
-(dict-max-key aed dict) => 5
-</pre></blockquote>
 <h3 id="mutation">Functional update and mutation</h3>
-<p>All these procedures exist in pairs, with and without a final <code>!</code>.  The ones without <code>!</code> are functional: they never side-effect their arguments, but the result may share structure with the <em>dict</em> argument.  The ones with <code>!</code> are mutations: they they change the <em>dict</em> argument.  However, only one set of procedures is supported in any dictionary: for example, SRFI 125 hash tables support only mutation, whereas SRFI 146 mappings support only functional update.  The <code>dict-mutable?</code> procedure can be used to determine which set is usable.</p>
+<p>All these procedures exist in pairs, with and without a final <code>!</code>.  The descriptions apply to the procedures without <code>!</code>; the procedures with <code>!</code> mutate their dictionary argument and do not return a dictionary value.  Only one set of procedures is supported by any dictionary: for example, SRFI 125 hash tables support only mutation, whereas SRFI 146 mappings support only functional update.  The <code>dict-mutable?</code> procedure can be used to determine which set is usable.</p>
 <p><code>(dict-set</code>&nbsp;<em>dtd dict obj</em> …<code>)</code><br>
 <code>(dict-set!</code>&nbsp;<em>dtd dict obj</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> plus those specified by <em>objs</em>, which alternate between keys and values. If a key to be added already exists in <em>dict</em>, the new value prevails.</p>
 <blockquote><pre>; new values are prepended
-(dict-set aed dict 7 8) =&gt; ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
-(dict-set aed dict 3 5) =&gt; ((3 . 5) (1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
+(dict-set aed dict 7 8) =&gt;
+   ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
+(dict-set aed dict 3 5) =&gt;
+   ((3 . 5) (1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
 <p><code>(dict-adjoin</code>&nbsp;<em>dtd dict objs</em><code>)</code><br>
 <code>(dict-adjoin!</code>&nbsp;<em>dtd dict objs</em><code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> plus those specified by <em>objs</em>, which alternate between keys and values. If a key to be added already exists in <em>dict</em>, the old value prevails.</p>
 <blockquote><pre>; new values are prepended to alists
-(dict-adjoin aed dict 7 8) =&gt; ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
-(dict-adjoin aed dict 3 5) =&gt; ((1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
+(dict-adjoin aed dict 7 8) =&gt;
+  ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
+(dict-adjoin aed dict 3 5) =&gt
+; ((1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
 <p><code>(dict-delete</code>&nbsp;<em>dtd dict key</em> …<code>)</code><br>
 <code>(dict-delete!</code>&nbsp;<em>dtd dict key</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> except those whose keys are the same as one of the <em>keys</em>.</p>
 <blockquote><pre>; new values are prepended
-(dict-delete aed dict 1 3) =&gt; ((5. 6)) ; may share
-(dict-delete aed dict 5) =&gt; ((1 . 2) (3 . 4)</pre></blockquote>
+(dict-delete aed dict 1 3) =&gt;
+  ((5. 6)) ; may share
+(dict-delete aed dict 5) =&gt;
+  ((1 . 2) (3 . 4)</pre></blockquote>
 <p><code>(dict-delete-all</code>&nbsp;<em>dtd dict keylist</em><code>)</code><br>
 <code>(dict-delete-all!</code>&nbsp;<em>dtd dict keylist</em><code>)</code></p>
 <p>Returns a dictionary with all the associations of <em>dict</em> except those whose keys are the same as some member of <em>keylist</em>.</p>
@@ -129,42 +129,60 @@ Consequently, previous examples don't affect later ones.
 <p><code>(dict-replace</code>&nbsp;<em>dtd dict key value</em><code>)</code><br>
 <code>(dict-replace!</code>&nbsp;<em>dtd dict key value</em><code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> except as follows: If <em>key</em> is the same as a key of <em>dict</em>, then the association for that key is omitted and replaced by the association defined by the pair <em>key</em> and <em>value</em>. If there is no such key in <em>dict</em>, then dictionary is returned unchanged.</p>
-<blockquote><pre>(dict-replace aed dict 1 3) =&gt; ((1 . 3) (1 . 2) (3 . 4) (5 . 6)) </pre></blockquote>
+<blockquote><pre>(dict-replace aed dict 1 3) =&gt;
+  ((1 . 3) (1 . 2) (3 . 4) (5 . 6)) </pre></blockquote>
 <p><code>(dict-intern</code>&nbsp;<em>dtd dict key failure</em>)<br>
 <code>(dict-intern!</code>&nbsp;<em>dtd dict key failure</em>)</p>
 <p>If there is a key in <em>dict</em> that is the same as <em>key</em>, returns two values, <em>dict</em> and the value associated with <em>key</em>.
 Otherwise, returns two values, a dictionary that contains all the associations of <em>dict</em> and in addition a new association that maps <em>key</em> to the result of invoking <em>failure</em>, and the result of invoking <em>failure</em>.<br>
 <blockquote><pre>(dict-intern aed dict 1 (lambda () #f)) =&gt; ; 2 values
   ((1 . 2) (3 . 4) (5 . 6))
-  3
+  2
 (dict-intern aed dict 2 (lambda () #f)) =&gt; ; 2 values
   ((2 . #f) (1 . 2) (3 . 4) (5 . 6))
   #f</pre></blockquote>
 <p><code>(dict-update</code>&nbsp;<em>dtd dict key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code><br>
 <code>(dict-update!</code>&nbsp;<em>dtd dict key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
+<blockquote><pre>
+(dict-update aed dict 1 (lambda (x) (+ 1 x))) =&gt;
+  ((1 3) (1 2) (3 4) (5 6))
+(dict-update aed dict 2 (lambda (x) (+ 1 x))) =&gt;
+  <em>error</em>
+</pre></blockquote>
 <p><code>(dict-update/default</code>&nbsp;<em>dtd dict key updater default</em><code>)</code><br>
 <code>(dict-update/default!</code>&nbsp;<em>dtd dict key updater default</em><code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref/default</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary.</p>
+<blockquote><pre>
+(dict-update/default aed dict 1
+  (lambda (x) (+ 1 x)) 0) =&gt;
+  ((1 3) (1 2) (3 4) (5 6))
+(dict-update/default aed dict 2 
+  (lambda (x) (+ 1 x)) 0) =&gt;
+  ((1 0) (1 2) (3 4) (5 6))
+</pre></blockquote>
 <p><code>(dict-pop</code>&nbsp;<em>dtd dict</em><code>)</code><br>
 <code>(dict-pop!</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Chooses an association from <em>dict</em> and returns three values: a dictionary that contains all associations of <em>dict</em> except the chosen one, and the key and the value of the association chosen. If the dictionary is ordered, the first association is chosen; otherwise the chosen association is arbitrary.</p>
 <p>If dictionary contains no associations, it is an error.</p>
-<blockquote><pre>(dict-pop aed dict) =&gt; # 3 values
+<blockquote><pre>(dict-pop aed dict) =&gt; ; 3 values
   ((3 . 4) (5 . 6))
   1
   2</pre></blockquote>
 <p><code>(dict-map</code>&nbsp;<em>dtd proc dict</em><code>)</code><br>
 <code>(dict-map!</code>&nbsp;<em>dtd proc dict</em><code>)</code></p>
-<p>Returns a dictionary similar to <em>dict</em> that maps each key of <em>dict</em> to the value that results from invoking <em>proc</em> on the corresponding key and value of <em>dict</em>.</p>
-<blockquote><pre>(dict-map (lambda (k v) (cons v k)) aed dict) =&gt; ((2 . 1) (4 . 3) (6 . 5))</pre></blockquote>
+<p>Returns a dictionary similar to <em>dict</em> that maps each key of <em>dict</em> to the <em>proc</em> on the key and corresponding value of <em>dict</em>.</p>
+<blockquote><pre>(dict-map (lambda (k v) (cons v k)) aed dict) =&gt;
+   ((2 . 1) (4 . 3) (6 . 5))</pre></blockquote>
 <p><code>(dict-filter</code>&nbsp;<em>dtd pred dict</em><code>)</code><br>
 <code>(dict-filter!</code>&nbsp;<em>dtd pred dict</em><code>)</code><br>
 <code>(dict-remove</code>&nbsp;<em>dtd pred dict</em><code>)</code><br>
 <code>(dict-remove!</code>&nbsp;<em>dtd pred dict</em><code>)</code></p>
 <p>Returns a dictionary similar to <em>dict</em> that contains just the associations of <em>dict</em> that satisfy / do not satisfy <em>pred</em> when it is invoked on the key and value of the association.</p>
-<blockquote><pre>(dict-filter (lambda (k v) (= k 1)) aed dict) =&gt; ((1 . 2))
-(dict-remove (lambda (k) (= k 1)) aed dict) =&gt; ((3 . 4) (5 . 6))</pre></blockquote>
+<blockquote><pre>(dict-filter (lambda (k v) (= k 1)) aed dict) =&gt;
+  ((1 . 2))
+(dict-remove (lambda (k) (= k 1)) aed dict) =&gt;
+  ((3 . 4) (5 . 6))</pre></blockquote>
 <p><code>(dict-alter</code>&nbsp;<em>dtd dict key failure success</em><code>)</code><br>
 <code>(dict-alter!</code>&nbsp;<em>dtd dict key failure success</em><code>)</code></p>
 <p>This procedure is a workhorse for dictionary lookup, insert, and delete. The dictionary <em>dict</em> is searched for an association whose key is the same as <em>key</em>. If one is not found, then the <em>failure</em> procedure is tail-called with two procedure arguments, <em>insert</em> and <em>ignore</em>.</p>
@@ -230,13 +248,13 @@ one for each of the four procedures:
 <p><code>(dict-any</code>&nbsp;<em>dtd pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em> and returns the value of the first call to <em>pred</em> that returns true, after which no further calls are made. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. If all calls return false, <code>dict-any</code> returns false.</p>
 <blockquote><pre>(define (both-even? k v) (and (even? k) (even? v)))
-(dict-any both-even? &#39;((2 . 4) (3 . 5))) =&gt; #t
-(dict-any both-even? &#39;((1 . 2) (3 . 4))) =&gt; #f</pre></blockquote>
+(dict-any aed both-even? &#39;((2 . 4) (3 . 5))) =&gt; #t
+(dict-any aed both-even? &#39;((1 . 2) (3 . 4))) =&gt; #f</pre></blockquote>
 <p><code>(dict-every</code>&nbsp;<em>dtd pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em> and returns <code>#f</code> after the first call to <em>pred</em> that returns false, after which no further calls are made. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. If all calls return true, <code>dict-any</code> returns the value of the last call, or <code>#t</code> if no calls are made.</p>
 <blockquote><pre>(define (some-even? k v) (or (even? k) (even? v)))
-(dict-every some-even? &#39;((2 . 3) (3 . 4))) =&gt; #t
-(dict-every some-even? &#39;((1 . 3) (3 . 4))) =&gt; #f</pre></blockquote>
+(dict-every aed some-even? &#39;((2 . 3) (3 . 4))) =&gt; #t
+(dict-every aed some-even? &#39;((1 . 3) (3 . 4))) =&gt; #f</pre></blockquote>
 <p><code>(dict-keys</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns a list of the keys of <em>dict</em>. If the dictionary type is inherently ordered, associations appear in the inherent order; otherwise in an arbitrary order. The order may change when new elements are added to <em>dict</em>.</p>
 <blockquote><pre>(dict-keys aed dict) =&gt; (1 3 5)</pre></blockquote>
@@ -254,13 +272,17 @@ one for each of the four procedures:
 <p><code>(dict-map-&gt;list</code>&nbsp;<em>dtd proc dict</em><code>)</code></p>
 <p>Returns a list of values that result from invoking <em>proc</em> on the keys and corresponding values of <em>dict</em>.</p>
 <blockquote><pre>
-(dict-map->list (lambda (k v) v) dict) =&gt; (2 4 6),
-(dict-map->list - aed dict) =&gt; (-1 -1 -1) ; subtract value from key
+(dict-map->list (lambda (k v) v) dict) =&gt;
+  (2 4 6),
+(dict-map->list - aed dict) =&gt;
+  (-1 -1 -1) ; subtract value from key
 </pre></blockquote>
 <p><code>(dict-&gt;alist</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns an alist whose keys and values are the keys and values of <em>dict</em>.</p>
-<blockquote><pre>; plist to alist
-(dict-&gt;alist &#39;(1 2 3 4 5 6)) =&gt; ((1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
+<p>Add <code>dict-map</code>,
+<code>dict-filter</code>, <code>dict-remove</code>,
+and <code>dict-alter</code>.
+</p>
 <p><code>(dict-comparator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate, ordering predicate, and hash function of <em>dict</em>.  The last two may be <code>#f</code> if the dictionary does not make use of these functions.</p>
 <p>If no comparator is relevant to the dictionary type, returns <code>#f</code>.</p>
@@ -294,13 +316,13 @@ one for each of the four procedures:
 <code>(dtd (</code><em>proc-id procname</em><code>)</code> …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
 <p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type.  The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
 <p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-id</code>, and a <em>proc</em> argument is the specific procedure implementing it for this type.</p>
-<p>The following proc-ids (and corresponding procedures) need to be provided in order to support the full set of dictionary procedures:</p>
+<p>The following proc-ids (and corresponding primitive procedures) need to be provided in order to support the full set of dictionary procedures:</p>
 <ul>
 <li><code>dictionary?-id</code></li>
 <li><code>dict-comparator-id</code></li>
 <li><code>dict-mutable?-id</code></li>
-<li><code>dict-map-id</code> (for functional-update dictionaries only)</li>
-<li><code>dict-filter-id</code> (for functional-update dictionaries only)</li>
+<li><code>dict-map-id</code></li>
+<li><code>dict-remove-id</code></li>
 <li><code>dict-alter-id</code></li>
 <li><code>dict-size-id</code></li>
 </ul>
@@ -371,7 +393,7 @@ and <code>#f</code> otherwise.
 <h3 id="exported-dtds">Exported DTDs</h3>
 <p>The following DTDs are exported from this SRFI:
 <code>srfi-69-dtd</code>, <code>hash-table-dtd</code>, <code>srfi-126-dtd</code>,
-<code>mapping-dtd</code>, <code>hash-mapping-dtd</code>, <code>plist-dtd</code>,
+<code>mapping-dtd</code>, <code>hash-mapping-dtd</code>,
 <code>alist-eqv-dtd</code>, and <code>alist-equal-dtd</code>.
 The last two provide DTDs for alists using <code>eqv?</code>
 and <code>equal?</code> respectively.</p>
