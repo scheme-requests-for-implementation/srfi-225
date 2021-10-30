@@ -63,7 +63,6 @@ Consequently, previous examples don't affect later ones.
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate stored in <em>dtd</em> and <code>#f</code> otherwise.</p>
 <blockquote><pre>(dictionary? aed dict) =&gt; #t
 (dictionary? aed 35) =&gt; #t</pre></blockquote>
-</blockquote>
 <p><code>(dict-empty?</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dict</em> contains no associations and <code>#f</code> if it does contain associations.</p>
 <blockquote><pre>(dict-empty? aed '()) =&gt; #t
@@ -112,7 +111,7 @@ Consequently, previous examples don't affect later ones.
 <blockquote><pre>; new values are prepended to alists
 (dict-adjoin aed dict 7 8) =&gt;
   ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
-(dict-adjoin aed dict 3 5) =&gt
+(dict-adjoin aed dict 3 5) =&gt;
 ; ((1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
 <p><code>(dict-delete</code>&nbsp;<em>dtd dict key</em> …<code>)</code><br>
 <code>(dict-delete!</code>&nbsp;<em>dtd dict key</em> …<code>)</code></p>
