@@ -31,7 +31,10 @@
 <p>The procedures of this SRFI allow callers to
 manipulate an object that maps keys to values
 without the caller needing to know exactly what the type
-of the object is.  Such an object is called a <em>dict</em> in this SRFI.
+of the object is.
+However, what procedures can be called on the dictionary
+is partly determined by whether it is persistent or mutable.
+Such an object is called a <em>dict</em> in this SRFI.
 
 <h2 id="issues">Issues</h2>
 
@@ -304,71 +307,73 @@ and <code>dict-alter</code>.
 <p>Invokes <em>proc</em> on each key of <em>dict</em> that is that is within the specified interval between <em>key1</em> and <em>key2</em>, and its corresponding value. This procedure is used for doing operations on part of the dictionary. If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order. Returns an unspecified value.</p>
 <h3 id="generator-procedures">Generator procedures</h3>
 <p><code>(make-dict-generator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">generator</a> that when invoked returns the associations of <em>dict</em> as pairs.  When no associations are left, returns an end-of-file object.  If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order.</p>
+<p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">generator</a> that when invoked returns the associations of <em>dict</em> as pairs.  When no associations are left, returns an end-of-file object.  If the dictionary type is inherently ordered, associations are processed in the inherent order; otherwise in an arbitrary order.  It is an error to mutate <em>dict</em> until the generator is exhausted.</p>
 <p><code>(dict-set-accumulator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Returns a procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair as a key and value.  If a key to be added already exists in dictionary, the new value prevails.</p>
+<p>Returns a SRFI 158 accumulator procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair as a key and value, returning the new value of the dictionary.  If invoked on an end-of-file object, no action is taken and <em>dict</em> is returned.  If a key to be added already exists in dictionary, the new value prevails.</p>
 <p><code>(dict-adjoin-accumulator</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Returns a procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair as a key and value.  If a key to be added already exists in dictionary, the old value prevails.</p>
+<p>The same as <code>dict-set-accumulator</code>, except that if a key to be added already exists in dictionary, the old value prevails.</p>
 <h3 id="dictionary-type-descriptor-procedures">Dictionary type descriptor procedures</h3>
 <p><code>(dtd?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTD, and <code>#f</code> otherwise.</p>
 <p><code>(make-dtd</code>&nbsp;<em>arg</em> …<code>)</code><br>
 <code>(dtd (</code><em>proc-id procname</em><code>)</code> …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
-<p>Returns a new dictionary type providing procedures that allow manipulation of dictionaries of that type.  The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
-<p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-id</code>, and a <em>proc</em> argument is the specific procedure implementing it for this type.</p>
-<p>The following proc-ids (and corresponding primitive procedures) need to be provided in order to support the full set of dictionary procedures:</p>
+<p>Returns a new DTD providing procedures that allow manipulation of dictionaries of that type.  The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
+<p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-id</code>, and a <em>proc</em> argument is the specific procedure implementing it for this type.
+Note that there is only one proc-id variable for each pair of mutation and functional-update procedures:
+the proc-id variable for <code>dict-map-id</code> and <code>dict-map!</code> is <code>dict-map-id</code>.</p>
+<p>The following proc-id variables (and corresponding primitive procedures) need to be provided in order for the DTD to support the full set of dictionary procedures:</p>
 <ul>
 <li><code>dictionary?-id</code></li>
-<li><code>dict-comparator-id</code></li>
-<li><code>dict-mutable?-id</code></li>
-<li><code>dict-map-id</code></li>
-<li><code>dict-remove-id</code></li>
 <li><code>dict-alter-id</code></li>
+<li><code>dict-comparator-id</code></li>
+<li><code>dict-map-id</code></li>
+<li><code>dict-mutable?-id</code></li>
+<li><code>dict-remove-id</code></li>
 <li><code>dict-size-id</code></li>
 </ul>
 <p>Note that it is not an error to omit any of these, but some dictionary procedures may be unavailable.</p>
-<p>There are additional proc-ids (and corresponding procedures) that may be provided in order to increase efficiency.  For example, it is not necessary to provide <code>dict-ref</code>, because the default version is built on top of <code>dict-alter</code> or <code>dict-alter!</code>.  But if the underlying dictionary provides its own <code>-ref</code> procedure, it may be more efficient to specify it to <code>make-dtd</code> using <code>dict-ref-id</code>.  Here is the list of additional proc-ids:</p>
+<p>There are additional proc-id variables that may be provided with corresponding procedures in order to increase efficiency.  For example, it is not necessary to provide a <code>dict-ref</code> procedure, because the default version is built on top of <code>dict-alter</code> or <code>dict-alter!</code>.  But if the underlying dictionary provides its own <code>-ref</code> procedure, it may be more efficient to specify it to <code>make-dtd</code> using <code>dict-ref-id</code>.  Here is the list of additional proc-id variables:</p>
 <ul>
-<li><code>dict-empty?-id</code></li>
-<li><code>dict-contains?-id</code></li>
-<li><code>dict=?-id</code></li>
-<li><code>dict-ref-id</code></li>
-<li><code>dict-ref/default-id</code></li>
-<li><code>dict-min-key-id</code></li>
-<li><code>dict-max-key-id</code></li>
-<li><code>dict-set-id</code></li>
-<li><code>dict-adjoin-id</code></li>
-<li><code>dict-delete-id</code></li>
-<li><code>dict-delete-all-id</code></li>
-<li><code>dict-replace-id</code></li>
-<li><code>dict-intern-id</code></li>
-<li><code>dict-update-id</code></li>
-<li><code>dict-update/default-id</code></li>
-<li><code>dict-pop-id</code></li>
-<li><code>dict-map-id</code></li>
-<li><code>dict-filter-id</code></li>
-<li><code>dict-remove-id</code></li>
-<li><code>dict-count-id</code></li>
-<li><code>dict-any-id</code></li>
-<li><code>dict-every-id</code></li>
-<li><code>dict-keys-id</code></li>
-<li><code>dict-values-id</code></li>
-<li><code>dict-entries-id</code></li>
-<li><code>dict-fold-id</code></li>
-<li><code>dict-map->list-id</code></li>
 <li><code>dict->alist-id</code></li>
-<li><code>dict-for-each-id</code></li>
+<li><code>dict-adjoin-accumulator-id</code></li>
+<li><code>dict-adjoin-id</code></li>
+<li><code>dict-any-id</code></li>
+<li><code>dict-contains?-id</code></li>
+<li><code>dict-count-id</code></li>
+<li><code>dict-delete-all-id</code></li>
+<li><code>dict-delete-id</code></li>
+<li><code>dict-empty?-id</code></li>
+<li><code>dict-entries-id</code></li>
+<li><code>dict-every-id</code></li>
+<li><code>dict-filter-id</code></li>
+<li><code>dict-fold-id</code></li>
 <li><code>dict-for-each&lt;-id</code></li>
 <li><code>dict-for-each&lt;=-id</code></li>
+<li><code>dict-for-each-id</code></li>
+<li><code>dict-for-each-in-closed-interval-id</code></li>
+<li><code>dict-for-each-in-closed-open-interval-id</code></li>
+<li><code>dict-for-each-in-open-closed-interval-id</code></li>
+<li><code>dict-for-each-in-open-interval-id</code></li>
 <li><code>dict-for-each>-id</code></li>
 <li><code>dict-for-each>=-id</code></li>
-<li><code>dict-for-each-in-open-interval-id</code></li>
-<li><code>dict-for-each-in-closed-interval-id</code></li>
-<li><code>dict-for-each-in-open-closed-interval-id</code></li>
-<li><code>dict-for-each-in-closed-open-interval-id</code></li>
-<li><code>make-dict-generator-id</code></li>
+<li><code>dict-intern-id</code></li>
+<li><code>dict-keys-id</code></li>
+<li><code>dict-map->list-id</code></li>
+<li><code>dict-map-id</code></li>
+<li><code>dict-max-key-id</code></li>
+<li><code>dict-min-key-id</code></li>
+<li><code>dict-pop-id</code></li>
+<li><code>dict-ref-id</code></li>
+<li><code>dict-ref/default-id</code></li>
+<li><code>dict-remove-id</code></li>
+<li><code>dict-replace-id</code></li>
 <li><code>dict-set-accumulator-id</code></li>
-<li><code>dict-adjoin-accumulator-id</code></li>
+<li><code>dict-set-id</code></li>
+<li><code>dict-update-id</code></li>
+<li><code>dict-update/default-id</code></li>
+<li><code>dict-values-id</code></li>
+<li><code>dict=?-id</code></li>
+<li><code>make-dict-generator-id</code></li>
 </ul>
 <p>The <code>dtd</code> macro behaves like a wrapper around <code>make-dtd</code> with parentheses around each <em>procid-procname</em> pair.  The macro may also verify that the <em>proc-ids</em> are valid, that there are no duplicates, etc.</p>
 <p><code>(make-alist-dtd</code>&nbsp;<em>equal</em><code>)</code></p>
