@@ -1,21 +1,16 @@
-.PHONY: test-guile test-gauche test-kawa test-chibi test-chicken
+.PHONY: test-chibi
 
-test-guile:
-	guile -L . --r7rs dictionaries-test.scm
+# Testing through docker
+# pulls in srfi 126 implementation
+# which other wise is untested
+test-chibi-docker:
+	docker-compose run --rm chibi
 
-test-gauche:
-	gosh -I . dictionaries-test.scm
-
-test-kawa:
-	cp dictionaries.sld dictionaries.scm
-	kawa dictionaries-test.scm
-	rm dictionaries.scm
+test-gauche-docker:
+	docker-compose run --rm gauche
 
 test-chibi:
-	chibi-scheme dictionaries-test.scm
+	chibi-scheme -I . srfi-225-test.scm
 
-test-chicken:
-	csc -R r7rs -X r7rs -sJ -o dictionaries.so dictionaries.sld
-	csi -I . -R r7rs -s dictionaries-test.scm
-	rm dictionaries.so
-	rm dictionaries.import.scm
+test-gauche:
+	gosh -I . srfi-225-test.scm

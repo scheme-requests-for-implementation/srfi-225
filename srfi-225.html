@@ -80,8 +80,8 @@ Consequently, previous examples don't affect later ones.
 <blockquote><pre>
 (define dicta '((5 . 6) (3 . 4) (1 . 2))
 (define dictb '((1 . 2) (3 . 4))
-(dict=? aed dict dicta) => #t
-(dict=? aed dict dictb) => #f</pre></blockquote>
+(dict=? aed = dict dicta) => #t
+(dict=? aed = dict dictb) => #f</pre></blockquote>
 <p><code>(dict-mutable?</code>&nbsp;<em>dtd dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if the dictionary type supports mutations and <code>#f</code> if it supports functional updates.</p>
 <blockquote><pre>

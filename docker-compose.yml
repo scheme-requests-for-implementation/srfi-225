@@ -1,0 +1,29 @@
+version: "3.2"
+services:
+  srfi_225_test:
+    build: .
+    volumes:
+      - dependencies-volume:/dependencies
+  gauche:
+    image: "schemers/gauche"
+    depends_on:
+      - srfi_225_test
+    volumes:
+      - dependencies-volume:/dependencies
+      - type: bind
+        source: .
+        target: /test/srfi-225
+    command: "sh /test/srfi-225/docker-gauche.sh"
+  chibi:
+    image: "schemers/chibi"
+    depends_on:
+      - srfi_225_test
+    volumes:
+      - dependencies-volume:/dependencies
+      - type: bind
+        source: .
+        target: /test/srfi-225
+    command: "sh /test/srfi-225/docker-chibi.sh"
+
+volumes:
+  dependencies-volume:
