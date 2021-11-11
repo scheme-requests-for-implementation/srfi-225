@@ -18,8 +18,8 @@
                               ;; and force it into tail call
                               (call/cc (lambda (k2)
                                          (define result 
-                                           (failure (lambda (value) (k2 (insert value #f)))
-                                                    (lambda () (k2 (ignore #f)))))
+                                           (failure (lambda (value) (call-with-values (lambda () (insert value #f)) k2))
+                                                    (lambda () (call-with-values (lambda () (ignore #f)) k2))))
                                          ;; neither insert nor ignore called -- return result to top level escape
                                          (k result))))
                             (lambda (key value update remove)
@@ -28,8 +28,8 @@
                                            (success 
                                              key
                                              value
-                                             (lambda (new-key new-value) (k2 (update new-key new-value #f)))
-                                             (lambda () (k2 (remove #f)))))
+                                             (lambda (new-key new-value) (call-with-values (lambda () (update new-key new-value #f)) k2))
+                                             (lambda () (call-with-values (lambda () (remove #f)) k2))))
                                          (k result))))))
           new-dict)))
 
