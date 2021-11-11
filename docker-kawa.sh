@@ -1,4 +1,4 @@
-mkdir /target
+rm -r /target/*
 
 for i in\
     "srfi-27/srfi/27"\
@@ -18,6 +18,7 @@ for i in\
 do
     CLASSPATH=target kawa -d target -C "dependencies/$i.sld"
 done
-
 CLASSPATH=target kawa --r7rs -d target -C "test/srfi-225/srfi/225.sld"
-CLASSPATH=target kawa --r7rs "test/srfi-225/srfi-225-test.scm"
+
+cd "/test/srfi-225"
+CLASSPATH=/target kawa --r7rs "srfi-225-test.scm"

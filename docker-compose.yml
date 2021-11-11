@@ -24,6 +24,18 @@ services:
         source: .
         target: /test/srfi-225
     command: "sh /test/srfi-225/docker-chibi.sh"
+  kawa:
+    image: "schemers/kawa"
+    depends_on:
+      - srfi_225_test
+    volumes:
+      - dependencies-volume:/dependencies
+      - target:/target
+      - type: bind
+        source: .
+        target: /test/srfi-225
+    command: "sh /test/srfi-225/docker-kawa.sh"
 
 volumes:
   dependencies-volume:
+  target:

@@ -23,8 +23,6 @@
     ;; lookup
     dict-ref
     dict-ref/default
-    dict-min-key
-    dict-max-key
 
     ;; mutation
     dict-set
@@ -104,8 +102,6 @@
     dict-mutable?-id
     dict-ref-id
     dict-ref/default-id
-    dict-min-key-id
-    dict-max-key-id
     dict-set-id
     dict-adjoin-id
     dict-delete-id
