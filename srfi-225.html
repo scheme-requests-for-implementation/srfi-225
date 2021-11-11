@@ -334,7 +334,7 @@ the proc-id variable for <code>dict-map-id</code> and <code>dict-map!</code> is 
 <p>Note that it is not an error to omit any of these, but some dictionary procedures may be unavailable.</p>
 <p>There are additional proc-id variables that may be provided with corresponding procedures in order to increase efficiency.  For example, it is not necessary to provide a <code>dict-ref</code> procedure, because the default version is built on top of <code>dict-alter</code> or <code>dict-alter!</code>.  But if the underlying dictionary provides its own <code>-ref</code> procedure, it may be more efficient to specify it to <code>make-dtd</code> using <code>dict-ref-id</code>.  Here is the list of additional proc-id variables:</p>
 <ul>
-<li><code>dict->alist-id</code></li>
+<li><code>dict-&gt;alist-id</code></li>
 <li><code>dict-adjoin-accumulator-id</code></li>
 <li><code>dict-adjoin-id</code></li>
 <li><code>dict-any-id</code></li>
@@ -354,14 +354,12 @@ the proc-id variable for <code>dict-map-id</code> and <code>dict-map!</code> is 
 <li><code>dict-for-each-in-closed-open-interval-id</code></li>
 <li><code>dict-for-each-in-open-closed-interval-id</code></li>
 <li><code>dict-for-each-in-open-interval-id</code></li>
-<li><code>dict-for-each>-id</code></li>
-<li><code>dict-for-each>=-id</code></li>
+<li><code>dict-for-each&gt;-id</code></li>
+<li><code>dict-for-each&gt;=-id</code></li>
 <li><code>dict-intern-id</code></li>
 <li><code>dict-keys-id</code></li>
-<li><code>dict-map->list-id</code></li>
+<li><code>dict-map-&gt;list-id</code></li>
 <li><code>dict-map-id</code></li>
-<li><code>dict-max-key-id</code></li>
-<li><code>dict-min-key-id</code></li>
 <li><code>dict-pop-id</code></li>
 <li><code>dict-ref-id</code></li>
 <li><code>dict-ref/default-id</code></li>
@@ -407,7 +405,130 @@ and <code>equal?</code> respectively.</p>
 <p>The sample implementation is found in the GitHub repository.</p>
 <p>The following list of dependencies is designed to ease defining
 new dictionary types that may not have complete dictionary APIs:</p>
-<b>FIXME</b>
+
+<dl>
+    <dt>dict-empty?</dt>
+    <dd>dict-size</dd>
+
+    <dt>dict=?</dt>
+    <dd>dict-ref</dd>
+    <dd>dict-keys</dd>
+    <dd>dict-size</dd>
+
+    <dt>dict-contains?</dt>
+    <dd>dict-ref</dd>
+
+    <dt>dict-ref</dt>
+    <dd>dict-mutable?</dd>
+    <dd>dict-alter or dict-alter!</dd>
+
+    <dt>dict-ref/default</dt>
+    <dd>dict-ref</dd>
+
+    <dt>dict-set</dt>
+    <dd>dict-alter</dd>
+
+    <dt>dict-adjoin</dt>
+    <dd>dict-alter</dd>
+
+    <dt>dict-delete</dt>
+    <dd>dict-delete-all</dt>
+
+    <dt>dict-delete-all</dt>
+    <dd>dict-alter</dd>
+
+    <dt>dict-replace</dt>
+    <dd>dict-alter</dd>
+
+    <dt>dict-intern</dt>
+    <dd>dict-alter</dt>
+
+    <dt>dict-update</dt>
+    <dd>dict-alter</dt>
+
+    <dt>dict-update/default</dt>
+    <dd>dict-update</dd>
+
+    <dt>dict-pop</dt>
+    <dd>dict-for-each</dd>
+    <dd>dict-delete-all</dd>
+    <dd>dict-empty?</dd>
+
+    <dt>dict-map</dt>
+    <dd>dict-keys</dd>
+    <dd>dict-ref</dd>
+    <dd>dict-replace</dd>
+
+    <dt>dict-filter</dt>
+    <dd>dict-keys</dd>
+    <dd>dict-ref</dd>
+    <dd>dict-delete-all</dd>
+
+    <dt>dict-remove</dt>
+    <dd>dict-filter</dd>
+
+    <dt>dict-count</dt>
+    <dd>dict-fold</dt>
+
+    <dt>dict-any</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-every</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-keys</dt>
+    <dd>dict-fold</dd>
+
+    <dt>dict-values</dt>
+    <dd>dict-fold</dd>
+
+    <dt>dict-entries</dt>
+    <dd>dict-fold</dd>
+
+    <dt>dict-fold</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-map-&gt;list</dt>
+    <dd>dict-fold</dd>
+
+    <dt>dict-&gt;alist</dt>
+    <dd>dict-map-&gt;list</dd>
+
+    <dt>dict-for-each&lt;</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-for-each&lt;=</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-for-each&gt;</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-for-each&gt;=</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-for-each-in-open-interval</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-for-each-in-closed-interval</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-for-each-in-open-closed-interval</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>dict-for-each-in-closed-open-interval</dt>
+    <dd>dict-for-each</dd>
+
+    <dt>make-dict-generator</dt>
+    <dd>dict-entries</dd>
+
+    <dt>dict-set-accumulator</dt>
+    <dd>dict-set</dd>
+
+    <dt>dict-adjoin-accumulator</dt>
+    <dd>dict-set</dd>
+
+</dl>
+
 <h2 id="acknowledgements">Acknowledgements</h2>
 
 <p>Thanks to the participants on the mailing list.</p>

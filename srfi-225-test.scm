@@ -135,34 +135,6 @@
    (test-equal (dict-ref/default dtd (alist->dict '((a . b))) 'a 'c) 'b)
    (test-equal (dict-ref/default dtd (alist->dict '((a* . b))) 'a 'c) 'c))
   
-  (test-group
-    "dict-min-key"
-    (define dict (alist->dict '((2 . a) (1 . b) (3 . c))))
-    (call/cc (lambda (cont)
-               (with-exception-handler
-                 (lambda (err)
-                   (unless (let* ((cmp (dict-comparator dtd (alist->dict '())))
-                                  (ordering (and cmp (comparator-ordering-predicate cmp))))
-                             ordering)
-                     (cont #t)))
-                 (lambda ()
-                   (define key (dict-min-key dtd dict))
-                   (test-equal 1 key))))))
-  
-  (test-group
-    "dict-max-key"
-    (define dict (alist->dict '((2 . a) (3 . b) (1 . c))))
-    (call/cc (lambda (cont)
-               (with-exception-handler
-                 (lambda (err)
-                   (unless (let* ((cmp (dict-comparator dtd (alist->dict '())))
-                                  (ordering (and cmp (comparator-ordering-predicate cmp))))
-                             ordering)
-                     (cont #t)))
-                 (lambda ()
-                   (define key (dict-max-key dtd dict))
-                   (test-equal 3 key))))))
-
   (when mutable?
     (test-skip 1))
   (test-group
@@ -886,8 +858,7 @@
   minimal-alist-dtd
   alist-copy
   #f
-  #f
-  ))
+  #f))
 
 (test-group
  "alist"
@@ -902,21 +873,6 @@
  (test-group
   "alist dict-comparator"
   (test-assert (not (dict-comparator alist-equal-dtd '())))))
-
-(test-group
- "plist"
- (do-test
-  plist-dtd
-  (lambda (alist)
-    (apply append
-           (map (lambda (pair)
-                  (list (car pair) (cdr pair)))
-                alist)))
-  #f
-  #f)
- (test-group
-  "plist dict-comparator"
-  (test-assert (not (dict-comparator plist-dtd '())))))
 
 (cond-expand
   ((and (library (srfi 69))

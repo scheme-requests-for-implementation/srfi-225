@@ -79,8 +79,6 @@
      ((dtd-ref-stx dtd dict-ref-id) dtd dict key failure success))))
 
 (define/dict-proc dict-ref/default dict-ref/default-id)
-(define/dict-proc dict-min-key dict-min-key-id)
-(define/dict-proc dict-max-key dict-max-key-id)
 (define/dict-proc-pair dict-set dict-set! dict-set-id)
 (define/dict-proc-pair dict-adjoin dict-adjoin! dict-adjoin-id)
 (define/dict-proc-pair dict-delete dict-delete! dict-delete-id)

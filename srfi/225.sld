@@ -144,7 +144,6 @@
     dict-adjoin-accumulator-id
 
     ;; basic DTDs
-    plist-dtd
     alist-eqv-dtd
     alist-equal-dtd)
 
@@ -153,7 +152,6 @@
     (include "externals.scm")
     (include "default-impl.scm")
     (include "alist-impl.scm")
-    (include "plist-impl.scm")
 
     ;; library-dependent DTD exports
     ;; and implementations

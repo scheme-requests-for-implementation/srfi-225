@@ -74,27 +74,6 @@
                 (lambda () default)
                 (lambda (x) x)))
     
-    (define (default-dict-find-key dtd dict cmp-proc)
-      (define cmp (dict-comparator dtd dict))
-      (define keys (dict-keys dtd dict))
-      (when (not cmp)
-        (raise (dictionary-error "dictionary doesn't have comparator")))
-      (when (null? keys)
-        (error "Cannot find min/max key in empty dictionary"))
-      (let loop ((best (car keys))
-                 (keys (cdr keys)))
-        (cond
-          ((null? keys) best)
-          ((cmp-proc cmp (car keys) best)
-           (loop (car keys) (cdr keys)))
-          (else (loop best (cdr keys))))))
-    
-    (define (default-dict-min-key dtd dict)
-      (default-dict-find-key dtd dict <?))
-    
-    (define (default-dict-max-key dtd dict)
-      (default-dict-find-key dtd dict >?))
-
     ;; private
     (define (default-dict-set* dtd dictionary use-old? objs)
       (let loop ((objs objs)
@@ -387,8 +366,6 @@
          dict-mutable?-id default-dict-mutable?
          dict-ref-id default-dict-ref
          dict-ref/default-id default-dict-ref/default
-         dict-min-key-id default-dict-min-key
-         dict-max-key-id default-dict-max-key
          dict-set-id default-dict-set
          dict-adjoin-id default-dict-adjoin
          dict-delete-id default-dict-delete
