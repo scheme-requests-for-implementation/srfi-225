@@ -18,6 +18,9 @@
                               ;; and force it into tail call
                               (call/cc (lambda (k2)
                                          (define result 
+                                           ;; calls to insert / ignore / update / remove
+                                           ;; can return unspecified amount of values,
+                                           ;; hence call-with-values approach
                                            (failure (lambda (value) (call-with-values (lambda () (insert value #f)) k2))
                                                     (lambda () (call-with-values (lambda () (ignore #f)) k2))))
                                          ;; neither insert nor ignore called -- return result to top level escape
