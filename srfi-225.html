@@ -105,7 +105,7 @@ Consequently, previous examples don't affect later ones.
 (dict-set aed dict 7 8) =&gt;
    ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
 (dict-set aed dict 3 5) =&gt;
-   ((3 . 5) (1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
+   ((3 . 5) (1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
 <p><code>(dict-adjoin</code>&nbsp;<em>dtd dict objs</em><code>)</code><br>
 <code>(dict-adjoin!</code>&nbsp;<em>dtd dict objs</em><code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> plus those specified by <em>objs</em>, which alternate between keys and values. If a key to be added already exists in <em>dict</em>, the old value prevails.</p>
@@ -113,7 +113,7 @@ Consequently, previous examples don't affect later ones.
 (dict-adjoin aed dict 7 8) =&gt;
   ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
 (dict-adjoin aed dict 3 5) =&gt;
-; ((1 . 2) (3 . 4) (5 . 6)</pre></blockquote>
+  ((1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
 <p><code>(dict-delete</code>&nbsp;<em>dtd dict key</em> …<code>)</code><br>
 <code>(dict-delete!</code>&nbsp;<em>dtd dict key</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> except those whose keys are the same as one of the <em>keys</em>.</p>
@@ -121,7 +121,7 @@ Consequently, previous examples don't affect later ones.
 (dict-delete aed dict 1 3) =&gt;
   ((5. 6)) ; may share
 (dict-delete aed dict 5) =&gt;
-  ((1 . 2) (3 . 4)</pre></blockquote>
+  ((1 . 2) (3 . 4))</pre></blockquote>
 <p><code>(dict-delete-all</code>&nbsp;<em>dtd dict keylist</em><code>)</code><br>
 <code>(dict-delete-all!</code>&nbsp;<em>dtd dict keylist</em><code>)</code></p>
 <p>Returns a dictionary with all the associations of <em>dict</em> except those whose keys are the same as some member of <em>keylist</em>.</p>
