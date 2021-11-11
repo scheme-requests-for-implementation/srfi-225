@@ -9,6 +9,9 @@ test-chibi-docker:
 test-gauche-docker:
 	docker-compose run --rm gauche
 
+test-kawa-docker:
+	docker-compose run --rm kawa
+
 test-chibi:
 	chibi-scheme -I . srfi-225-test.scm
 

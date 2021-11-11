@@ -23,8 +23,6 @@
     ;; lookup
     dict-ref
     dict-ref/default
-    dict-min-key
-    dict-max-key
 
     ;; mutation
     dict-set
@@ -104,8 +102,6 @@
     dict-mutable?-id
     dict-ref-id
     dict-ref/default-id
-    dict-min-key-id
-    dict-max-key-id
     dict-set-id
     dict-adjoin-id
     dict-delete-id
@@ -144,7 +140,6 @@
     dict-adjoin-accumulator-id
 
     ;; basic DTDs
-    plist-dtd
     alist-eqv-dtd
     alist-equal-dtd)
 
@@ -153,7 +148,6 @@
     (include "externals.scm")
     (include "default-impl.scm")
     (include "alist-impl.scm")
-    (include "plist-impl.scm")
 
     ;; library-dependent DTD exports
     ;; and implementations

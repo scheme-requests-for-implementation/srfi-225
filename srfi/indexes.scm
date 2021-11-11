@@ -12,8 +12,6 @@
 (define dict-mutable?-id (proc-id-inc))
 (define dict-ref-id (proc-id-inc))
 (define dict-ref/default-id (proc-id-inc))
-(define dict-min-key-id (proc-id-inc))
-(define dict-max-key-id (proc-id-inc))
 (define dict-set-id (proc-id-inc))
 (define dict-adjoin-id (proc-id-inc))
 (define dict-delete-id (proc-id-inc))
