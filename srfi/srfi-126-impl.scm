@@ -16,7 +16,7 @@
     (define (prep-dtd-arg proc)
       (lambda (dtd . args)
         (apply proc args)))
-    
+
     (define (t126-hashtable-ref* dtd table key fail success)
       (define-values (value found?) (t126-hashtable-lookup table key))
       (if found?

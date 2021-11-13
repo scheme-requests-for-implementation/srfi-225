@@ -12,7 +12,7 @@
              body ...
              (let ((table (t125-hash-table-copy table #f)))
               final-expr))))))
-   
+
    (define (t125-hash-table-mutable?* dtd table)
      (t125-hash-table-mutable? table))
 
@@ -55,7 +55,7 @@
 
     (define (t125-hash-table-map* dtd proc table)
       (guard-immutable table
-        (t125-hash-table-map! proc table)  
+        (t125-hash-table-map! proc table)
         table))
 
     (define (t125-hash-table-filter* dtd proc table)
