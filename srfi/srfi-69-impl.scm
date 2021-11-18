@@ -4,7 +4,7 @@
     (define (prep-dtd-arg proc)
       (lambda (dtd . args)
         (apply proc args)))
-    
+
     (define (t69-hash-table-mutable?* dtd table)
       #t)
 

@@ -4,7 +4,7 @@
     (and (list? l)
          (or (null? l)
              (pair? (car l)))))
-  
+
   (define (alist-mutable? dtd alist)
     #f)
 

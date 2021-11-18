@@ -12,27 +12,27 @@
     (define default-dict-mutable? (not-implemented "dict-mutable?"))
     (define default-dict-size (not-implemented "dict-size"))
     (define default-dict-alter (not-implemented "dict-alter"))
-    
+
     (define (dict-alter* dtd dict key fail success)
       (if (dict-mutable? dtd dict)
           (dict-alter! dtd dict key fail success)
           (dict-alter dtd dict key fail success)))
-    
+
     (define (dict-delete-all* dtd dict keys)
       (if (dict-mutable? dtd dict)
           (dict-delete-all! dtd dict keys)
           (dict-delete-all dtd dict keys)))
-    
+
     (define (dict-update* dtd dict key updater fail success)
       (if (dict-mutable? dtd dict)
           (dict-update! dtd dict key updater fail success)
           (dict-update dtd dict key updater fail success)))
-    
+
     (define (dict-filter* dtd pred dictionary)
       (if (dict-mutable? dtd dictionary)
           (dict-filter! dtd pred dictionary)
           (dict-filter dtd pred dictionary)))
-    
+
     (define (dict-replace* dtd dict key val)
       (if (dict-mutable? dtd dict)
           (dict-replace! dtd dict key val)
@@ -40,7 +40,7 @@
 
     (define (default-dict-empty? dtd dictionary)
       (= 0 (dict-size dtd dictionary)))
-    
+
     (define (default-dict=? dtd = dict1 dict2)
       (define (check-entries* keys)
         (cond
@@ -59,7 +59,7 @@
 
     (define (default-dict-contains? dtd dictionary key)
       (dict-ref dtd dictionary key
-                (lambda () #f) 
+                (lambda () #f)
                 (lambda (x) #t)))
 
     (define (default-dict-ref dtd dictionary key failure success)
@@ -73,7 +73,7 @@
       (dict-ref dtd dictionary key
                 (lambda () default)
                 (lambda (x) x)))
-    
+
     ;; private
     (define (default-dict-set* dtd dictionary use-old? objs)
       (let loop ((objs objs)
@@ -266,66 +266,66 @@
                       dictionary))
 
     (define default-dict-comparator (not-implemented "dict-comparator"))
-    
+
     (define default-dict-for-each (not-implemented "dict-for-each"))
-    
+
     (define (default-dict-for-each/filtered dtd pred proc dict)
-      (dict-for-each dtd 
+      (dict-for-each dtd
                      (lambda (key value)
                        (when (pred key)
                          (proc key value)))
                      dict))
-    
+
     (define (default-dict-for-each< dtd proc dict key)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (<? cmp k key))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-dict-for-each<= dtd proc dict key)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (<=? cmp k key))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-dict-for-each> dtd proc dict key)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (>? cmp k key))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-dict-for-each>= dtd proc dict key)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (>=? cmp k key))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-dict-for-each-in-open-interval dtd proc dict key1 key2)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (<? cmp key1 k key2))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-dict-for-each-in-closed-interval dtd proc dict key1 key2)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (<=? cmp key1 k key2))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-dict-for-each-in-open-closed-interval dtd proc dict key1 key2)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (and (<? cmp key1 k)
              (<=? cmp k key2)))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-dict-for-each-in-closed-open-interval dtd proc dict key1 key2)
       (define cmp (dict-comparator dtd dict))
       (define (pred k)
         (and (<=? cmp key1 k)
              (<? cmp k key2)))
       (default-dict-for-each/filtered dtd pred proc dict))
-    
+
     (define (default-make-dict-generator dtd dict)
       (define-values (keys vals)
                      (dict-entries dtd dict))
@@ -337,18 +337,18 @@
               (set! keys (cdr keys))
               (set! vals (cdr vals))
               (cons key value)))))
-    
+
     (define (default-dict-accumulator dtd dict acc-proc)
       (lambda (arg)
         (if (eof-object? arg)
             dict
             (set! dict (acc-proc dtd dict (car arg) (cdr arg))))))
-    
+
     (define (default-dict-set-accumulator dtd dict)
       (if (dict-mutable? dtd dict)
           (default-dict-accumulator dtd dict dict-set!)
           (default-dict-accumulator dtd dict dict-set)))
-    
+
     (define (default-dict-adjoin-accumulator dtd dict)
       (if (dict-mutable? dtd dict)
           (default-dict-accumulator dtd dict dict-adjoin!)
@@ -390,7 +390,7 @@
          dict-map->list-id default-dict-map->list
          dict->alist-id default-dict->alist
          dict-comparator-id default-dict-comparator
-         
+
          dict-for-each-id default-dict-for-each
          dict-for-each<-id default-dict-for-each<
          dict-for-each<=-id default-dict-for-each<=

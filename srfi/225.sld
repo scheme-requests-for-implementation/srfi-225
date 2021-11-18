@@ -75,7 +75,7 @@
     dict-for-each-in-closed-interval
     dict-for-each-in-open-closed-interval
     dict-for-each-in-closed-open-interval
-    
+
     ;; generator procedures
     make-dict-generator
     dict-set-accumulator

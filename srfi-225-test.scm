@@ -85,7 +85,7 @@
                  (test-equal (length lst) (length expected-keys))
                  (for-each
                    (lambda (key)
-                     (test-assert (find (lambda (key*) (equal? key key*)) 
+                     (test-assert (find (lambda (key*) (equal? key key*))
                                         expected-keys)))
                    lst))))))
 
@@ -111,14 +111,14 @@
    (test-assert (not (dict-contains? dtd (alist->dict '()) 'a)))
    (test-assert (not (dict-contains? dtd (alist->dict '((b . c))) 'a)))
    (test-assert (dict-contains? dtd (alist->dict '((a . b))) 'a)))
-  
+
   (test-group
     "dict=?"
     (define dict1 (alist->dict '((a . 1) (b . 2))))
     (define dict2 (alist->dict '((b . 2) (a . 1))))
     (define dict3 (alist->dict '((a . 1))))
     (define dict4 (alist->dict '((a . 2) (b . 2))))
-    
+
     (test-assert (dict=? dtd = dict1 dict2))
     (test-assert (not (dict=? dtd = dict1 dict3)))
     (test-assert (not (dict=? dtd = dict3 dict1)))
@@ -134,7 +134,7 @@
    "dict-ref/default"
    (test-equal (dict-ref/default dtd (alist->dict '((a . b))) 'a 'c) 'b)
    (test-equal (dict-ref/default dtd (alist->dict '((a* . b))) 'a 'c) 'c))
-  
+
   (when mutable?
     (test-skip 1))
   (test-group
@@ -672,13 +672,13 @@
    (let ((cmp (dict-comparator dtd (alist->dict '((a . b))))))
      (test-assert (or (not cmp)
                       (comparator? cmp)))))
-  
+
   (test-group
     "dict-for-each"
     (test-for-each #t
       (lambda (proc)
-        (dict-for-each dtd 
-                       proc 
+        (dict-for-each dtd
+                       proc
                        (alist->dict '((1 . a)
                                       (2 . b)
                                       (3 . c)
@@ -691,8 +691,8 @@
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each< dtd 
-                        proc 
+        (dict-for-each< dtd
+                        proc
                         (alist->dict '((1 . a)
                                        (2 . b)
                                        (3 . c)
@@ -706,105 +706,105 @@
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each<= dtd 
-                        proc 
+        (dict-for-each<= dtd
+                        proc
                         (alist->dict '((1 . a)
                                        (2 . b)
                                        (3 . c)
                                        (4 . d)))
                         3))
       '(1 2 3)))
-  
+
   (test-group
     "dict-for-each>"
     (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each> dtd 
-                        proc 
+        (dict-for-each> dtd
+                        proc
                         (alist->dict '((1 . a)
                                        (2 . b)
                                        (3 . c)
                                        (4 . d)))
                         2))
       '(3 4)))
-  
+
   (test-group
     "dict-for-each>="
     (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each>= dtd 
-                        proc 
+        (dict-for-each>= dtd
+                        proc
                         (alist->dict '((1 . a)
                                        (2 . b)
                                        (3 . c)
                                        (4 . d)))
                         2))
       '(2 3 4)))
-  
+
   (test-group
     "dict-for-each-in-open-interval"
     (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each-in-open-interval dtd 
-                                        proc 
+        (dict-for-each-in-open-interval dtd
+                                        proc
                                         (alist->dict '((1 . a)
                                                        (2 . b)
                                                        (3 . c)
                                                        (4 . d)))
                                         1 4))
       '(2 3)))
-  
+
   (test-group
     "dict-for-each-in-closed-interval"
     (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each-in-closed-interval dtd 
-                                        proc 
+        (dict-for-each-in-closed-interval dtd
+                                        proc
                                         (alist->dict '((1 . a)
                                                        (2 . b)
                                                        (3 . c)
                                                        (4 . d)))
                                         1 4))
       '(1 2 3 4)))
-  
+
   (test-group
     "dict-for-each-in-open-closed-interval"
     (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each-in-open-closed-interval dtd 
-                                               proc 
+        (dict-for-each-in-open-closed-interval dtd
+                                               proc
                                                (alist->dict '((1 . a)
                                                               (2 . b)
                                                               (3 . c)
                                                               (4 . d)))
                                                1 4))
       '(2 3 4)))
-  
+
   (test-group
     "dict-for-each-in-closed-open-interval"
     (test-for-each (let* ((cmp (dict-comparator dtd (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
       (lambda (proc)
-        (dict-for-each-in-closed-open-interval dtd 
-                                               proc 
+        (dict-for-each-in-closed-open-interval dtd
+                                               proc
                                                (alist->dict '((1 . a)
                                                               (2 . b)
                                                               (3 . c)
                                                               (4 . d)))
                                                1 4))
       '(1 2 3)))
-  
+
   (test-group
     "make-dict-generator"
     (test-for-each #t
@@ -812,11 +812,11 @@
         (generator-for-each
           (lambda (entry)
             (proc (car entry) (cdr entry)))
-          (make-dict-generator dtd (alist->dict '((1 . a) 
+          (make-dict-generator dtd (alist->dict '((1 . a)
                                                   (2 . b)
                                                   (3 . c))))))
       '(1 2 3)))
-  
+
   (test-group
     "dict-set-accumulator"
     (define acc (dict-set-accumulator dtd (alist->dict '())))
@@ -824,7 +824,7 @@
     (acc (cons 2 'b))
     (acc (cons 2 'c))
     (test-assert (dict=? dtd equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . c))))))
-  
+
   (test-group
     "dict-adjoin-accumulator"
     (define acc (dict-adjoin-accumulator dtd (alist->dict '())))
@@ -868,7 +868,7 @@
   ;; so that mutating procedures don't fail
   alist-copy
   #f
-  #f) 
+  #f)
 
  (test-group
   "alist dict-comparator"
@@ -920,7 +920,7 @@
            alist)
          (t125-hash-table-copy table #f))
        (make-default-comparator)
-       #f))) 
+       #f)))
   (else))
 
 (cond-expand

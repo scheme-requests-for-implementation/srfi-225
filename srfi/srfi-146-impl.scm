@@ -4,7 +4,7 @@
     (define (prep-dtd-arg proc)
       (lambda (dtd . args)
         (apply proc args)))
-    
+
     (define (mapping-alter* dtd dict key failure success)
       (call/cc
         ;; escape from whole hashmap-search entirely, when success / failure
@@ -17,7 +17,7 @@
                               ;; handle when continuation procedure is called
                               ;; and force it into tail call
                               (call/cc (lambda (k2)
-                                         (define result 
+                                         (define result
                                            ;; calls to insert / ignore / update / remove
                                            ;; can return unspecified amount of values,
                                            ;; hence call-with-values approach
@@ -28,7 +28,7 @@
                             (lambda (key value update remove)
                               (call/cc (lambda (k2)
                                          (define result
-                                           (success 
+                                           (success
                                              key
                                              value
                                              (lambda (new-key new-value) (call-with-values (lambda () (update new-key new-value #f)) k2))
