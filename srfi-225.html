@@ -33,7 +33,7 @@ manipulate an object that maps keys to values
 without the caller needing to know exactly what the type
 of the object is.
 However, what procedures can be called on the dictionary
-is partly determined by whether it is persistent or mutable.
+is partly determined by whether it is pure or not.
 Such an object is called a <em>dict</em> in this SRFI.
 
 <h2 id="issues">Issues</h2>
@@ -44,10 +44,10 @@ None at present.
 
 <p>Until recently there was only one universally available mechanism for managing key-value pairs: alists. Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations do not provide that interface.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables, there are R7RS persistent ordered and hashed mappings from SRFI 146, ordered mappings with fixnum keys from SRFI 224, and ordered bytevector key-value stores (often on a disk or a remote machine) from SRFI 167.</p>
-<p>It’s inconvenient for users if SRFIs or other libraries have to insist on accepting only a specific type of dictionary. This SRFI exposes a number of accessors, mutators, and other procedures that can be called on any dictionary, provided that a <em>dictionary type descriptor</em> (DTD, with apologies to SGML and XML users) is available for it: either exported from this SRFI, or from other SRFIs or libraries, or created by the user. DTDs are of an unspecified type.</p>
+<p>It’s inconvenient for users if SRFIs or other libraries have to insist on accepting only a specific type of dictionary. This SRFI exposes a number of accessors, updaters, and other procedures that can be called on any dictionary, provided that a <em>dictionary type descriptor</em> (DTD, with apologies to SGML and XML users) is available for it: either exported from this SRFI, or from other SRFIs or libraries, or created by the user. DTDs are of an unspecified type.</p>
 <p>This in turn requires that the DTD provides a predicate that can recognize its dictionaries, plus several primitive generic procedures.</p>
-<p>By using the procedures of this SRFI, a procedure can take a DTD and a dictionary as an argument and make flexible use of the dictionary without knowing its exact type.  For the purposes of this SRFI, such a procedure is called a <em>generic procedure</em>.</p>
-<p>However, dictionaries need to be constructed using type-specific constructors, as the required and optional arguments differ in each case.  In addition, the dictionary type provided by the caller of a generic procedure doesn't necessarily have the right performance characteristics needed by the generic procedure itself.  Consequently there are no <code>make-dict</code>, <code>dict</code>, <code>dict-unfold</code>, <code>dict-copy</code> or similar procedures in this SRFI.</p>
+<p>By using the procedures of this SRFI, a procedure can take a DTD and a dictionary as an argument and make flexible use of the dictionary without knowing its exact type.  For the purposes of this SRFI, such a procedure is called a <em>generic procedure</em>.  However, it is still necessary to distinguish between pure and impure dictionary types.  A pure dictionary type either exposes pure functional update operations or no update operations at all, whereas an impure dictionary type exposes mutation operations.  Note that if an instance of an impure dictionary type like SRFI 126 is in fact immutable, it still counts as impure.
+<p>In addition, dictionaries need to be constructed using type-specific constructors, as the required and optional arguments differ in each case.  In addition, the dictionary type provided by the caller of a generic procedure doesn't necessarily have the right performance characteristics needed by the generic procedure itself.  Consequently there are no <code>make-dict</code>, <code>dict</code>, <code>dict-unfold</code>, <code>dict-copy</code>, or similar procedures in this SRFI.</p>
 <h2 id="specification">Specification</h2>
 <p>We call a specific key-value combination an <em>association</em>. This is why an alist, or association list, is called that; it is a list of associations represented as pairs.</p>
 <p>A <em>dictionary</em> or <em>dict</em> is a collection of associations which may be ordered or unordered.  In principle an <em>equality predicate</em> is enough, given a key, to determine whether an association with that key exists in the dictionary.  However, for efficiency most dictionaries require an <em>ordering predicate</em> or a <em>hash function</em> as well.
@@ -82,11 +82,11 @@ Consequently, previous examples don't affect later ones.
 (define dictb '((1 . 2) (3 . 4))
 (dict=? aed = dict dicta) => #t
 (dict=? aed = dict dictb) => #f</pre></blockquote>
-<p><code>(dict-mutable?</code>&nbsp;<em>dtd dict</em><code>)</code></p>
-<p>Returns <code>#t</code> if the dictionary type supports mutations and <code>#f</code> if it supports functional updates.</p>
+<p><code>(dict-pure?</code>&nbsp;<em>dtd dict</em><code>)</code></p>
+<p>Returns <code>#t</code> if the dictionary type is pure and <code>#f</code> otherwise.</p>
 <blockquote><pre>
-(dict-mutable? hash-table-dtd (make-hash-table)) => #t
-(dict-mutable? aed dict) => #f
+(dict-pure? hash-table-dtd (make-hash-table)) => #f
+(dict-pure? aed dict) => #t
 </pre></blockquote>
 <h3 id="lookup">Lookup</h3>
 <p><code>(dict-ref</code>&nbsp;<em>dtd dict key</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
@@ -99,8 +99,8 @@ Consequently, previous examples don't affect later ones.
 <p>If <em>key</em> is the same as some key of <em>dict</em>, returns the corresponding value. If not, returns <em>default</em>.</p>
 <blockquote><pre>(dict-ref/default aed dict 1 #f) =&gt; 1
 (dict-ref/default aed dict 1 #f) =&gt; #f</pre></blockquote>
-<h3 id="mutation">Functional update and mutation</h3>
-<p>All these procedures exist in pairs, with and without a final <code>!</code>.  The descriptions apply to the procedures without <code>!</code>; the procedures with <code>!</code> mutate their dictionary argument and do not return a dictionary value.  Only one set of procedures is supported by any dictionary: for example, SRFI 125 hash tables support only mutation, whereas SRFI 146 mappings support only functional update.  The <code>dict-mutable?</code> procedure can be used to determine which set is usable.</p>
+<h3 id="update-procedures">Update procedures</h3>
+<p>All update procedures exist in pairs, with and without a final <code>!</code>.  The descriptions apply to the procedures without <code>!</code>; the procedures with <code>!</code> mutate their dictionary argument and do not return a dictionary value.  Only one set of procedures is supported by any dictionary type: for example, SRFI 125 hash tables are impure and support only mutation, whereas SRFI 146 mappings are pure and support only functional update.  The <code>dict-pure?</code> procedure can be used to determine which set is usable.</p>
 <p><code>(dict-set</code>&nbsp;<em>dtd dict obj</em> …<code>)</code><br>
 <code>(dict-set!</code>&nbsp;<em>dtd dict obj</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> plus those specified by <em>objs</em>, which alternate between keys and values. If a key to be added already exists in <em>dict</em>, the new value prevails.</p>
@@ -319,7 +319,7 @@ and <code>dict-alter</code>.
 <code>(dtd (</code><em>proc-id procname</em><code>)</code> …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
 <p>Returns a new DTD providing procedures that allow manipulation of dictionaries of that type.  The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
 <p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure (except those in this section and the Exceptions section) suffixed with <code>-id</code>, and a <em>proc</em> argument is the specific procedure implementing it for this type.
-Note that there is only one proc-id variable for each pair of mutation and functional-update procedures:
+Note that there is only one proc-id variable for each pair of pure and impure procedures:
 the proc-id variable for <code>dict-map-id</code> and <code>dict-map!</code> is <code>dict-map-id</code>.</p>
 <p>The following proc-id variables (and corresponding primitive procedures) need to be provided in order for the DTD to support the full set of dictionary procedures:</p>
 <ul>
@@ -327,7 +327,7 @@ the proc-id variable for <code>dict-map-id</code> and <code>dict-map!</code> is 
 <li><code>dict-alter-id</code></li>
 <li><code>dict-comparator-id</code></li>
 <li><code>dict-map-id</code></li>
-<li><code>dict-mutable?-id</code></li>
+<li><code>dict-pure?-id</code></li>
 <li><code>dict-remove-id</code></li>
 <li><code>dict-size-id</code></li>
 </ul>
@@ -419,7 +419,7 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dd>dict-ref</dd>
 
     <dt>dict-ref</dt>
-    <dd>dict-mutable?</dd>
+    <dd>dict-pure?</dd>
     <dd>dict-alter or dict-alter!</dd>
 
     <dt>dict-ref/default</dt>
