@@ -1,62 +1,62 @@
 ;; procedure definitions that don't rely on concrete implementations
 
-(define-record-type <dtd>
-  (make-dtd-private procvec)
-  dtd?
+(define-record-type <dto>
+  (make-dto-private procvec)
+  dto?
   (procvec procvec))
 
-(define-record-type <dtd-err>
+(define-record-type <dto-err>
   (make-dictionary-error message irritants)
   dictionary-error?
   (message dictionary-message)
   (irritants dictionary-irritants))
 
-;; shorthand access to dtd procedure by index
-(define-syntax dtd-ref-stx
+;; shorthand access to dto procedure by index
+(define-syntax dto-ref-stx
   (syntax-rules ()
-    ((_ dtd index)
+    ((_ dto index)
      (begin
-       (vector-ref (procvec dtd) index)))))
+       (vector-ref (procvec dto) index)))))
 
 ;; shorthand to define proc with using proc index
 (define-syntax define/dict-proc
   (syntax-rules ()
     ((_ proc index)
-     (define (proc dtd . args)
-       (assume (dtd? dtd))
-       (apply (dtd-ref-stx dtd index) dtd args)))))
+     (define (proc dto . args)
+       (assume (dto? dto))
+       (apply (dto-ref-stx dto index) dto args)))))
 
 ;; define mutable and immutable versions of a procedure (such as dict-set! and dict-set)
 ;; with appropriate assertion for dict-mutable? value
-;; when dtd is first arg, and dict is second arg
+;; when dto is first arg, and dict is second arg
 (define-syntax define/dict-proc-pair
   (syntax-rules ()
     ((_ proc-immutable proc-mutable index)
      (begin
-       (define (proc-mutable dtd dict . args)
-         (assume (dtd? dtd))
-         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict) index)
-         (apply (dtd-ref-stx dtd index) dtd dict args))
-       (define (proc-immutable dtd dict . args)
-         (assume (dtd? dtd))
-         (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)) index)
-         (apply (dtd-ref-stx dtd index) dtd dict args))))))
+       (define (proc-mutable dto dict . args)
+         (assume (dto? dto))
+         (assume ((dto-ref-stx dto dict-mutable?-id) dto dict) index)
+         (apply (dto-ref-stx dto index) dto dict args))
+       (define (proc-immutable dto dict . args)
+         (assume (dto? dto))
+         (assume (not ((dto-ref-stx dto dict-mutable?-id) dto dict)) index)
+         (apply (dto-ref-stx dto index) dto dict args))))))
 
 ;; define mutable and immutable versions of a procedure (such as dict-set! and dict-set)
 ;; with appropriate assertion for dict-mutable? value
-;; when dtd is first arg, and dict is third arg (ie filter, map shape signature)
+;; when dto is first arg, and dict is third arg (ie filter, map shape signature)
 (define-syntax define/dict-proc-pair*
   (syntax-rules ()
     ((_ proc-immutable proc-mutable index)
      (begin
-       (define (proc-mutable dtd proc dict)
-         (assume (dtd? dtd))
-         (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict) index)
-         ((dtd-ref-stx dtd index) dtd proc dict))
-       (define (proc-immutable dtd proc dict)
-         (assume (dtd? dtd))
-         (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)) index)
-         ((dtd-ref-stx dtd index) dtd proc dict))))))
+       (define (proc-mutable dto proc dict)
+         (assume (dto? dto))
+         (assume ((dto-ref-stx dto dict-mutable?-id) dto dict) index)
+         ((dto-ref-stx dto index) dto proc dict))
+       (define (proc-immutable dto proc dict)
+         (assume (dto? dto))
+         (assume (not ((dto-ref-stx dto dict-mutable?-id) dto dict)) index)
+         ((dto-ref-stx dto index) dto proc dict))))))
 
 (define/dict-proc dictionary? dictionary?-id)
 (define/dict-proc dict-empty? dict-empty?-id)
@@ -66,17 +66,17 @@
 
 (define dict-ref
   (case-lambda
-    ((dtd dict key)
-     (dict-ref dtd dict key
+    ((dto dict key)
+     (dict-ref dto dict key
                (lambda () (error "Key not found in dictionary" dict key))
                values))
 
-    ((dtd dict key failure)
-     (dict-ref dtd dict key failure values))
+    ((dto dict key failure)
+     (dict-ref dto dict key failure values))
 
-    ((dtd dict key failure success)
-     (assume (dtd? dtd))
-     ((dtd-ref-stx dtd dict-ref-id) dtd dict key failure success))))
+    ((dto dict key failure success)
+     (assume (dto? dto))
+     ((dto-ref-stx dto dict-ref-id) dto dict key failure success))))
 
 (define/dict-proc dict-ref/default dict-ref/default-id)
 (define/dict-proc-pair dict-set dict-set! dict-set-id)
@@ -88,40 +88,40 @@
 
 (define dict-update
   (case-lambda
-    ((dtd dict key updater)
-     (dict-update dtd dict key updater
+    ((dto dict key updater)
+     (dict-update dto dict key updater
                   (lambda () (error "Key not found in dictionary" dict key))
                   values))
 
-    ((dtd dict key updater failure)
-     (dict-update dtd dict key  updater failure values))
+    ((dto dict key updater failure)
+     (dict-update dto dict key  updater failure values))
 
-    ((dtd dict key updater failure success)
-     (assume (dtd? dtd))
-     (assume (not ((dtd-ref-stx dtd dict-mutable?-id) dtd dict)))
-     ((dtd-ref-stx dtd dict-update-id) dtd dict key updater failure success))))
+    ((dto dict key updater failure success)
+     (assume (dto? dto))
+     (assume (not ((dto-ref-stx dto dict-mutable?-id) dto dict)))
+     ((dto-ref-stx dto dict-update-id) dto dict key updater failure success))))
 
 (define dict-update!
   (case-lambda
-    ((dtd dict key updater)
-     (dict-update dtd dict key updater
+    ((dto dict key updater)
+     (dict-update dto dict key updater
                   (lambda () (error "Key not found in dictionary" dict key))
                   values))
 
-    ((dtd dict key updater failure)
-     (dict-update dtd dict key  updater failure values))
+    ((dto dict key updater failure)
+     (dict-update dto dict key  updater failure values))
 
-    ((dtd dict key updater failure success)
-     (assume (dtd? dtd))
-     (assume ((dtd-ref-stx dtd dict-mutable?-id) dtd dict))
-     ((dtd-ref-stx dtd dict-update-id) dtd dict key updater failure success))))
+    ((dto dict key updater failure success)
+     (assume (dto? dto))
+     (assume ((dto-ref-stx dto dict-mutable?-id) dto dict))
+     ((dto-ref-stx dto dict-update-id) dto dict key updater failure success))))
 
 (define/dict-proc-pair dict-update/default dict-update/default! dict-update/default-id)
 (define/dict-proc-pair dict-pop dict-pop! dict-pop-id)
 (define/dict-proc-pair* dict-map dict-map! dict-map-id)
 (define/dict-proc-pair* dict-filter dict-filter! dict-filter-id)
 (define/dict-proc-pair* dict-remove dict-remove! dict-remove-id)
-(define/dict-proc-pair dict-alter dict-alter! dict-alter-id)
+(define/dict-proc-pair dict-find-update dict-find-update! dict-find-update-id)
 (define/dict-proc dict-size dict-size-id)
 (define/dict-proc dict-count dict-count-id)
 (define/dict-proc dict-any dict-any-id)
@@ -146,11 +146,11 @@
 (define/dict-proc dict-set-accumulator dict-set-accumulator-id)
 (define/dict-proc dict-adjoin-accumulator dict-adjoin-accumulator-id)
 
-(define (dtd-ref dtd procindex)
-  (dtd-ref-stx dtd procindex))
+(define (dto-ref dto procindex)
+  (dto-ref-stx dto procindex))
 
-(define (make-modified-dtd dtd . lst)
-  (define vec (vector-copy (procvec dtd)))
+(define (make-modified-dto dto . lst)
+  (define vec (vector-copy (procvec dto)))
   (do ((lst lst (cddr lst)))
       ((null? lst))
     (when (null? (cdr lst))
@@ -160,22 +160,22 @@
       (unless (procedure? proc)
         (error "Not a procedure" proc))
       (vector-set! vec proc-id proc)))
-  (make-dtd-private vec))
+  (make-dto-private vec))
 
-(define (make-dtd . lst)
-  (apply make-modified-dtd default-dtd lst))
+(define (make-dto . lst)
+  (apply make-modified-dto default-dto lst))
 
-(define-syntax dtd-helper
+(define-syntax dto-helper
   (syntax-rules ()
     ((_ (arg ...) (index proc) rest ...)
-     (dtd-helper (arg ... index proc) rest ...))
+     (dto-helper (arg ... index proc) rest ...))
     ((_ (arg ...))
-     (make-dtd arg ...))))
+     (make-dto arg ...))))
 
-(define-syntax dtd
+(define-syntax dto
   (syntax-rules ()
     ((_ (index proc) ...)
-     (dtd-helper () (index proc) ...))))
+     (dto-helper () (index proc) ...))))
 
 (define (dictionary-error message . irritants)
   (make-dictionary-error message irritants))

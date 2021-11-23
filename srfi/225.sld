@@ -49,8 +49,8 @@
     dict-filter!
     dict-remove
     dict-remove!
-    dict-alter
-    dict-alter!
+    dict-find-update
+    dict-find-update!
 
     ;; whole dictionary
     dict-size
@@ -82,11 +82,11 @@
     dict-adjoin-accumulator
 
     ;; dictionary type descriptors
-    dtd?
-    make-dtd
-    dtd
-    make-alist-dtd
-    dtd-ref
+    dto?
+    make-dto
+    dto
+    make-alist-dto
+    dto-ref
 
     ;; exceptions
     dictionary-error
@@ -114,7 +114,7 @@
     dict-map-id
     dict-filter-id
     dict-remove-id
-    dict-alter-id
+    dict-find-update-id
     dict-size-id
     dict-count-id
     dict-any-id
@@ -139,9 +139,9 @@
     dict-set-accumulator-id
     dict-adjoin-accumulator-id
 
-    ;; basic DTDs
-    alist-eqv-dtd
-    alist-equal-dtd)
+    ;; basic DTOs
+    alist-eqv-dto
+    alist-equal-dto)
 
     ;; implementations
     (include "indexes.scm")
@@ -149,34 +149,34 @@
     (include "default-impl.scm")
     (include "alist-impl.scm")
 
-    ;; library-dependent DTD exports
+    ;; library-dependent DTO exports
     ;; and implementations
     ;;
-    ;;srfi-69-dtd
-    ;;hash-table-dtd
-    ;;srfi-126-dtd
-    ;;mapping-dtd
-    ;;hash-mapping-dtd
+    ;;srfi-69-dto
+    ;;hash-table-dto
+    ;;srfi-126-dto
+    ;;mapping-dto
+    ;;hash-mapping-dto
 
     (cond-expand
         ((library (srfi 69))
          (import (prefix (srfi 69) t69-))
          (include "srfi-69-impl.scm")
-         (export srfi-69-dtd))
+         (export srfi-69-dto))
         (else))
 
     (cond-expand
         ((library (srfi 125))
          (import (prefix (srfi 125) t125-))
          (include "srfi-125-impl.scm")
-         (export hash-table-dtd))
+         (export hash-table-dto))
         (else))
 
     (cond-expand
         ((library (srfi 126))
          (import (prefix (srfi 126) t126-))
          (include "srfi-126-impl.scm")
-         (export srfi-126-dtd))
+         (export srfi-126-dto))
         (else))
 
     (cond-expand
@@ -186,6 +186,6 @@
                  (srfi 146 hash))
          (include "srfi-146-impl.scm"
                   "srfi-146-hash-impl.scm")
-         (export mapping-dtd
-                 hash-mapping-dtd))
+         (export mapping-dto
+                 hash-mapping-dto))
         (else)))

@@ -1,4 +1,4 @@
-(define hash-table-dtd
+(define hash-table-dto
   (let ()
 
    (define-syntax guard-immutable
@@ -13,30 +13,30 @@
              (let ((table (t125-hash-table-copy table #f)))
               final-expr))))))
 
-   (define (t125-hash-table-mutable?* dtd table)
+   (define (t125-hash-table-mutable?* dto table)
      (t125-hash-table-mutable? table))
 
-    (define (t125-hash-table-set* dtd table . obj)
+    (define (t125-hash-table-set* dto table . obj)
       (guard-immutable table
         (apply t125-hash-table-set! (cons table obj))
         table))
 
-    (define (t125-hash-table-update* dtd table key updater fail success)
+    (define (t125-hash-table-update* dto table key updater fail success)
       (guard-immutable table
         (t125-hash-table-update! table key updater fail success)
         table))
 
-    (define (t125-hash-table-update/default* dtd table key proc default)
+    (define (t125-hash-table-update/default* dto table key proc default)
       (guard-immutable table
         (t125-hash-table-update!/default table key proc default)
         table))
 
-    (define (t125-hash-table-intern* dtd table key failure)
+    (define (t125-hash-table-intern* dto table key failure)
       (guard-immutable table
         (define val (t125-hash-table-intern! table key failure))
         (values table val)))
 
-    (define (t125-hash-table-pop* dtd table)
+    (define (t125-hash-table-pop* dto table)
       (if (t125-hash-table-empty? table)
           (error "popped empty dictionary")
           (guard-immutable table
@@ -45,7 +45,7 @@
               (t125-hash-table-pop! table))
             (values table key value))))
 
-    (define (t125-hash-table-delete-all* dtd table keys)
+    (define (t125-hash-table-delete-all* dto table keys)
       (guard-immutable table
         (for-each
           (lambda (key)
@@ -53,12 +53,12 @@
           keys)
         table))
 
-    (define (t125-hash-table-map* dtd proc table)
+    (define (t125-hash-table-map* dto proc table)
       (guard-immutable table
         (t125-hash-table-map! proc table)
         table))
 
-    (define (t125-hash-table-filter* dtd proc table)
+    (define (t125-hash-table-filter* dto proc table)
       (guard-immutable table
         (t125-hash-table-prune!
           (lambda (key value)
@@ -66,12 +66,12 @@
           table)
         table))
 
-    (define (t125-hash-table-remove* dtd proc table)
+    (define (t125-hash-table-remove* dto proc table)
       (guard-immutable table
         (t125-hash-table-prune! proc table)
         table))
 
-    (define (t125-hash-table-alter* dtd table key fail success)
+    (define (t125-hash-table-find-update* dto table key fail success)
       (define (handle-success value)
         (define (update new-key new-value)
           (guard-immutable table
@@ -96,55 +96,55 @@
       (define default (cons #f #f))
       (t125-hash-table-ref table key handle-fail handle-success))
 
-    (define (t125-hash-table-comparator* dtd table)
+    (define (t125-hash-table-comparator* dto table)
       (make-comparator (lambda args #t)
                        (t125-hash-table-equivalence-function table)
                        #f
                        (t125-hash-table-hash-function table)))
 
-    (define (t125-hash-table-copy* dtd table)
+    (define (t125-hash-table-copy* dto table)
       (t125-hash-table-copy table #t))
 
-    (define (t125-hash-table-size* dtd table)
+    (define (t125-hash-table-size* dto table)
       (t125-hash-table-size table))
 
-    (define (t125-hash-table-for-each* dtd proc table)
+    (define (t125-hash-table-for-each* dto proc table)
       (t125-hash-table-for-each proc table))
 
-    (define (t125-hash-table-keys* dtd table)
+    (define (t125-hash-table-keys* dto table)
       (t125-hash-table-keys table))
 
-    (define (t125-hash-table-values* dtd table)
+    (define (t125-hash-table-values* dto table)
       (t125-hash-table-values table))
 
-    (define (t125-hash-table-entries* dtd table)
+    (define (t125-hash-table-entries* dto table)
       (t125-hash-table-entries table))
 
-    (define (t125-hash-table-fold* dtd proc knil table)
+    (define (t125-hash-table-fold* dto proc knil table)
       (t125-hash-table-fold proc knil table))
 
-    (define (t125-hash-table-map->list* dtd proc table)
+    (define (t125-hash-table-map->list* dto proc table)
       (t125-hash-table-map->list proc table))
 
-    (define (t125-hash-table->alist* dtd table)
+    (define (t125-hash-table->alist* dto table)
       (t125-hash-table->alist table))
 
-    (define (t125-hash-table?* dtd table)
+    (define (t125-hash-table?* dto table)
       (t125-hash-table? table))
 
-    (define (t125-hash-table-empty?* dtd table)
+    (define (t125-hash-table-empty?* dto table)
       (t125-hash-table-empty? table))
 
-    (define (t125-hash-table-contains?* dtd table key)
+    (define (t125-hash-table-contains?* dto table key)
       (t125-hash-table-contains? table key))
 
-    (define (t125-hash-table-ref* dtd table key failure success)
+    (define (t125-hash-table-ref* dto table key failure success)
       (t125-hash-table-ref table key failure success))
 
-    (define (t125-hash-table-ref/default* dtd table key default)
+    (define (t125-hash-table-ref/default* dto table key default)
       (t125-hash-table-ref/default table key default))
 
-    (make-dtd
+    (make-dto
      dictionary?-id t125-hash-table?*
      dict-mutable?-id t125-hash-table-mutable?*
      dict-empty?-id t125-hash-table-empty?*
@@ -160,7 +160,7 @@
      dict-map-id t125-hash-table-map*
      dict-filter-id t125-hash-table-filter*
      dict-remove-id t125-hash-table-remove*
-     dict-alter-id t125-hash-table-alter*
+     dict-find-update-id t125-hash-table-find-update*
      dict-size-id t125-hash-table-size*
      dict-for-each-id t125-hash-table-for-each*
      dict-keys-id t125-hash-table-keys*

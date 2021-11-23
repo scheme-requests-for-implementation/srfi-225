@@ -1,14 +1,14 @@
-(define (make-alist-dtd key=)
+(define (make-alist-dto key=)
 
-  (define (alist? dtd l)
+  (define (alist? dto l)
     (and (list? l)
          (or (null? l)
              (pair? (car l)))))
 
-  (define (alist-mutable? dtd alist)
+  (define (alist-mutable? dto alist)
     #f)
 
-  (define (alist-map dtd proc alist)
+  (define (alist-map dto proc alist)
     (map
      (lambda (e)
        (define key (car e))
@@ -16,19 +16,19 @@
        (cons key (proc key value)))
      alist))
 
-  (define (alist-filter dtd pred alist)
+  (define (alist-filter dto pred alist)
     (filter
      (lambda (e)
        (pred (car e) (cdr e)))
      alist))
 
-  (define (alist-delete dtd key alist)
+  (define (alist-delete dto key alist)
     (filter
      (lambda (entry)
        (not (key= (car entry) key)))
      alist))
 
-  (define (alist-alter dtd alist key failure success)
+  (define (alist-find-update dto alist key failure success)
     (define (handle-success pair)
       (define old-key (car pair))
       (define old-value (cdr pair))
@@ -43,10 +43,10 @@
           (let ((new-list
                  (alist-cons
                   new-key new-value
-                  (alist-delete dtd old-key alist))))
+                  (alist-delete dto old-key alist))))
             new-list))))
       (define (remove)
-        (alist-delete dtd old-key alist))
+        (alist-delete dto old-key alist))
       (success old-key old-value update remove))
 
     (define (handle-failure)
@@ -59,30 +59,30 @@
      ((assoc key alist key=) => handle-success)
      (else (handle-failure))))
 
-  (define (alist-size dtd alist)
+  (define (alist-size dto alist)
     (length alist))
 
-  (define (alist-foreach dtd proc alist)
+  (define (alist-foreach dto proc alist)
     (define (proc* e)
       (proc (car e) (cdr e)))
     (for-each proc* alist))
 
-  (define (alist->alist dtd alist)
+  (define (alist->alist dto alist)
     alist)
 
-  (define (alist-comparator dtd dictionary)
+  (define (alist-comparator dto dictionary)
     #f)
 
-  (make-dtd
+  (make-dto
    dictionary?-id alist?
    dict-mutable?-id alist-mutable?
    dict-map-id alist-map
    dict-filter-id alist-filter
-   dict-alter-id alist-alter
+   dict-find-update-id alist-find-update
    dict-size-id alist-size
    dict-for-each-id alist-foreach
    dict->alist-id alist->alist
    dict-comparator-id alist-comparator))
 
-(define alist-eqv-dtd (make-alist-dtd eqv?))
-(define alist-equal-dtd (make-alist-dtd equal?))
+(define alist-eqv-dto (make-alist-dto eqv?))
+(define alist-equal-dto (make-alist-dto equal?))

@@ -1,81 +1,81 @@
-(define default-dtd
+(define default-dto
   (let ()
 
-    ;; implementation of "default" dtd, used as a filler for undefined
-    ;; functions in other dtds
+    ;; implementation of "default" dto, used as a filler for undefined
+    ;; functions in other dtos
 
     ;; primitives
     (define (not-implemented name)
-      (lambda (dtd . args)
-        (raise (dictionary-error (string-append name " not implemented") dtd))))
+      (lambda (dto . args)
+        (raise (dictionary-error (string-append name " not implemented") dto))))
     (define default-dictionary? (not-implemented "dictionary?"))
     (define default-dict-mutable? (not-implemented "dict-mutable?"))
     (define default-dict-size (not-implemented "dict-size"))
-    (define default-dict-alter (not-implemented "dict-alter"))
+    (define default-dict-find-update (not-implemented "dict-find-update"))
 
-    (define (dict-alter* dtd dict key fail success)
-      (if (dict-mutable? dtd dict)
-          (dict-alter! dtd dict key fail success)
-          (dict-alter dtd dict key fail success)))
+    (define (dict-find-update* dto dict key fail success)
+      (if (dict-mutable? dto dict)
+          (dict-find-update! dto dict key fail success)
+          (dict-find-update dto dict key fail success)))
 
-    (define (dict-delete-all* dtd dict keys)
-      (if (dict-mutable? dtd dict)
-          (dict-delete-all! dtd dict keys)
-          (dict-delete-all dtd dict keys)))
+    (define (dict-delete-all* dto dict keys)
+      (if (dict-mutable? dto dict)
+          (dict-delete-all! dto dict keys)
+          (dict-delete-all dto dict keys)))
 
-    (define (dict-update* dtd dict key updater fail success)
-      (if (dict-mutable? dtd dict)
-          (dict-update! dtd dict key updater fail success)
-          (dict-update dtd dict key updater fail success)))
+    (define (dict-update* dto dict key updater fail success)
+      (if (dict-mutable? dto dict)
+          (dict-update! dto dict key updater fail success)
+          (dict-update dto dict key updater fail success)))
 
-    (define (dict-filter* dtd pred dictionary)
-      (if (dict-mutable? dtd dictionary)
-          (dict-filter! dtd pred dictionary)
-          (dict-filter dtd pred dictionary)))
+    (define (dict-filter* dto pred dictionary)
+      (if (dict-mutable? dto dictionary)
+          (dict-filter! dto pred dictionary)
+          (dict-filter dto pred dictionary)))
 
-    (define (dict-replace* dtd dict key val)
-      (if (dict-mutable? dtd dict)
-          (dict-replace! dtd dict key val)
-          (dict-replace dtd dict key val)))
+    (define (dict-replace* dto dict key val)
+      (if (dict-mutable? dto dict)
+          (dict-replace! dto dict key val)
+          (dict-replace dto dict key val)))
 
-    (define (default-dict-empty? dtd dictionary)
-      (= 0 (dict-size dtd dictionary)))
+    (define (default-dict-empty? dto dictionary)
+      (= 0 (dict-size dto dictionary)))
 
-    (define (default-dict=? dtd = dict1 dict2)
+    (define (default-dict=? dto = dict1 dict2)
       (define (check-entries* keys)
         (cond
           ((null? keys) #t)
           (else (let* ((key (car keys))
-                       (d1-value (dict-ref dtd dict1 key)))
-                  (dict-ref dtd dict2 key
+                       (d1-value (dict-ref dto dict1 key)))
+                  (dict-ref dto dict2 key
                             (lambda () #f)
                             (lambda (d2-value)
                               (if (= d1-value d2-value)
                                   (check-entries* (cdr keys))
                                   #f)))))))
-      (and (= (dict-size dtd dict1)
-              (dict-size dtd dict2))
-           (check-entries* (dict-keys dtd dict1))))
+      (and (= (dict-size dto dict1)
+              (dict-size dto dict2))
+           (check-entries* (dict-keys dto dict1))))
 
-    (define (default-dict-contains? dtd dictionary key)
-      (dict-ref dtd dictionary key
+    (define (default-dict-contains? dto dictionary key)
+      (dict-ref dto dictionary key
                 (lambda () #f)
                 (lambda (x) #t)))
 
-    (define (default-dict-ref dtd dictionary key failure success)
-      (dict-alter* dtd dictionary key
+    (define (default-dict-ref dto dictionary key failure success)
+      (dict-find-update* dto dictionary key
                      (lambda (insert ignore)
                        (failure))
                      (lambda (key value update remove)
                        (success value))))
 
-    (define (default-dict-ref/default dtd dictionary key default)
-      (dict-ref dtd dictionary key
+    (define (default-dict-ref/default dto dictionary key default)
+      (dict-ref dto dictionary key
                 (lambda () default)
                 (lambda (x) x)))
 
     ;; private
-    (define (default-dict-set* dtd dictionary use-old? objs)
+    (define (default-dict-set* dto dictionary use-old? objs)
       (let loop ((objs objs)
                  (dictionary dictionary))
         (cond
@@ -85,7 +85,7 @@
           (error "mismatch of key / values argument list" objs))
          (else (let* ((key (car objs))
                       (value (cadr objs))
-                      (new-d (dict-alter* dtd dictionary key
+                      (new-d (dict-find-update* dto dictionary key
                                          (lambda (insert ignore)
                                            (insert value))
                                          (lambda (key old-value update delete)
@@ -93,22 +93,22 @@
                  (loop (cddr objs)
                        new-d))))))
 
-    (define (default-dict-set dtd dictionary . objs)
-      (default-dict-set* dtd dictionary #f objs))
+    (define (default-dict-set dto dictionary . objs)
+      (default-dict-set* dto dictionary #f objs))
 
-    (define (default-dict-adjoin dtd dictionary . objs)
-      (default-dict-set* dtd dictionary #t objs))
+    (define (default-dict-adjoin dto dictionary . objs)
+      (default-dict-set* dto dictionary #t objs))
 
-    (define (default-dict-delete dtd dictionary . keys)
-      (dict-delete-all* dtd dictionary keys))
+    (define (default-dict-delete dto dictionary . keys)
+      (dict-delete-all* dto dictionary keys))
 
-    (define (default-dict-delete-all dtd dictionary keylist)
+    (define (default-dict-delete-all dto dictionary keylist)
       (let loop ((keylist keylist)
                  (d dictionary))
         (cond
           ((null? keylist) d)
           (else (let* ((key (car keylist))
-                       (new-d (dict-alter* dtd d key
+                       (new-d (dict-find-update* dto d key
                                           (lambda (_ ignore)
                                             (ignore))
                                           (lambda (key old-value _ delete)
@@ -116,75 +116,75 @@
                   (loop (cdr keylist)
                         new-d))))))
 
-    (define (default-dict-replace dtd dictionary key value)
-      (dict-alter* dtd dictionary key
+    (define (default-dict-replace dto dictionary key value)
+      (dict-find-update* dto dictionary key
                   (lambda (_ ignore)
                     (ignore))
                   (lambda (key old-value update _)
                     (update key value))))
 
-    (define (default-dict-intern dtd dictionary key failure)
-      (dict-alter* dtd dictionary key
+    (define (default-dict-intern dto dictionary key failure)
+      (dict-find-update* dto dictionary key
                   (lambda (insert _)
                     (let ((value (failure)))
                      (values (insert value) value)))
                   (lambda (key value update _)
                     (values dictionary value))))
 
-    (define (default-dict-update dtd dictionary key updater failure success)
-      (dict-alter* dtd dictionary key
+    (define (default-dict-update dto dictionary key updater failure success)
+      (dict-find-update* dto dictionary key
                   (lambda (insert ignore)
                     (insert (updater (failure))))
                   (lambda (key value update _)
                     (update key (updater (success value))))))
 
-    (define (default-dict-update/default dtd dictionary key updater default)
-      (dict-update* dtd dictionary key updater
+    (define (default-dict-update/default dto dictionary key updater default)
+      (dict-update* dto dictionary key updater
                     (lambda () default)
                     (lambda (x) x)))
 
-    (define (default-dict-pop dtd dictionary)
+    (define (default-dict-pop dto dictionary)
       (define (do-pop)
         (call/cc
          (lambda (cont)
-           (dict-for-each dtd
+           (dict-for-each dto
                           (lambda (key value)
                             (define new-dict
-                              (dict-delete-all* dtd dictionary (list key)))
+                              (dict-delete-all* dto dictionary (list key)))
                             (cont new-dict key value))
                           dictionary))))
-      (define empty? (dict-empty? dtd dictionary))
+      (define empty? (dict-empty? dto dictionary))
       (if empty?
           (error "popped empty dictionary")
           (do-pop)))
 
-    (define (default-dict-map dtd mapper dictionary)
-      (define keys (dict-keys dtd dictionary))
+    (define (default-dict-map dto mapper dictionary)
+      (define keys (dict-keys dto dictionary))
       (let loop ((keys keys)
                  (dict dictionary))
         (if (null? keys)
             dict
             (let* ((key (car keys))
-                   (val (mapper key (dict-ref dtd dict key))))
+                   (val (mapper key (dict-ref dto dict key))))
               (loop (cdr keys)
-                    (dict-replace* dtd dict key val))))))
+                    (dict-replace* dto dict key val))))))
 
-    (define (default-dict-filter dtd pred dictionary)
-      (define keys (dict-keys dtd dictionary))
+    (define (default-dict-filter dto pred dictionary)
+      (define keys (dict-keys dto dictionary))
       (define keys-to-delete
         (filter
          (lambda (key)
-           (not (pred key (dict-ref dtd dictionary key))))
+           (not (pred key (dict-ref dto dictionary key))))
          keys))
-      (dict-delete-all* dtd dictionary keys-to-delete))
+      (dict-delete-all* dto dictionary keys-to-delete))
 
-    (define (default-dict-remove dtd pred dictionary)
-      (dict-filter* dtd (lambda (key value)
+    (define (default-dict-remove dto pred dictionary)
+      (dict-filter* dto (lambda (key value)
                           (not (pred key value)))
                     dictionary))
 
-    (define (default-dict-count dtd pred dictionary)
-      (dict-fold dtd
+    (define (default-dict-count dto pred dictionary)
+      (dict-fold dto
                  (lambda (key value acc)
                    (if (pred key value)
                        (+ 1 acc)
@@ -192,10 +192,10 @@
                  0
                  dictionary))
 
-    (define (default-dict-any dtd pred dictionary)
+    (define (default-dict-any dto pred dictionary)
       (call/cc
        (lambda (cont)
-         (dict-for-each dtd
+         (dict-for-each dto
                         (lambda (key value)
                           (define ret (pred key value))
                           (when ret
@@ -203,11 +203,11 @@
                         dictionary)
          #f)))
 
-    (define (default-dict-every dtd pred dictionary)
+    (define (default-dict-every dto pred dictionary)
       (define last #t)
       (call/cc
        (lambda (cont)
-         (dict-for-each dtd
+         (dict-for-each dto
                         (lambda (key value)
                           (define ret (pred key value))
                           (when (not ret)
@@ -216,25 +216,25 @@
                         dictionary)
          last)))
 
-    (define (default-dict-keys dtd dictionary)
+    (define (default-dict-keys dto dictionary)
       (reverse
-       (dict-fold dtd
+       (dict-fold dto
                   (lambda (key value acc)
                     (cons key acc))
                   '()
                   dictionary)))
 
-    (define (default-dict-values dtd dictionary)
+    (define (default-dict-values dto dictionary)
       (reverse
-       (dict-fold dtd
+       (dict-fold dto
                   (lambda (key value acc)
                     (cons value acc))
                   '()
                   dictionary)))
 
-    (define (default-dict-entries dtd dictionary)
+    (define (default-dict-entries dto dictionary)
       (define pair
-        (dict-fold dtd
+        (dict-fold dto
                    (lambda (key value acc)
                      (cons (cons key (car acc))
                            (cons value (cdr acc))))
@@ -243,25 +243,25 @@
       (values (reverse (car pair))
               (reverse (cdr pair))))
 
-    (define (default-dict-fold dtd proc knil dictionary)
+    (define (default-dict-fold dto proc knil dictionary)
       (define acc knil)
-      (dict-for-each dtd
+      (dict-for-each dto
                      (lambda (key value)
                        (set! acc (proc key value acc)))
                      dictionary)
       acc)
 
-    (define (default-dict-map->list dtd proc dictionary)
+    (define (default-dict-map->list dto proc dictionary)
       (define reverse-lst
-        (dict-fold dtd
+        (dict-fold dto
                    (lambda (key value lst)
                      (cons (proc key value) lst))
                    '()
                    dictionary))
       (reverse reverse-lst))
 
-    (define (default-dict->alist dtd dictionary)
-      (dict-map->list dtd
+    (define (default-dict->alist dto dictionary)
+      (dict-map->list dto
                       cons
                       dictionary))
 
@@ -269,66 +269,66 @@
 
     (define default-dict-for-each (not-implemented "dict-for-each"))
 
-    (define (default-dict-for-each/filtered dtd pred proc dict)
-      (dict-for-each dtd
+    (define (default-dict-for-each/filtered dto pred proc dict)
+      (dict-for-each dto
                      (lambda (key value)
                        (when (pred key)
                          (proc key value)))
                      dict))
 
-    (define (default-dict-for-each< dtd proc dict key)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each< dto proc dict key)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (<? cmp k key))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-dict-for-each<= dtd proc dict key)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each<= dto proc dict key)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (<=? cmp k key))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-dict-for-each> dtd proc dict key)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each> dto proc dict key)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (>? cmp k key))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-dict-for-each>= dtd proc dict key)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each>= dto proc dict key)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (>=? cmp k key))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-dict-for-each-in-open-interval dtd proc dict key1 key2)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each-in-open-interval dto proc dict key1 key2)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (<? cmp key1 k key2))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-dict-for-each-in-closed-interval dtd proc dict key1 key2)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each-in-closed-interval dto proc dict key1 key2)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (<=? cmp key1 k key2))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-dict-for-each-in-open-closed-interval dtd proc dict key1 key2)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each-in-open-closed-interval dto proc dict key1 key2)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (and (<? cmp key1 k)
              (<=? cmp k key2)))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-dict-for-each-in-closed-open-interval dtd proc dict key1 key2)
-      (define cmp (dict-comparator dtd dict))
+    (define (default-dict-for-each-in-closed-open-interval dto proc dict key1 key2)
+      (define cmp (dict-comparator dto dict))
       (define (pred k)
         (and (<=? cmp key1 k)
              (<? cmp k key2)))
-      (default-dict-for-each/filtered dtd pred proc dict))
+      (default-dict-for-each/filtered dto pred proc dict))
 
-    (define (default-make-dict-generator dtd dict)
+    (define (default-make-dict-generator dto dict)
       (define-values (keys vals)
-                     (dict-entries dtd dict))
+                     (dict-entries dto dict))
       (lambda ()
         (if (null? keys)
             (eof-object)
@@ -338,27 +338,27 @@
               (set! vals (cdr vals))
               (cons key value)))))
 
-    (define (default-dict-accumulator dtd dict acc-proc)
+    (define (default-dict-accumulator dto dict acc-proc)
       (lambda (arg)
         (if (eof-object? arg)
             dict
-            (set! dict (acc-proc dtd dict (car arg) (cdr arg))))))
+            (set! dict (acc-proc dto dict (car arg) (cdr arg))))))
 
-    (define (default-dict-set-accumulator dtd dict)
-      (if (dict-mutable? dtd dict)
-          (default-dict-accumulator dtd dict dict-set!)
-          (default-dict-accumulator dtd dict dict-set)))
+    (define (default-dict-set-accumulator dto dict)
+      (if (dict-mutable? dto dict)
+          (default-dict-accumulator dto dict dict-set!)
+          (default-dict-accumulator dto dict dict-set)))
 
-    (define (default-dict-adjoin-accumulator dtd dict)
-      (if (dict-mutable? dtd dict)
-          (default-dict-accumulator dtd dict dict-adjoin!)
-          (default-dict-accumulator dtd dict dict-adjoin)))
+    (define (default-dict-adjoin-accumulator dto dict)
+      (if (dict-mutable? dto dict)
+          (default-dict-accumulator dto dict dict-adjoin!)
+          (default-dict-accumulator dto dict dict-adjoin)))
 
     (let ()
-      (define null-dtd (make-dtd-private (make-vector dict-procedures-count #f)))
-      (define default-dtd
-        (make-modified-dtd
-         null-dtd
+      (define null-dto (make-dto-private (make-vector dict-procedures-count #f)))
+      (define default-dto
+        (make-modified-dto
+         null-dto
          dictionary?-id default-dictionary?
          dict-empty?-id default-dict-empty?
          dict-contains?-id default-dict-contains?
@@ -378,7 +378,7 @@
          dict-map-id default-dict-map
          dict-filter-id default-dict-filter
          dict-remove-id default-dict-remove
-         dict-alter-id default-dict-alter
+         dict-find-update-id default-dict-find-update
          dict-size-id default-dict-size
          dict-count-id default-dict-count
          dict-any-id default-dict-any
@@ -411,7 +411,7 @@
        (lambda (proc index)
          (unless (and proc (procedure? proc))
            (error "Missing or wrong default procedure definition" proc index)))
-       (procvec default-dtd)
+       (procvec default-dto)
        (list->vector (iota dict-procedures-count)))
 
-      default-dtd)))
+      default-dto)))

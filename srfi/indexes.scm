@@ -24,7 +24,7 @@
 (define dict-map-id (proc-id-inc))
 (define dict-filter-id (proc-id-inc))
 (define dict-remove-id (proc-id-inc))
-(define dict-alter-id (proc-id-inc))
+(define dict-find-update-id (proc-id-inc))
 (define dict-size-id (proc-id-inc))
 (define dict-count-id (proc-id-inc))
 (define dict-any-id (proc-id-inc))
