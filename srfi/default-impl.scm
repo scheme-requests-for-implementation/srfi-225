@@ -327,16 +327,50 @@
       (default-dict-for-each/filtered dto pred proc dict))
 
     (define (default-make-dict-generator dto dict)
-      (define-values (keys vals)
-                     (dict-entries dto dict))
+
+      ;; proc that takes yield value and yield continuation when yield is called
+      ;; shouldn't return
+      (define yield-handler #f)
+      
+      (define (yield value)
+        (call/cc (lambda (yield-cont)
+                     (yield-handler value yield-cont))))
+      
+      (define (generate)
+        (dict-for-each dto
+                       (lambda (key value)
+                         (yield (cons key value)))
+                       dict)
+        (yield (eof-object)))
+      
+      ;; continuation at the point of last yield
+      (define yield-cont #f)
+      
+      ;; check if eof return was seen; if yes, keep returning eof
+      ;; for further invocations
+      (define eof #f)
+      
+      (define (get-next-value exit)
+        (set! yield-handler
+          (lambda (value new-yield-cont)
+            (set! yield-cont new-yield-cont)
+            (when (eof-object? value)
+              (set! eof #t)
+              ;; unset continuation reference to allow
+              ;; gc clean everything up
+              (set! yield-cont #f))
+            (exit value)))
+        
+        (cond
+          ;; eof seen -- keep returning eof
+          (eof (eof-object))
+          ;; no yield called yet -- start the generator
+          ((not yield-cont) (generate))
+          ;; continue from last yield position
+          (else (yield-cont #t))))
+      
       (lambda ()
-        (if (null? keys)
-            (eof-object)
-            (let ((key (car keys))
-                  (value (car vals)))
-              (set! keys (cdr keys))
-              (set! vals (cdr vals))
-              (cons key value)))))
+        (call/cc get-next-value)))
 
     (define (default-dict-accumulator dto dict acc-proc)
       (lambda (arg)
