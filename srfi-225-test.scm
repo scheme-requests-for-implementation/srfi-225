@@ -635,15 +635,49 @@
 
   (test-group
    "dict-fold"
-   (define value
-     (dict-fold dto
-                (lambda (key value acc)
-                  (append acc (list key value)))
-                '()
-                (alist->dict '((a . b) (c . d)))))
-   (test-assert
-       (or (equal? '(a b c d) value)
-           (equal? '(c d a b) value))))
+   
+   ;; simple case
+   (let ()
+    (define value
+      (dict-fold dto
+                 (lambda (key value acc)
+                   (append acc (list key value)))
+                 '()
+                 (alist->dict '((a . b) (c . d)))))
+    (test-assert
+      (or (equal? '(a b c d) value)
+          (equal? '(c d a b) value))))
+   
+   (let ()
+
+     ;; continuation captured in a middle of fold
+    (define k #f)
+    (define pass 0)
+
+    (define value
+      (dict-fold dto
+                 (lambda (key value acc)
+                   ;; check fold only starts once -- further passes enter in a middle
+                   (test-assert (not (and k
+                                          (null? acc))))
+                   ;; capture continuation on second fold iteration
+                   (when (and (not k)
+                              (not (null? acc)))
+                     (test-assert
+                       (or (equal? '(a b) acc)
+                           (equal? '(c d) acc)))
+                     (call/cc (lambda (cont) (set! k cont))))
+                   (append acc (list key value)))
+                 '()
+                 (alist->dict '((a . b) (c . d)))))
+
+    (test-assert
+      (or (equal? '(a b c d) value)
+          (equal? '(c d a b) value)))
+
+    (when (< pass 3)
+      (set! pass (+ 1 pass))
+      (k #t))))
 
   (test-group
    "dict-map->list"

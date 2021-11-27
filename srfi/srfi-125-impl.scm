@@ -72,7 +72,10 @@
         table))
 
     (define (t125-hash-table-find-update* dto table key fail success)
-      (define (handle-success value)
+      ;; instead of running immediately,
+      ;; add an indirection through thunk
+      ;; to guarantee call in tail position
+      (define (make-success-thunk value)
         (define (update new-key new-value)
           (guard-immutable table
             (unless (eq? new-key key)
@@ -83,18 +86,20 @@
           (guard-immutable table
             (t125-hash-table-delete! table key)
             table))
-        (success key value update remove))
-      (define (handle-fail)
+        (lambda ()
+          (success key value update remove) ))
+      (define (make-failure-thunk)
         (define (ignore)
           table)
         (define (insert value)
           (guard-immutable table
             (t125-hash-table-set! table key value)
             table))
-        (fail insert ignore))
+        (lambda ()
+          (fail insert ignore)))
 
-      (define default (cons #f #f))
-      (t125-hash-table-ref table key handle-fail handle-success))
+      (define thunk (t125-hash-table-ref table key make-failure-thunk make-success-thunk))
+      (thunk))
 
     (define (t125-hash-table-comparator* dto table)
       (make-comparator (lambda args #t)
