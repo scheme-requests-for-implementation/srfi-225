@@ -393,25 +393,35 @@ and <code>dict-find-update</code>.
   The last two may be <code>#f</code> if the dictionary does not make use of these functions.</p>
 <p>If no comparator is relevant to the dictionary type, returns <code>#f</code>.</p>
 <h3 id="iteration">Iteration</h3>
-<p><code>(dict-for-each</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
+  <p><code>(dict-for-each</code>&nbsp;<em>dto proc dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Invokes <em>proc</em> on each key of <em>dict</em> and its corresponding value in that order.
   This procedure is used for doing operations on the whole dictionary.
-  If the dictionary type is inherently ordered, associations are processed in that order; otherwise in an arbitrary order.
-  Returns an unspecified value.</p>
+  If the dictionary type is inherently ordered, associations are processed in the order specified
+  by the dictionary's comparator; otherwise they are processed in an arbitrary order.
+  The <em>start</em> and <em>end</em> arguments specify the inclusive lower bound and exclusive upper bound
+  of the keys (in the sense of the dictionary's comparator).
+  They can can provide additional efficiency when iterating over part of the dictionary
+  if the dictionary is ordered.  The procedure returns an unspecified value.</p>
 <blockquote><pre>(define (write-key key value) (write key))
 (dict-for-each write-key aed dict) =&gt; unspecified
   ; writes &quot;135&quot; to current output</pre></blockquote>
-<h3 id="generator-procedures">Generator procedures</h3>
-<p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em><code>)</code></p>
+<p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158 generator</a>
   that when invoked returns the associations of <em>dict</em> as pairs.
-  When no associations are left, returns an end-of-file object.
-  If the dictionary type is inherently ordered, associations are processed in that order;
-  otherwise in an arbitrary order.
-  It is an error to mutate <em>dict</em> until the generator is exhausted.</p>
-<p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
+ This procedure is used for doing operations on the whole dictionary.
+  If the dictionary type is inherently ordered, associations are processed in the order specified
+  by the dictionary's comparator; otherwise they are processed in an arbitrary order.
+  <p>The <em>start</em> and <em>end</em> arguments specify the inclusive lower bound and exclusive upper bound
+  of the keys to be processed (in the sense of the dictionary's comparator).
+  They can can provide additional efficiency when iterating over part of the dictionary
+  if the dictionary is ordered.  The procedure returns an unspecified value.</p>  
+  <p>It is an error to mutate <em>dict</em> until after the generator is exhausted.
+  When all the associations have been processed, returns an end-of-file object.</>
+  <p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
 <code>(dict-set!-accumulator</code>&nbsp;<em>dto dict accum</em><code>)</code></p>
-<p>Returns a SRFI 158 accumulator procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair as a key and value of <em>dict</em> as if by <em>dict-set</em>, eventually returning the new value of <em>dict</em>.  If invoked on an end-of-file object, no action is taken and <em>dict</em> is returned.</p>
+<p>Returns a SRFI 158 accumulator procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair
+  as a key and value of <em>dict</em> as if by <em>dict-set</em>, eventually returning the new value of <em>dict</em>.
+  If invoked on an end-of-file object, no action is taken and <em>dict</em> is returned.</p>
 <p>The <code>!</code> variant uses <code>dict-set!</code> instead.
 <p><code>(dict-adjoin-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
 <code>(dict-adjoin!-accumulator!</code>&nbsp;<em>dto dict</em><code>)</code></p>
@@ -600,7 +610,6 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dt>dict-map-&gt;list</dt>
     <dd>dict-fold</dd>
 
-    <dt>dict-&gt;alist</dt>
     <dd>dict-map-&gt;list</dd>
 
     <dt>dict-for-each&gt;</dt>
