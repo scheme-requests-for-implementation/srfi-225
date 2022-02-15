@@ -5,8 +5,8 @@
          (or (null? l)
              (pair? (car l)))))
 
-  (define (alist-mutable? dto alist)
-    #f)
+  (define (alist-pure? dto alist)
+    #t)
 
   (define (alist-map dto proc alist)
     (map
@@ -62,11 +62,6 @@
   (define (alist-size dto alist)
     (length alist))
 
-  (define (alist-foreach dto proc alist)
-    (define (proc* e)
-      (proc (car e) (cdr e)))
-    (for-each proc* alist))
-
   (define (alist->alist dto alist)
     alist)
 
@@ -75,12 +70,11 @@
 
   (make-dto
    dictionary?-id alist?
-   dict-mutable?-id alist-mutable?
+   dict-pure?-id alist-pure?
    dict-map-id alist-map
    dict-filter-id alist-filter
    dict-find-update-id alist-find-update
    dict-size-id alist-size
-   dict-for-each-id alist-foreach
    dict->alist-id alist->alist
    dict-comparator-id alist-comparator))
 

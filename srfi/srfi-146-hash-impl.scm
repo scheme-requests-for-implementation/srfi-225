@@ -4,6 +4,11 @@
     (define (prep-dto-arg proc)
       (lambda (dto . args)
         (apply proc args)))
+    
+    (define (hashmap-map* dto proc dict)
+      (hashmap-map (lambda (key value)
+                     (values key (proc key value)))
+                   (dict-comparator dto dict) dict))
 
     (define (hashmap-find-update* dto dict key failure success)
       (call/cc
@@ -38,7 +43,8 @@
 
     (make-dto
      dictionary?-id (prep-dto-arg hashmap?)
-     dict-mutable?-id (lambda _ #f)
+     dict-pure?-id (lambda _ #t)
+     dict-map-id hashmap-map*
      dict-empty?-id (prep-dto-arg hashmap-empty?)
      dict-contains?-id (prep-dto-arg hashmap-contains?)
      dict-ref-id (prep-dto-arg hashmap-ref)
@@ -56,7 +62,6 @@
      dict-remove-id (prep-dto-arg hashmap-remove)
      dict-find-update-id hashmap-find-update*
      dict-size-id (prep-dto-arg hashmap-size)
-     dict-for-each-id (prep-dto-arg hashmap-for-each)
      dict-count-id (prep-dto-arg hashmap-count)
      dict-keys-id (prep-dto-arg hashmap-keys)
      dict-values-id (prep-dto-arg hashmap-values)

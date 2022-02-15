@@ -12,10 +12,13 @@
              body ...
              (let ((table (t126-hashtable-copy table #f)))
               final-expr))))))
-
+   
     (define (prep-dto-arg proc)
       (lambda (dto . args)
         (apply proc args)))
+    
+    (define (t126-hashtable-pure?* dto table)
+      (not (t126-hashtable-mutable? table)))
 
     (define (t126-hashtable-ref* dto table key fail success)
       (define-values (value found?) (t126-hashtable-lookup table key))
@@ -108,10 +111,6 @@
           (handle-fail)
           (handle-success found)))
 
-    (define (t126-hashtable-for-each* dto proc table)
-      (t126-hashtable-walk table proc)
-      table)
-
     (define (t126-hashtable-map->lset* dto proc table)
       (t126-hashtable-map->lset table proc))
 
@@ -134,7 +133,7 @@
 
     (make-dto
      dictionary?-id (prep-dto-arg t126-hashtable?)
-     dict-mutable?-id (prep-dto-arg t126-hashtable-mutable?)
+     dict-pure?-id t126-hashtable-pure?*
      dict-empty?-id (prep-dto-arg t126-hashtable-empty?)
      dict-contains?-id (prep-dto-arg t126-hashtable-contains?)
      dict-ref-id t126-hashtable-ref*
@@ -149,7 +148,6 @@
      dict-remove-id t126-hashtable-remove*
      dict-find-update-id t126-hashtable-find-update*
      dict-size-id (prep-dto-arg t126-hashtable-size)
-     dict-for-each-id t126-hashtable-for-each*
      dict-keys-id t126-hashtable-keys*
      dict-values-id t126-hashtable-values*
      dict-entries-id t126-hashtable-entries*

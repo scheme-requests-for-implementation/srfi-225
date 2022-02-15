@@ -13,8 +13,8 @@
              (let ((table (t125-hash-table-copy table #f)))
               final-expr))))))
 
-   (define (t125-hash-table-mutable?* dto table)
-     (t125-hash-table-mutable? table))
+   (define (t125-hash-table-pure?* dto table)
+     (not (t125-hash-table-mutable? table)))
 
     (define (t125-hash-table-set* dto table . obj)
       (guard-immutable table
@@ -151,7 +151,7 @@
 
     (make-dto
      dictionary?-id t125-hash-table?*
-     dict-mutable?-id t125-hash-table-mutable?*
+     dict-pure?-id t125-hash-table-pure?*
      dict-empty?-id t125-hash-table-empty?*
      dict-contains?-id t125-hash-table-contains?*
      dict-ref-id t125-hash-table-ref*

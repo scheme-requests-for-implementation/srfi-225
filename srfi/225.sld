@@ -18,7 +18,7 @@
     dict-empty?
     dict-contains?
     dict=?
-    dict-mutable?
+    dict-pure?
 
     ;; lookup
     dict-ref
@@ -67,19 +67,11 @@
 
     ;; iteration
     dict-for-each
-    dict-for-each<
-    dict-for-each<=
-    dict-for-each>
-    dict-for-each>=
-    dict-for-each-in-open-interval
-    dict-for-each-in-closed-interval
-    dict-for-each-in-open-closed-interval
-    dict-for-each-in-closed-open-interval
-
-    ;; generator procedures
-    make-dict-generator
+    dict->generator
     dict-set-accumulator
+    dict-set!-accumulator
     dict-adjoin-accumulator
+    dict-adjoin!-accumulator
 
     ;; dictionary type descriptors
     dto?
@@ -95,49 +87,47 @@
     dictionary-irritants
 
     ;; proc indeces
+
+    ;; required
     dictionary?-id
-    dict-empty?-id
+    dict-find-update-id
+    dict-comparator-id
+    dict-map-id
+    dict-pure?-id
+    dict-remove-id
+    dict-size-id
+
+    ;; extra
+    dict->alist-id
+    dict-adjoin-accumulator-id
+    dict-adjoin-id
+    dict-any-id
     dict-contains?-id
-    dict=?-id
-    dict-mutable?-id
+    dict-count-id
+    dict-delete-all-id
+    dict-delete-id
+    dict-empty?-id
+    dict-entries-id
+    dict-every-id
+    dict-filter-id
+    dict-fold-id
+    dict-for-each-id
+    dict-intern-id
+    dict-keys-id
+    dict-map->list-id
+    dict-map-id
+    dict-pop-id
     dict-ref-id
     dict-ref/default-id
-    dict-set-id
-    dict-adjoin-id
-    dict-delete-id
-    dict-delete-all-id
+    dict-remove-id
     dict-replace-id
-    dict-intern-id
+    dict-set-accumulator-id
+    dict-set-id
     dict-update-id
     dict-update/default-id
-    dict-pop-id
-    dict-map-id
-    dict-filter-id
-    dict-remove-id
-    dict-find-update-id
-    dict-size-id
-    dict-count-id
-    dict-any-id
-    dict-every-id
-    dict-keys-id
     dict-values-id
-    dict-entries-id
-    dict-fold-id
-    dict-map->list-id
-    dict->alist-id
-    dict-comparator-id
-    dict-for-each-id
-    dict-for-each<-id
-    dict-for-each<=-id
-    dict-for-each>-id
-    dict-for-each>=-id
-    dict-for-each-in-open-interval-id
-    dict-for-each-in-closed-interval-id
-    dict-for-each-in-open-closed-interval-id
-    dict-for-each-in-closed-open-interval-id
-    make-dict-generator-id
-    dict-set-accumulator-id
-    dict-adjoin-accumulator-id
+    dict=?-id
+    dict->generator-id
 
     ;; basic DTOs
     alist-eqv-dto

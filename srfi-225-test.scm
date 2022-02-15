@@ -75,6 +75,9 @@
   (call/cc (lambda (cont)
              (with-exception-handler
                (lambda (err)
+                 (when expect-success
+                   (display err)
+                   (newline))
                  (unless expect-success
                    (cont #t)))
                (lambda ()
@@ -717,140 +720,78 @@
                                       (2 . b)
                                       (3 . c)
                                       (4 . d)))))
-      '(1 2 3 4)))
-
-  (test-group
-    "dict-for-each<"
+      '(1 2 3 4))
+    
     (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
-      (lambda (proc)
-        (dict-for-each< dto
-                        proc
-                        (alist->dict '((1 . a)
-                                       (2 . b)
-                                       (3 . c)
-                                       (4 . d)))
-                        3))
-      '(1 2)))
+                   (lambda (proc)
+                     (dict-for-each dto
+                                    proc
+                                    (alist->dict '((1 . a)
+                                                   (2 . b)
+                                                   (3 . c)
+                                                   (4 . d)))
+                                    2))
+                   '(2 3 4))
 
-  (test-group
-    "dict-for-each<="
     (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
-      (lambda (proc)
-        (dict-for-each<= dto
-                        proc
-                        (alist->dict '((1 . a)
-                                       (2 . b)
-                                       (3 . c)
-                                       (4 . d)))
-                        3))
-      '(1 2 3)))
+                   (lambda (proc)
+                     (dict-for-each dto
+                                    proc
+                                    (alist->dict '((1 . a)
+                                                   (2 . b)
+                                                   (3 . c)
+                                                   (4 . d)))
+                                    2
+                                    3))
+                   '(2 3)))
 
   (test-group
-    "dict-for-each>"
-    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
-                          (ordering (and cmp (comparator-ordered? cmp))))
-                     ordering)
-      (lambda (proc)
-        (dict-for-each> dto
-                        proc
-                        (alist->dict '((1 . a)
-                                       (2 . b)
-                                       (3 . c)
-                                       (4 . d)))
-                        2))
-      '(3 4)))
-
-  (test-group
-    "dict-for-each>="
-    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
-                          (ordering (and cmp (comparator-ordered? cmp))))
-                     ordering)
-      (lambda (proc)
-        (dict-for-each>= dto
-                        proc
-                        (alist->dict '((1 . a)
-                                       (2 . b)
-                                       (3 . c)
-                                       (4 . d)))
-                        2))
-      '(2 3 4)))
-
-  (test-group
-    "dict-for-each-in-open-interval"
-    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
-                          (ordering (and cmp (comparator-ordered? cmp))))
-                     ordering)
-      (lambda (proc)
-        (dict-for-each-in-open-interval dto
-                                        proc
-                                        (alist->dict '((1 . a)
-                                                       (2 . b)
-                                                       (3 . c)
-                                                       (4 . d)))
-                                        1 4))
-      '(2 3)))
-
-  (test-group
-    "dict-for-each-in-closed-interval"
-    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
-                          (ordering (and cmp (comparator-ordered? cmp))))
-                     ordering)
-      (lambda (proc)
-        (dict-for-each-in-closed-interval dto
-                                        proc
-                                        (alist->dict '((1 . a)
-                                                       (2 . b)
-                                                       (3 . c)
-                                                       (4 . d)))
-                                        1 4))
-      '(1 2 3 4)))
-
-  (test-group
-    "dict-for-each-in-open-closed-interval"
-    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
-                          (ordering (and cmp (comparator-ordered? cmp))))
-                     ordering)
-      (lambda (proc)
-        (dict-for-each-in-open-closed-interval dto
-                                               proc
-                                               (alist->dict '((1 . a)
-                                                              (2 . b)
-                                                              (3 . c)
-                                                              (4 . d)))
-                                               1 4))
-      '(2 3 4)))
-
-  (test-group
-    "dict-for-each-in-closed-open-interval"
-    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
-                          (ordering (and cmp (comparator-ordered? cmp))))
-                     ordering)
-      (lambda (proc)
-        (dict-for-each-in-closed-open-interval dto
-                                               proc
-                                               (alist->dict '((1 . a)
-                                                              (2 . b)
-                                                              (3 . c)
-                                                              (4 . d)))
-                                               1 4))
-      '(1 2 3)))
-
-  (test-group
-    "make-dict-generator"
+    "dict->generator"
     (test-for-each #t
-      (lambda (proc)
-        (generator-for-each
-          (lambda (entry)
-            (proc (car entry) (cdr entry)))
-          (make-dict-generator dto (alist->dict '((1 . a)
-                                                  (2 . b)
-                                                  (3 . c))))))
-      '(1 2 3)))
+                   (lambda (proc)
+                     (generator-for-each
+                       (lambda (entry)
+                         (proc (car entry) (cdr entry)))
+                       (dict->generator dto (alist->dict '((1 . a)
+                                                           (2 . b)
+                                                           (3 . c)
+                                                           (4 . d))))))
+                   '(1 2 3 4))
 
+    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
+                          (ordering (and cmp (comparator-ordered? cmp))))
+                     ordering)
+                   (lambda (proc)
+                     (generator-for-each
+                       (lambda (entry)
+                         (proc (car entry) (cdr entry)))
+                       (dict->generator dto (alist->dict '((1 . a)
+                                                           (2 . b)
+                                                           (3 . c)
+                                                           (4 . d)))
+                                        2)))
+                   '(2 3 4))
+
+    (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
+                          (ordering (and cmp (comparator-ordered? cmp))))
+                     ordering)
+                   (lambda (proc)
+                     (generator-for-each
+                       (lambda (entry)
+                         (proc (car entry) (cdr entry)))
+                       (dict->generator dto (alist->dict '((1 . a)
+                                                           (2 . b)
+                                                           (3 . c)
+                                                           (4 . d)))
+                                        2 3)))
+                   '(2 3)))
+
+  (when mutable?
+    (test-skip 1))
   (test-group
     "dict-set-accumulator"
     (define acc (dict-set-accumulator dto (alist->dict '())))
@@ -858,10 +799,32 @@
     (acc (cons 2 'b))
     (acc (cons 2 'c))
     (test-assert (dict=? dto equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . c))))))
+  
+  (unless mutable?
+    (test-skip 1))
+  (test-group
+    "dict-set!-accumulator"
+    (define acc (dict-set!-accumulator dto (alist->dict '())))
+    (acc (cons 1 'a))
+    (acc (cons 2 'b))
+    (acc (cons 2 'c))
+    (test-assert (dict=? dto equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . c))))))
 
+  (when mutable?
+    (test-skip 1))
   (test-group
     "dict-adjoin-accumulator"
     (define acc (dict-adjoin-accumulator dto (alist->dict '())))
+    (acc (cons 1 'a))
+    (acc (cons 2 'b))
+    (acc (cons 2 'c))
+    (test-assert (dict=? dto equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . b))))))
+  
+  (unless mutable?
+    (test-skip 1))
+  (test-group
+    "dict-adjoin!-accumulator"
+    (define acc (dict-adjoin!-accumulator dto (alist->dict '())))
     (acc (cons 1 'a))
     (acc (cons 2 'b))
     (acc (cons 2 'c))
@@ -883,10 +846,10 @@
  (define minimal-alist-dto
    (make-dto
     dictionary?-id (dto-ref alist-dto dictionary?-id)
-    dict-mutable?-id (dto-ref alist-dto dict-mutable?-id)
+    dict-pure?-id (dto-ref alist-dto dict-pure?-id)
     dict-size-id (dto-ref alist-dto dict-size-id)
     dict-find-update-id (dto-ref alist-dto dict-find-update-id)
-    dict-for-each-id (dto-ref alist-dto dict-for-each-id)
+    dict-map-id (dto-ref alist-dto dict-map-id)
     dict-comparator-id (dto-ref alist-dto dict-comparator-id)))
  (do-test
   minimal-alist-dto
