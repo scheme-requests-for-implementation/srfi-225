@@ -1,75 +1,47 @@
 (define hash-table-dto
   (let ()
 
-   (define-syntax guard-immutable
-     (syntax-rules ()
-       ((_ table body ... final-expr)
-        (if (t125-hash-table-mutable? table)
-            (let ()
-             body ...
-             final-expr)
-            (let ((table (t125-hash-table-copy table #t)))
-             body ...
-             (let ((table (t125-hash-table-copy table #f)))
-              final-expr))))))
-
    (define (t125-hash-table-pure?* dto table)
-     (not (t125-hash-table-mutable? table)))
+     #f)
 
     (define (t125-hash-table-set* dto table . obj)
-      (guard-immutable table
-        (apply t125-hash-table-set! (cons table obj))
-        table))
+      (apply t125-hash-table-set! (cons table obj)))
 
     (define (t125-hash-table-update* dto table key updater fail success)
-      (guard-immutable table
-        (t125-hash-table-update! table key updater fail success)
-        table))
+      (t125-hash-table-update! table key updater fail success))
 
     (define (t125-hash-table-update/default* dto table key proc default)
-      (guard-immutable table
-        (t125-hash-table-update!/default table key proc default)
-        table))
+      (t125-hash-table-update!/default table key proc default))
 
     (define (t125-hash-table-intern* dto table key failure)
-      (guard-immutable table
-        (define val (t125-hash-table-intern! table key failure))
-        (values table val)))
+      (t125-hash-table-intern! table key failure))
 
     (define (t125-hash-table-pop* dto table)
       (if (t125-hash-table-empty? table)
           (error "popped empty dictionary")
-          (guard-immutable table
-            (define-values
-              (key value)
-              (t125-hash-table-pop! table))
-            (values table key value))))
+          (let ()
+           (define-values
+             (key value)
+             (t125-hash-table-pop! table))
+           (values table key value))))
 
     (define (t125-hash-table-delete-all* dto table keys)
-      (guard-immutable table
-        (for-each
+      (for-each
           (lambda (key)
             (t125-hash-table-delete! table key))
-          keys)
-        table))
+          keys))
 
     (define (t125-hash-table-map* dto proc table)
-      (guard-immutable table
-        (t125-hash-table-map! proc table)
-        table))
+      (t125-hash-table-map! proc table))
 
     (define (t125-hash-table-filter* dto proc table)
-      (guard-immutable table
-        (t125-hash-table-prune!
+      (t125-hash-table-prune!
           (lambda (key value)
             (not (proc key value)))
-          table)
-        table))
+          table))
 
     (define (t125-hash-table-remove* dto proc table)
-      (guard-immutable table
-        (t125-hash-table-prune! proc table)
-        table))
+      (t125-hash-table-prune! proc table))
 
     (define (t125-hash-table-find-update* dto table key fail success)
       ;; instead of running immediately,
@@ -77,24 +49,18 @@
       ;; to guarantee call in tail position
       (define (make-success-thunk value)
         (define (update new-key new-value)
-          (guard-immutable table
-            (unless (eq? new-key key)
-              (t125-hash-table-delete! table key))
-            (t125-hash-table-set! table new-key new-value)
-            table))
+          (unless (eq? new-key key)
+            (t125-hash-table-delete! table key))
+          (t125-hash-table-set! table new-key new-value))
         (define (remove)
-          (guard-immutable table
-            (t125-hash-table-delete! table key)
-            table))
+          (t125-hash-table-delete! table key))
         (lambda ()
           (success key value update remove) ))
       (define (make-failure-thunk)
         (define (ignore)
           table)
         (define (insert value)
-          (guard-immutable table
-            (t125-hash-table-set! table key value)
-            table))
+          (t125-hash-table-set! table key value))
         (lambda ()
           (fail insert ignore)))
 

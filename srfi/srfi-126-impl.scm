@@ -1,24 +1,12 @@
 (define srfi-126-dto
   (let ()
 
-   (define-syntax guard-immutable
-     (syntax-rules ()
-       ((_ table body ... final-expr)
-        (if (t126-hashtable-mutable? table)
-            (let ()
-             body ...
-             final-expr)
-            (let ((table (t126-hashtable-copy table #t)))
-             body ...
-             (let ((table (t126-hashtable-copy table #f)))
-              final-expr))))))
-   
     (define (prep-dto-arg proc)
       (lambda (dto . args)
         (apply proc args)))
     
     (define (t126-hashtable-pure?* dto table)
-      (not (t126-hashtable-mutable? table)))
+      #f)
 
     (define (t126-hashtable-ref* dto table key fail success)
       (define-values (value found?) (t126-hashtable-lookup table key))
@@ -30,79 +18,55 @@
       (t126-hashtable-ref table key default))
 
     (define (t126-hashtable-set* dto table . obj)
-      (guard-immutable table
-        (let loop ((obj obj))
+      (let loop ((obj obj))
          (if (null? obj)
              #t
              (begin
                (t126-hashtable-set! table (car obj) (cadr obj))
-               (loop (cddr obj)))))
-        table))
+               (loop (cddr obj))))))
 
     (define (t126-hashtable-delete-all* dto table keys)
-      (guard-immutable table
-        (for-each
+      (for-each
           (lambda (key)
             (t126-hashtable-delete! table key))
-          keys)
-        table))
+          keys))
 
     (define (t126-hashtable-intern* dto table key default)
-      (guard-immutable table
-        (define val (t126-hashtable-intern! table key default))
-        (values table val)))
+      (t126-hashtable-intern! table key default))
 
     (define (t126-hashtable-update/default* dto table key updater default)
-      (guard-immutable table
-        (t126-hashtable-update! table key updater default)
-        table))
+      (t126-hashtable-update! table key updater default))
 
     (define (t126-hashtable-pop* dto table)
       (if (t126-hashtable-empty? table)
           (error "popped empty dictionary")
-          (guard-immutable table
-            (define-values
-              (key value)
-              (t126-hashtable-pop! table))
-            (values table key value))))
+          (t126-hashtable-pop! table)))
 
     (define (t126-hashtable-update-all* dto proc table)
-      (guard-immutable table
-        (t126-hashtable-update-all! table proc)
-        table))
+      (t126-hashtable-update-all! table proc))
 
     (define (t126-hashtable-filter* dto proc table)
-      (guard-immutable table
-        (t126-hashtable-prune! table
+      (t126-hashtable-prune! table
                                (lambda (key value)
-                                 (not (proc key value))))
-        table))
+                                 (not (proc key value)))))
 
     (define (t126-hashtable-remove* dto proc table)
-      (guard-immutable table
-        (t126-hashtable-prune! table proc)
-        table))
+      (t126-hashtable-prune! table proc))
 
     (define (t126-hashtable-find-update* dto table key fail success)
       (define (handle-success value)
         (define (update new-key new-value)
-          (guard-immutable table
-            (unless (eq? new-key key)
+          (unless (eq? new-key key)
               (t126-hashtable-delete! table key))
-            (t126-hashtable-set! table new-key new-value)
-            table))
+            (t126-hashtable-set! table new-key new-value))
         (define (remove)
-          (guard-immutable table
-            (t126-hashtable-delete! table key)
-            table))
+          (t126-hashtable-delete! table key))
         (success key value update remove))
       (define (handle-fail)
         (define (ignore)
           table)
         (define (insert value)
-          (guard-immutable table
-            (t126-hashtable-set! table key value)
-            table))
+          (t126-hashtable-set! table key value))
         (fail insert ignore))
 
       (define default (cons #f #f))

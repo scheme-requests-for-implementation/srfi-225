@@ -153,7 +153,8 @@
     (test-skip 1))
   (test-group
    "dict-set!"
-   (define d (dict-set! dto (alist->dict '((a . b))) 'a 'c 'a2 'b2))
+   (define d (alist->dict '((a . b))))
+   (dict-set! dto d 'a 'c 'a2 'b2)
    (test-equal 'c (dict-ref dto d 'a ))
    (test-equal 'b2 (dict-ref dto d 'a2)))
 
@@ -171,7 +172,8 @@
     (test-skip 1))
   (test-group
    "dict-adjoin!"
-   (define d (dict-adjoin! dto (alist->dict '((a . b))) 'a 'c 'a2 'b2))
+   (define d (alist->dict '((a . b))))
+   (dict-adjoin! dto d 'a 'c 'a2 'b2)
    (test-equal 'b (dict-ref dto d 'a))
    (test-equal 'b2 (dict-ref dto d 'a2)))
 
@@ -188,7 +190,8 @@
     (test-skip 1))
   (test-group
    "dict-delete!"
-   (define d (dict-delete! dto (alist->dict '((a . b) (c . d))) 'a 'b))
+   (define d (alist->dict '((a . b) (c . d))))
+   (dict-delete! dto d 'a 'b)
    (test-equal (dict->alist dto d) '((c . d))))
 
   (when mutable?
@@ -204,7 +207,8 @@
     (test-skip 1))
   (test-group
    "dict-delete-all!"
-   (define d (dict-delete-all! dto (alist->dict '((a . b) (c . d))) '(a b)))
+   (define d (alist->dict '((a . b) (c . d))))
+   (dict-delete-all! dto d '(a b))
    (test-equal (dict->alist dto d) '((c . d))))
 
   (when mutable?
@@ -221,7 +225,8 @@
     (test-skip 1))
   (test-group
    "dict-replace!"
-   (define d (dict-replace! dto (alist->dict '((a . b) (c . d))) 'a 'b2))
+   (define d (alist->dict '((a . b) (c . d))))
+   (dict-replace! dto d 'a 'b2)
    (test-equal 'b2 (dict-ref dto d 'a))
    (test-equal 'd (dict-ref dto d 'c)))
 
@@ -253,19 +258,17 @@
    "dict-intern!"
    ;; intern existing
    (let ()
-     (define-values
-         (d value)
-       (dict-intern! dto (alist->dict '((a . b))) 'a (lambda () 'd)))
-     (test-equal 'b (dict-ref dto d 'a))
-     (test-equal 'b value))
+    (define d (alist->dict '((a . b))))
+    (define value (dict-intern! dto d 'a (lambda () 'd)))
+    (test-equal 'b (dict-ref dto d 'a))
+    (test-equal 'b value))
    ;; intern missing
    (let ()
-     (define-values
-         (d value)
-       (dict-intern! dto (alist->dict '((a . b))) 'c (lambda () 'd)))
-     (test-equal 'b (dict-ref dto d 'a))
-     (test-equal 'd (dict-ref dto d 'c))
-     (test-equal 'd value)))
+    (define d (alist->dict '((a . b))))
+    (define value (dict-intern! dto d 'c (lambda () 'd)))
+    (test-equal 'b (dict-ref dto d 'a))
+    (test-equal 'd (dict-ref dto d 'c))
+    (test-equal 'd value)))
 
   (when mutable?
     (test-skip 1))
@@ -297,19 +300,21 @@
    "dict-update!"
    ;; update existing
    (let ()
-     (define d (dict-update! dto (alist->dict '((a . "b"))) 'a
-                             (lambda (value)
-                               (string-append value "2"))
-                             error
-                             (lambda (x) (string-append x "1"))))
-     (test-equal "b12" (dict-ref dto d 'a)))
+    (define d (alist->dict '((a . "b"))))
+    (dict-update! dto d 'a
+                  (lambda (value)
+                    (string-append value "2"))
+                  error
+                  (lambda (x) (string-append x "1")))
+    (test-equal "b12" (dict-ref dto d 'a)))
    ;; update missing
    (let ()
-     (define d (dict-update! dto (alist->dict '((a . "b"))) 'c
-                             (lambda (value)
-                               (string-append value "2"))
-                             (lambda () "d1")
-                             (lambda (x) (string-append x "1"))))
+    (define d (alist->dict '((a . "b"))))
+    (dict-update! dto d 'c
+                  (lambda (value)
+                    (string-append value "2"))
+                  (lambda () "d1")
+                  (lambda (x) (string-append x "1")))
      (test-equal "d12" (dict-ref dto d 'c))))
 
   (when mutable?
@@ -341,19 +346,21 @@
    "dict-update/default!"
    ;; update existing
    (let ()
-     (define d (dict-update/default! dto (alist->dict '((a . "b"))) 'a
-                                     (lambda (value)
-                                       (string-append value "2"))
-                                     "d1"))
+    (define d (alist->dict '((a . "b"))))
+    (dict-update/default! dto d 'a
+                          (lambda (value)
+                            (string-append value "2"))
+                          "d1")
      (test-equal "b2" (dict-ref dto d 'a)))
 
    ;; update missing
    (let ()
-     (define d (dict-update/default! dto (alist->dict '((a . "b"))) 'c
-                                     (lambda (value)
-                                       (string-append value "2"))
-                                     "d1"))
-     (test-equal "d12" (dict-ref dto d 'c))))
+    (define d (alist->dict '((a . "b"))))
+    (dict-update/default! dto d 'c
+                          (lambda (value)
+                            (string-append value "2"))
+                          "d1")
+    (test-equal "d12" (dict-ref dto d 'c))))
 
   (when mutable?
     (test-skip 1))
@@ -379,16 +386,17 @@
     (test-skip 1))
   (test-group
    "dict-pop!"
+   (define d (alist->dict '((a . b) (c . d))))
    (define-values
-       (new-dict key value)
-     (dict-pop! dto (alist->dict '((a . b) (c . d)))))
+       (key value)
+     (dict-pop! dto d))
    (test-assert
        (or
-        (and (equal? (dict->alist dto new-dict) '((c . d)))
+        (and (equal? (dict->alist dto d) '((c . d)))
              (equal? key 'a)
              (equal? value 'b))
 
-        (and (equal? (dict->alist dto new-dict) '((a . b)))
+        (and (equal? (dict->alist dto d) '((a . b)))
              (equal? key 'c)
              (equal? value 'd)))))
 
@@ -410,10 +418,11 @@
     (test-skip 1))
   (test-group
    "dict-map!"
-   (define d (dict-map! dto
-                        (lambda (key value)
-                          (string-append value "2"))
-                        (alist->dict '((a . "a") (b . "b")))))
+   (define d (alist->dict '((a . "a") (b . "b"))))
+   (dict-map! dto
+              (lambda (key value)
+                (string-append value "2"))
+              d)
    (test-equal "a2" (dict-ref dto d 'a))
    (test-equal "b2" (dict-ref dto d 'b)))
 
@@ -434,10 +443,11 @@
     (test-skip 1))
   (test-group
    "dict-filter!"
-   (define d (dict-filter! dto
-                           (lambda (key value)
-                             (equal? value 'b))
-                           (alist->dict '((a . b) (c . d)))))
+   (define d (alist->dict '((a . b) (c . d))))
+   (dict-filter! dto
+                 (lambda (key value)
+                   (equal? value 'b))
+                 d)
    (test-equal '((a . b)) (dict->alist dto d)))
 
   (when mutable?
@@ -456,10 +466,11 @@
     (test-skip 1))
   (test-group
    "dict-remove!"
-   (define d (dict-remove! dto
-                           (lambda (key value)
-                             (equal? value 'b))
-                           (alist->dict '((a . b) (c . d)))))
+   (define d (alist->dict '((a . b) (c . d))))
+   (dict-remove! dto
+                 (lambda (key value)
+                   (equal? value 'b))
+                 d)
    (test-equal '((c . d)) (dict->alist dto d)))
 
   (when mutable?
@@ -516,40 +527,44 @@
    "dict-find-update!"
    ;; ignore
    (let ()
-    (define dict (dict-find-update! dto (alist->dict '((a . b))) 'c
+    (define dict (alist->dict '((a . b))))
+    (dict-find-update! dto dict 'c
                               (lambda (insert ignore)
                                 (ignore))
                               (lambda args
-                                (error "shouldn't happen"))))
-     (test-equal '((a . b)) (dict->alist dto dict)))
+                                (error "shouldn't happen")))
+    (test-equal '((a . b)) (dict->alist dto dict)))
 
    ;; insert
    (let ()
-     (define dict (dict-find-update! dto (alist->dict '((a . b))) 'c
-                               (lambda (insert ignore)
-                                 (insert 'd))
-                               (lambda args
-                                 (error "shouldn't happen"))))
-     (test-equal 'b (dict-ref dto dict 'a))
-     (test-equal 'd (dict-ref dto dict 'c)))
+    (define dict (alist->dict '((a . b))))
+    (dict-find-update! dto dict 'c
+                       (lambda (insert ignore)
+                         (insert 'd))
+                       (lambda args
+                         (error "shouldn't happen")))
+    (test-equal 'b (dict-ref dto dict 'a))
+    (test-equal 'd (dict-ref dto dict 'c)))
 
    ;; update
    (let ()
-     (define dict (dict-find-update! dto (alist->dict '((a . b))) 'a
-                               (lambda args
-                                 (error "shouldn't happen"))
-                               (lambda (key value update delete)
-                                 (update 'a2 'b2))))
+    (define dict (alist->dict '((a . b))))
+    (dict-find-update! dto dict 'a
+                       (lambda args
+                         (error "shouldn't happen"))
+                       (lambda (key value update delete)
+                         (update 'a2 'b2)))
      (test-equal '((a2 . b2)) (dict->alist dto dict)))
 
    ;; delete
    (let ()
-     (define dict (dict-find-update! dto (alist->dict '((a . b) (c . d))) 'a
-                               (lambda args
-                                 (error "shouldn't happen"))
-                               (lambda (key value update delete)
-                                 (delete))))
-     (test-equal '((c . d)) (dict->alist dto dict))))
+    (define dict (alist->dict '((a . b) (c . d))))
+    (dict-find-update! dto dict 'a
+                       (lambda args
+                         (error "shouldn't happen"))
+                       (lambda (key value update delete)
+                         (delete)))
+    (test-equal '((c . d)) (dict->alist dto dict))))
 
   (test-group
    "dict-size"
@@ -893,7 +908,7 @@
 (cond-expand
   ((library (srf 125))
    (test-group
-     "srfi-125 mutable"
+     "srfi-125"
      (do-test
        hash-table-dto
        (lambda (alist)
@@ -904,26 +919,13 @@
            alist)
          table)
        (make-default-comparator)
-       #t))
-   (test-group
-     "srfi-125 immutable"
-     (do-test
-       hash-table-dto
-       (lambda (alist)
-         (define table (t125-hash-table-empty-copy (t125-make-hash-table equal?)))
-         (for-each
-           (lambda (pair)
-             (t125-hash-table-set! table (car pair) (cdr pair)))
-           alist)
-         (t125-hash-table-copy table #f))
-       (make-default-comparator)
-       #f)))
+       #t)))
   (else))
 
 (cond-expand
   ((library (srfi 126))
    (test-group
-     "srfi-126 (r6rs) mutable"
+     "srfi-126 (r6rs)"
      (do-test
        srfi-126-dto
        (lambda (alist)
@@ -934,20 +936,7 @@
            alist)
          table)
        (make-default-comparator)
-       #t))
-   (test-group
-     "srfi-126 (r6rs) immutable"
-     (do-test
-       srfi-126-dto
-       (lambda (alist)
-         (define table (t126-make-eqv-hashtable))
-         (for-each
-           (lambda (pair)
-             (t126-hashtable-set! table (car pair) (cdr pair)))
-           alist)
-         (t126-hashtable-copy table #f))
-       (make-default-comparator)
-       #f)))
+       #t)))
   (else))
 
 (cond-expand
