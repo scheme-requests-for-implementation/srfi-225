@@ -19,11 +19,7 @@
     (define (t125-hash-table-pop* dto table)
       (if (t125-hash-table-empty? table)
           (error "popped empty dictionary")
-          (let ()
-           (define-values
-             (key value)
-             (t125-hash-table-pop! table))
-           (values table key value))))
+          (t125-hash-table-pop! table)))
 
     (define (t125-hash-table-delete-all* dto table keys)
       (for-each
@@ -79,9 +75,6 @@
     (define (t125-hash-table-size* dto table)
       (t125-hash-table-size table))
 
-    (define (t125-hash-table-for-each* dto proc table)
-      (t125-hash-table-for-each proc table))
-
     (define (t125-hash-table-keys* dto table)
       (t125-hash-table-keys table))
 
@@ -133,7 +126,6 @@
      dict-remove-id t125-hash-table-remove*
      dict-find-update-id t125-hash-table-find-update*
      dict-size-id t125-hash-table-size*
-     dict-for-each-id t125-hash-table-for-each*
      dict-keys-id t125-hash-table-keys*
      dict-values-id t125-hash-table-values*
      dict-entries-id t125-hash-table-entries*

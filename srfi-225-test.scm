@@ -906,7 +906,7 @@
   (else))
 
 (cond-expand
-  ((library (srf 125))
+  ((library (srfi 125))
    (test-group
      "srfi-125"
      (do-test
