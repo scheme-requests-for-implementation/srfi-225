@@ -31,7 +31,7 @@
 
 <p>The procedures of this SRFI allow callers to manipulate an object that maps keys to values
   without the caller needing to know exactly what the type of the object is.
-  However, what procedures can be called on the object is partly determined by whether it is pure or not.
+  However, what procedures can be called on the object is partly determined by whether it is pure.
   Such an object is called a <em>dict(ionary)</em> in this SRFI.
 <h2 id="issues">Issues</h2>
 
@@ -74,7 +74,7 @@ None at present.
 <h2 id="specification">Specification</h2>
 <p>We call a specific key-value combination an <em>association</em>.
   This is why an alist, or association list, is called that; it is a list of associations represented as pairs.</p>
-<p>A <em>dictionary</em> or <em>dict</em> is a collection of associations which may be inherently ordered by their keys or not.
+<p>A <em>dictionary</em> or <em>dict</em> is a collection of associations which may or may not be inherently ordered by their keys.
   In principle an <em>equality predicate</em> is enough, given a key,
   to determine whether an association with that key exists in the dictionary.
   However, for efficiency most dictionaries require an <em>ordering predicate</em> or a <em>hash function</em> as well.
