@@ -384,8 +384,6 @@ one for each of the four procedures:
 </pre></blockquote>
 <p><code>(dict-&gt;alist</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns an alist whose keys and values are the keys and values of <em>dict</em>.</p>
-<code>dict-filter</code>, <code>dict-remove</code>,
-and <code>dict-find-update</code>.
 </p>
 <p><code>(dict-comparator</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate,
@@ -573,11 +571,6 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dd>dict-delete-all</dd>
     <dd>dict-empty?</dd>
 
-    <dt>dict-map</dt>
-    <dd>dict-keys</dd>
-    <dd>dict-ref</dd>
-    <dd>dict-replace</dd>
-
     <dt>dict-filter</dt>
     <dd>dict-keys</dd>
     <dd>dict-ref</dd>
@@ -610,22 +603,23 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dt>dict-map-&gt;list</dt>
     <dd>dict-fold</dd>
 
-    <dd>dict-map-&gt;list</dd>
-
-    <dt>dict-for-each&gt;</dt>
-    <dd>dict-for-each</dd>
-
-    <dt>dict-for-each&gt;=</dt>
-    <dd>dict-for-each</dd>
+    <dt>dict-for-each</dt>
+    <dd>dict-map or dict-map!</dd>
 
     <dt>dict-&gt;generator</dt>
-    <dd>dict-entries</dd>
+    <dd>dict-for-each</dd>
 
     <dt>dict-set-accumulator</dt>
     <dd>dict-set</dd>
 
+    <dt>dict-set!-accumulator</dt>
+    <dd>dict-set!</dd>
+
     <dt>dict-adjoin-accumulator</dt>
     <dd>dict-set</dd>
+
+    <dt>dict-adjoin!-accumulator</dt>
+    <dd>dict-adjoin!</dd>
 
 </dl>
 

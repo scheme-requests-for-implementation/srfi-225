@@ -5,8 +5,8 @@
       (lambda (dto . args)
         (apply proc args)))
 
-    (define (t69-hash-table-mutable?* dto table)
-      #t)
+    (define (t69-hash-table-pure?* dto table)
+      #f)
 
     (define (t69-hash-table-ref* dto table key fail success)
       (define default (cons #f #f))
@@ -33,9 +33,6 @@
          (t69-hash-table-delete! table key))
        keys)
       table)
-
-    (define (t69-hash-table-foreach* dto proc table)
-      (t69-hash-table-walk table proc))
 
     (define (t69-hash-table-map!* dto proc table)
       (t69-hash-table-walk table (lambda (key value)
@@ -86,7 +83,7 @@
 
     (make-dto
      dictionary?-id (prep-dto-arg t69-hash-table?)
-     dict-mutable?-id t69-hash-table-mutable?*
+     dict-pure?-id t69-hash-table-pure?*
      dict-ref-id t69-hash-table-ref*
      dict-ref/default-id (prep-dto-arg t69-hash-table-ref/default)
      dict-set-id t69-hash-table-set!*
@@ -98,7 +95,6 @@
      dict-values-id (prep-dto-arg t69-hash-table-values)
      dict-map-id t69-hash-table-map!*
      dict-filter-id t69-hash-table-filter!*
-     dict-for-each-id t69-hash-table-foreach*
      dict-fold-id t69-hash-table-fold*
      dict->alist-id (prep-dto-arg t69-hash-table->alist)
      dict-find-update-id t69-hash-table-find-update!*

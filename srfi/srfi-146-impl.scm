@@ -4,6 +4,11 @@
     (define (prep-dto-arg proc)
       (lambda (dto . args)
         (apply proc args)))
+    
+    (define (mapping-map* dto proc dict)
+      (mapping-map (lambda (key value)
+                     (values key (proc key value))) 
+                   (dict-comparator dto dict) dict))
 
     (define (mapping-find-update* dto dict key failure success)
       (call/cc
@@ -38,7 +43,8 @@
 
     (make-dto
      dictionary?-id (prep-dto-arg mapping?)
-     dict-mutable?-id (lambda _ #f)
+     dict-pure?-id (lambda _ #t)
+     dict-map-id mapping-map*
      dict-empty?-id (prep-dto-arg mapping-empty?)
      dict-contains?-id (prep-dto-arg mapping-contains?)
      dict-ref-id (prep-dto-arg mapping-ref)
@@ -56,7 +62,6 @@
      dict-remove-id (prep-dto-arg mapping-remove)
      dict-find-update-id mapping-find-update*
      dict-size-id (prep-dto-arg mapping-size)
-     dict-for-each-id (prep-dto-arg mapping-for-each)
      dict-count-id (prep-dto-arg mapping-count)
      dict-keys-id (prep-dto-arg mapping-keys)
      dict-values-id (prep-dto-arg mapping-values)

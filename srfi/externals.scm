@@ -35,11 +35,11 @@
      (begin
        (define (proc-mutable dto dict . args)
          (assume (dto? dto))
-         (assume ((dto-ref-stx dto dict-mutable?-id) dto dict) index)
+         (assume (not ((dto-ref-stx dto dict-pure?-id) dto dict)) index)
          (apply (dto-ref-stx dto index) dto dict args))
        (define (proc-immutable dto dict . args)
          (assume (dto? dto))
-         (assume (not ((dto-ref-stx dto dict-mutable?-id) dto dict)) index)
+         (assume ((dto-ref-stx dto dict-pure?-id) dto dict) index)
          (apply (dto-ref-stx dto index) dto dict args))))))
 
 ;; define mutable and immutable versions of a procedure (such as dict-set! and dict-set)
@@ -51,17 +51,17 @@
      (begin
        (define (proc-mutable dto proc dict)
          (assume (dto? dto))
-         (assume ((dto-ref-stx dto dict-mutable?-id) dto dict) index)
+         (assume (not ((dto-ref-stx dto dict-pure?-id) dto dict)) index)
          ((dto-ref-stx dto index) dto proc dict))
        (define (proc-immutable dto proc dict)
          (assume (dto? dto))
-         (assume (not ((dto-ref-stx dto dict-mutable?-id) dto dict)) index)
+         (assume ((dto-ref-stx dto dict-pure?-id) dto dict) index)
          ((dto-ref-stx dto index) dto proc dict))))))
 
 (define/dict-proc dictionary? dictionary?-id)
 (define/dict-proc dict-empty? dict-empty?-id)
 (define/dict-proc dict-contains? dict-contains?-id)
-(define/dict-proc dict-mutable? dict-mutable?-id)
+(define/dict-proc dict-pure? dict-pure?-id)
 (define/dict-proc dict=? dict=?-id)
 
 (define dict-ref
@@ -98,7 +98,7 @@
 
     ((dto dict key updater failure success)
      (assume (dto? dto))
-     (assume (not ((dto-ref-stx dto dict-mutable?-id) dto dict)))
+     (assume ((dto-ref-stx dto dict-pure?-id) dto dict))
      ((dto-ref-stx dto dict-update-id) dto dict key updater failure success))))
 
 (define dict-update!
@@ -113,7 +113,7 @@
 
     ((dto dict key updater failure success)
      (assume (dto? dto))
-     (assume ((dto-ref-stx dto dict-mutable?-id) dto dict))
+     (assume (not ((dto-ref-stx dto dict-pure?-id) dto dict)))
      ((dto-ref-stx dto dict-update-id) dto dict key updater failure success))))
 
 (define/dict-proc-pair dict-update/default dict-update/default! dict-update/default-id)
@@ -133,18 +133,21 @@
 (define/dict-proc dict-map->list dict-map->list-id)
 (define/dict-proc dict->alist dict->alist-id)
 (define/dict-proc dict-comparator dict-comparator-id)
-(define/dict-proc dict-for-each dict-for-each-id)
-(define/dict-proc dict-for-each< dict-for-each<-id)
-(define/dict-proc dict-for-each<= dict-for-each<=-id)
-(define/dict-proc dict-for-each> dict-for-each>-id)
-(define/dict-proc dict-for-each>= dict-for-each>=-id)
-(define/dict-proc dict-for-each-in-open-interval dict-for-each-in-open-interval-id)
-(define/dict-proc dict-for-each-in-closed-interval dict-for-each-in-closed-interval-id)
-(define/dict-proc dict-for-each-in-open-closed-interval dict-for-each-in-open-closed-interval-id)
-(define/dict-proc dict-for-each-in-closed-open-interval dict-for-each-in-closed-open-interval-id)
-(define/dict-proc make-dict-generator make-dict-generator-id)
-(define/dict-proc dict-set-accumulator dict-set-accumulator-id)
-(define/dict-proc dict-adjoin-accumulator dict-adjoin-accumulator-id)
+
+(define dict-for-each
+  (case-lambda
+    ((dto proc dict) (dict-for-each dto proc dict #f #f))
+    ((dto proc dict start) (dict-for-each dto proc dict start #f))
+    ((dto proc dict start end) ((dto-ref-stx dto dict-for-each-id) dto proc dict start end))))
+
+(define dict->generator
+  (case-lambda
+    ((dto dict) (dict->generator dto dict #f #f))
+    ((dto dict start) (dict->generator dto dict start #f))
+    ((dto dict start end) ((dto-ref-stx dto dict->generator-id) dto dict start end))))
+
+(define/dict-proc-pair dict-set-accumulator dict-set!-accumulator dict-set-accumulator-id)
+(define/dict-proc-pair dict-adjoin-accumulator dict-adjoin!-accumulator dict-adjoin-accumulator-id)
 
 (define (dto-ref dto procindex)
   (dto-ref-stx dto procindex))
