@@ -22,6 +22,7 @@
   <li>Draft #3 published: 2021-08-07</li>
   <li>Draft #4 published: 2021-10-29</li>
   <li>Draft #5 published: 2021-11-13</li>
+  <li>Draft #6 published: 2022-03-16</li>
   <li>John Cowan's <a href="https://github.com/pre-srfi/dictionaries">personal
     Git repo for this SRFI</a> for reference while the SRFI is in
     <em>draft</em> status (<a href="https://htmlpreview.github.io/?https://github.com/johnwcowan/srfi-225/blob/master/srfi-225.html">preview</a>)</li>
@@ -85,7 +86,7 @@ None at present.
 <p>When an association is deleted from a dictionary other than by <code>dict-remove</code>,
   or is updated, any other associations with the same key remain in the dictionary.
   Whether such duplicate keys are possible depends on the dictionary type.  Alists do allow them:</p>
-<blockquote><pre>(dict-delete '((1 . 2) (1 . 3) (2 . 4)) 1) => ((1 . 3) (2 . 4))</code>.
+<blockquote><pre>(dict-delete '((1 . 2) (1 . 3) (2 . 4)) 1) => ((1 . 3) (2 . 4))
 </pre></blockquote>
 <h3 id="alists">Alists</h3>
 <p>Alists are supported as dictionaries, but are given special treatment.
@@ -384,7 +385,6 @@ one for each of the four procedures:
 </pre></blockquote>
 <p><code>(dict-&gt;alist</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns an alist whose keys and values are the keys and values of <em>dict</em>.</p>
-</p>
 <p><code>(dict-comparator</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate,
   ordering predicate, and hash function of <em>dict</em>.
@@ -414,7 +414,7 @@ one for each of the four procedures:
   They can can provide additional efficiency when iterating over part of the dictionary
   if the dictionary is ordered.  The procedure returns an unspecified value.</p>
   <p>It is an error to mutate <em>dict</em> until after the generator is exhausted.
-  When all the associations have been processed, returns an end-of-file object.</>
+  When all the associations have been processed, returns an end-of-file object.</p>
   <p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
 <code>(dict-set!-accumulator</code>&nbsp;<em>dto dict accum</em><code>)</code></p>
 <p>Returns a SRFI 158 accumulator procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair
