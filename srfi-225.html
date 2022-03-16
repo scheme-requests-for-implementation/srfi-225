@@ -80,7 +80,7 @@ None at present.
   However, for efficiency most dictionaries require an <em>ordering predicate</em> or a <em>hash function</em> as well.
 <p>When a key argument is said to be the <em>same</em> as some key of the dictionary,
   it means that they are the same in the sense of the dictionary’s implicit or explicit equality predicate.
-  Two dictionaries are <em>similar</em> if they have the same DTO 
+  Two dictionaries are <em>similar</em> if they have the same DTO
   and have the same equality predicate and the same ordering predicate and/or hash function.</p>
 <p>When an association is deleted from a dictionary other than by <code>dict-remove</code>,
   or is updated, any other associations with the same key remain in the dictionary.
@@ -277,7 +277,7 @@ Otherwise, returns two values, a dictionary that contains
   that contains all the associations of <em>dict</em>, and in addition a new association that maps <em>key</em> to <em>value</em>.</p></li>
 <li><p>Invoking <code>(</code><em>ignore</em><code>)</code> has no effects and returns <em>dict</em> unchanged.</p></li>
 <li><p>Invoking <code>(</code><em>update new-key new-value</em><code>)</code> returns a dictionary that contains all the associations of <em>dict</em>, except for the association whose key is the same as <em>key</em>, which is replaced or hidden by a new association that maps <em>new-key</em> to <em>new-value</em>.  It is an error if <em>key</em> and <em>new-key</em> are not the same in the sense of the dictionary’s equality predicate.</p></li>
-<li><p>Invoking <code>(</code><em>delete</em><code>)</code> returns a dictionary that contains all the associations of <em>dict</em>, except for the association with 
+<li><p>Invoking <code>(</code><em>delete</em><code>)</code> returns a dictionary that contains all the associations of <em>dict</em>, except for the association with
 key <em>key</em>.
 </ul>
 <p>Here are four examples of <code>dict-find-update</code>,
@@ -412,7 +412,7 @@ one for each of the four procedures:
   <p>The <em>start</em> and <em>end</em> arguments specify the inclusive lower bound and exclusive upper bound
   of the keys to be processed (in the sense of the dictionary's comparator).
   They can can provide additional efficiency when iterating over part of the dictionary
-  if the dictionary is ordered.  The procedure returns an unspecified value.</p>  
+  if the dictionary is ordered.  The procedure returns an unspecified value.</p>
   <p>It is an error to mutate <em>dict</em> until after the generator is exhausted.
   When all the associations have been processed, returns an end-of-file object.</>
   <p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
@@ -436,7 +436,7 @@ one for each of the four procedures:
   and a <em>proc</em> argument is the specific procedure implementing it for this type.
   Note that there is only one proc-id variable for each pair of pure and impure procedures:
   the proc-id variable for <code>dict-map-id</code> and <code>dict-map!</code> is <code>dict-map-id</code>.</p>
-<p>The following proc-id variables (and corresponding primitive procedures) need to be provided 
+<p>The following proc-id variables (and corresponding primitive procedures) need to be provided
   in order for the DTO to support the full set of dictionary procedures:</p>
 <ul>
 <li><code>dictionary?-id</code></li>
