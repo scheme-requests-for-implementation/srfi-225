@@ -33,7 +33,7 @@
 <p>The procedures of this SRFI allow callers to manipulate an object that maps keys to values
   without the caller needing to know exactly what the type of the object is.
   However, what procedures can be called on the object is partly determined by whether it is pure.
-  Such an object is called a <em>dict(ionary)</em> in this SRFI.
+  Such an object is called a <em>dictionary</em> or <em>dict</em> in this SRFI.
 <h2 id="issues">Issues</h2>
 
 None at present.
@@ -54,19 +54,19 @@ None at present.
   DTOs are of an unspecified type.</p>
 <p>This in turn requires that the DTO provides a predicate that can recognize its dictionaries,
   plus several primitive generic procedures.</p>
-<p>By using the procedures of this SRFI, a procedure can take a DTO and a dictionary as an argument
+<p>By using the procedures of this SRFI, a procedure can take a DTO and a dictionary as arguments
   and make flexible use of the dictionary without knowing its exact type.
   For the purposes of this SRFI, such a procedure is called a <em>generic procedure</em>.
   However, it is still necessary to distinguish between pure and impure dictionary types.
   A pure dictionary type either exposes pure functional update operations or no update operations at all,
   whereas an impure dictionary type exposes mutation operations.
   Note that if an instance of an impure dictionary type like SRFI 126 is in fact immutable, it still counts as impure.
-<p>The <code>dict-pure?</code> procedure depends only on the <em>dto</em> argument
-  and ignores the <i>dict</i> argument except for possibly checking that the arguments taken together
+<p>The <code>dict-pure?</code> generic procedure depends only on its <em>dto</em> argument
+  and ignores its <i>dict</i> argument except for possibly checking that the arguments taken together
   satisfy <code>dictionary?</code>.
   This is done to maintain uniformity between <code>dict-pure?</code> and the other generic procedures,
   both at the point of call and when <code>make-dto</code> is invoked.</p>
-<p>In addition, dictionaries need to be constructed using type-specific constructors,
+<p>Dictionaries need to be constructed using type-specific constructors,
   as the required and optional arguments differ in each case.
   In addition, the dictionary type provided by the caller of a generic procedure
   doesn't necessarily have the right performance characteristics needed by the generic procedure itself.
@@ -105,7 +105,7 @@ None at present.
 Consequently, previous examples don't affect later ones.
 <p>The <em>dto</em> argument is not discussed in the individual procedure descriptions below,
   but it is an error if invoking <code>dictionary?</code> on <em>dto</em> and <em>dict</em> would return <code>#f</code>.
-  The <code>dictionary?</code> procedure itself is an exception to this.</p>
+  The <code>dictionary?</code> generic procedure itself is an exception to this.</p>
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dto obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate
@@ -134,7 +134,7 @@ Consequently, previous examples don't affect later ones.
 (dict-pure? hash-table-dto (make-hash-table)) => #f
 (dict-pure? aed dict) => #t
 </pre></blockquote>
-<h3 id="lookup">Lookup</h3>
+<h3 id="lookup-procedures">Lookup procedures</h3>
 <p><code>(dict-ref</code>&nbsp;<em>dto dict key</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, then invokes <em>success</em>
   on the corresponding value and returns its result. If <em>key</em> is not a key of <em>dict</em>,
@@ -161,15 +161,15 @@ Consequently, previous examples don't affect later ones.
 <p><code>(dict-set</code>&nbsp;<em>dto dict obj</em> …<code>)</code><br>
 <code>(dict-set!</code>&nbsp;<em>dto dict obj</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
-  plus those specified by <em>objs</em>, which altetnate between keysF and values.
+  plus those specified by <em>objs</em>, which alternate between keys and values.
   If a key to be added already exists in <em>dict</em>, the new value prevails.</p>
 <blockquote><pre>; new values are prepended
 (dict-set aed dict 7 8) =&gt;
    ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
 (dict-set aed dict 3 5) =&gt;
    ((3 . 5) (1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
-<p><code>(dict-adjoin</code>&nbsp;<em>dto dict objs</em><code>)</code><br>
-<code>(dict-adjoin!</code>&nbsp;<em>dto dict objs</em><code>)</code></p>
+<p><code>(dict-adjoin</code>&nbsp;<em>dto dict obj</em> ...<code>)</code><br>
+<code>(dict-adjoin!</code>&nbsp;<em>dto dict obj</em> ...<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   plus those specified by <em>objs</em>, which alternate between keys and values.
   If a key to be added already exists in <em>dict</em>, the old value prevails.</p>
@@ -242,7 +242,7 @@ Otherwise, returns two values, a dictionary that contains
   and the key and the value of the association chosen.
   If the dictionary is inherently ordered, the first association is chosen;
   otherwise the chosen association is arbitrary.</p>
-<p>If dictionary contains no associations, it is an error.</p>
+<p>If <em>dict</em> contains no associations, it is an error.</p>
 <blockquote><pre>(dict-pop aed dict) =&gt; ; 3 values
   ((3 . 4) (5 . 6))
   1
@@ -275,9 +275,16 @@ Otherwise, returns two values, a dictionary that contains
 <p>In either case, the values returned by <em>failure</em> or <em>success</em> are returned.</p>
 <ul>
 <li><p>Invoking <code>(</code><em>insert value</em><code>)</code> returns a dictionary
-  that contains all the associations of <em>dict</em>, and in addition a new association that maps <em>key</em> to <em>value</em>.</p></li>
+  that contains all the associations of <em>dict</em>, and in addition
+  a new association that maps <em>key</em> to <em>value</em>.</p></li>
 <li><p>Invoking <code>(</code><em>ignore</em><code>)</code> has no effects and returns <em>dict</em> unchanged.</p></li>
-<li><p>Invoking <code>(</code><em>update new-key new-value</em><code>)</code> returns a dictionary that contains all the associations of <em>dict</em>, except for the association whose key is the same as <em>key</em>, which is replaced or hidden by a new association that maps <em>new-key</em> to <em>new-value</em>.  It is an error if <em>key</em> and <em>new-key</em> are not the same in the sense of the dictionary’s equality predicate.</p></li>
+<li><p>Invoking <code>(</code><em>update new-key
+new-value</em><code>)</code> returns a dictionary that contains all
+the associations of <em>dict</em>, except for the association whose
+key is the same as <em>key</em>, which is replaced or hidden by a new
+association that maps <em>new-key</em> to <em>new-value</em>.  It is
+an error if <em>key</em> and <em>new-key</em> are not the same in the
+sense of the dictionary’s equality predicate.</p></li>
 <li><p>Invoking <code>(</code><em>delete</em><code>)</code> returns a dictionary that contains all the associations of <em>dict</em>, except for the association with
 key <em>key</em>.
 </ul>
@@ -406,25 +413,24 @@ one for each of the four procedures:
 <p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158 generator</a>
   that when invoked returns the associations of <em>dict</em> as pairs.
- This procedure is used for doing operations on the whole dictionary.
-  If the dictionary type is inherently ordered, associations are processed in the order specified
-  by the dictionary's comparator; otherwise they are processed in an arbitrary order.
+  If the dictionary type is inherently ordered, associations are generated in the order specified
+  by the dictionary's comparator; otherwise they are generated in an arbitrary order.
   <p>The <em>start</em> and <em>end</em> arguments specify the inclusive lower bound and exclusive upper bound
   of the keys to be processed (in the sense of the dictionary's comparator).
   They can can provide additional efficiency when iterating over part of the dictionary
-  if the dictionary is ordered.  The procedure returns an unspecified value.</p>
+  if the dictionary is ordered.</p>
   <p>It is an error to mutate <em>dict</em> until after the generator is exhausted.
   When all the associations have been processed, returns an end-of-file object.</p>
   <p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
 <code>(dict-set!-accumulator</code>&nbsp;<em>dto dict accum</em><code>)</code></p>
 <p>Returns a SRFI 158 accumulator procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair
-  as a key and value of <em>dict</em> as if by <em>dict-set</em>, eventually returning the new value of <em>dict</em>.
+  as a key and value of <em>dict</em> as if by <code>dict-set</code>, eventually returning the new value of <em>dict</em>.
   If invoked on an end-of-file object, no action is taken and <em>dict</em> is returned.</p>
 <p>The <code>!</code> variant uses <code>dict-set!</code> instead.
 <p><code>(dict-adjoin-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
 <code>(dict-adjoin!-accumulator!</code>&nbsp;<em>dto dict</em><code>)</code></p>
-<p>The same as <code>dict-set!-accumulator</code>, except using <code>dict-adjoin(!)</code>. </p>
-<h3 id="dictionary-type-object-procedures">Dictionary type object procedures</h3>
+<p>The same as <code>dict-set(!)-accumulator</code>, except using <code>dict-adjoin(!)</code>. </p>
+<h3 id="dictionary-type-object-procedures">Dmictionary type object procedures (non-generic)</h3>
 <p><code>(dto?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTO, and <code>#f</code> otherwise.</p>
 <p><code>(make-dto</code>&nbsp;<em>arg</em> …<code>)</code><br>
@@ -489,7 +495,7 @@ one for each of the four procedures:
 <p><code>(dto-ref</code>&nbsp;<em>dto proc-id</em><code>)</code></p>
 <p>Returns the procedure designated by <em>proc-id</em> from <em>dto</em>.
 This allows the ability to call a particular DTO procedure multiple times more efficiently.</p>
-<h3 id="exceptions">Exceptions</h3>
+<h3 id="exceptions">Exception procedures (non-generic)</h3>
 <p><code>(dictionary-error</code>&nbsp;<em>message irritant</em> ... <code>)</code></p>
 <p>Returns a dictionary error with the given <em>message</em> (a string) and
 <em>irritants</em> (any objects).
@@ -515,6 +521,7 @@ and <code>equal?</code> respectively.</p>
 <p>The following list of dependencies is designed to ease defining
 new dictionary types that may not have complete dictionary APIs:</p>
 
+<code>
 <dl>
     <dt>dict-empty?</dt>
     <dd>dict-size</dd>
@@ -614,6 +621,7 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dd>dict-adjoin!</dd>
 
 </dl>
+</code>
 
 <h2 id="acknowledgements">Acknowledgements</h2>
 
