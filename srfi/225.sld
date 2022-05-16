@@ -76,7 +76,6 @@
     ;; dictionary type descriptors
     dto?
     make-dto
-    dto
     make-alist-dto
     dto-ref
 

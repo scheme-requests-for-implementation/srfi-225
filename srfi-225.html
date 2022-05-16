@@ -428,14 +428,6 @@ one for each of the four procedures:
 <p><code>(dto?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTO, and <code>#f</code> otherwise.</p>
 <p><code>(make-dto</code>&nbsp;<em>arg</em> …<code>)</code><br>
-<code>(dto (</code><em>proc-id procname</em><code>)</code> …<code>)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[syntax]</p>
-<p>Returns a new DTO providing procedures that allow manipulation of dictionaries of a new type.
-  The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
-<p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure
-  (except those in this section and the Exceptions section) suffixed with <code>-id</code>,
-  and a <em>proc</em> argument is the specific procedure implementing it for this type.
-  Note that there is only one proc-id variable for each pair of pure and impure procedures:
-  the proc-id variable for <code>dict-map-id</code> and <code>dict-map!</code> is <code>dict-map-id</code>.</p>
 <p>The following proc-id variables (and corresponding primitive procedures) need to be provided
   in order for the DTO to support the full set of dictionary procedures:</p>
 <ul>
