@@ -141,14 +141,14 @@ Consequently, previous examples don't affect later ones.
   then invokes the thunk <em>failure</em> and returns its result.
   The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
 <blockquote><pre>(dict-ref aed dict 1 (lambda () &#39;()) list) =&gt;
-  (1) ; Success wraps value in a list
+  (2) ; Success wraps value in a list
 (dict-ref aed dict 2 (lambda () &#39;()) list) =&gt;
   ()  ; Failure returns empty list</pre></blockquote>
 <p><code>(dict-ref/default</code>&nbsp;<em>dto dict key default</em><code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, returns the corresponding value.
   If not, returns <em>default</em>.</p>
-<blockquote><pre>(dict-ref/default aed dict 1 #f) =&gt; 1
-(dict-ref/default aed dict 1 #f) =&gt; #f</pre></blockquote>
+<blockquote><pre>(dict-ref/default aed dict 1 #f) =&gt; 2
+(dict-ref/default aed dict 2 #f) =&gt; #f</pre></blockquote>
 <h3 id="update-procedures">Update procedures</h3>
 <p>All update procedures exist in pairs, with and without a final <code>!</code>.
   The descriptions apply to the procedures without <code>!</code>;
