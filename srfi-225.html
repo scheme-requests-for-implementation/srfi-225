@@ -40,7 +40,7 @@ None at present.
 
 <h2 id="rationale">Rationale</h2>
 
-<p>Until recently there was only one universally available mechanism for managing key-value pairs: alists.
+<p>Until recently, there was only one universally available mechanism for managing key-value pairs: alists.
   Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations
   do not provide that interface.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables,
@@ -109,9 +109,9 @@ Consequently, previous examples don't affect later ones.
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dto obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate
-  stored in <em>dto</em> and <code>#f</code> otherwise.</p>
+  stored in <em>dto</em>, and <code>#f</code> otherwise.</p>
 <blockquote><pre>(dictionary? aed dict) =&gt; #t
-(dictionary? aed 35) =&gt; #t</pre></blockquote>
+(dictionary? aed 35) =&gt; #f</pre></blockquote>
 <p><code>(dict-empty?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dict</em> contains no associations and <code>#f</code> if it does contain associations.</p>
 <blockquote><pre>(dict-empty? aed '()) =&gt; #t
@@ -129,7 +129,7 @@ Consequently, previous examples don't affect later ones.
 (dict=? aed = dict dicta) => #t
 (dict=? aed = dict dictb) => #f</pre></blockquote>
 <p><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
-<p>Returns <code>#t</code> if the dictionary type is pure and <code>#f</code> otherwise.</p>
+<p>Returns <code>#t</code> if the dictionary type is pure, and <code>#f</code> otherwise.</p>
 <blockquote><pre>
 (dict-pure? hash-table-dto (make-hash-table)) => #f
 (dict-pure? aed dict) => #t
@@ -239,9 +239,9 @@ Otherwise, returns two values, a dictionary that contains
 <code>(dict-pop!</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Chooses an association from <em>dict</em> and returns three values:
   a dictionary that contains all associations of <em>dict</em> except the chosen one,
-  and the key and the value of the association chosen.
+  the key, and the value of the association chosen.
   If the dictionary is inherently ordered, the first association is chosen;
-  otherwise the chosen association is arbitrary.</p>
+  otherwise, the chosen association is arbitrary.</p>
 <p>If <em>dict</em> contains no associations, it is an error.</p>
 <blockquote><pre>(dict-pop aed dict) =&gt; ; 3 values
   ((3 . 4) (5 . 6))
@@ -344,7 +344,7 @@ one for each of the four procedures:
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns the value of the first call to <em>pred</em> that returns true,
   after which no further calls are made. If the dictionary type is inherently ordered,
-  associations are processed in that order; otherwise in an arbitrary order.
+  associations are processed in that order; otherwise, in an arbitrary order.
   If all calls return false, <code>dict-any</code> returns false.</p>
 <blockquote><pre>(define (both-even? k v) (and (even? k) (even? v)))
 (dict-any aed both-even? &#39;((2 . 4) (3 . 5))) =&gt; #t
@@ -353,7 +353,7 @@ one for each of the four procedures:
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns <code>#f</code> after the first call to <em>pred</em> that returns false,
   after which no further calls are made. If the dictionary type is inherently ordered,
-  associations are processed in that order; otherwise in an arbitrary order.
+  associations are processed in that order; otherwise, in an arbitrary order.
   If all calls return true, <code>dict-any</code> returns the value of the last call,
   or <code>#t</code> if no calls are made.</p>
 <blockquote><pre>(define (some-even? k v) (or (even? k) (even? v)))
@@ -361,7 +361,7 @@ one for each of the four procedures:
 (dict-every aed some-even? &#39;((1 . 3) (3 . 4))) =&gt; #f</pre></blockquote>
 <p><code>(dict-keys</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns a list of the keys of <em>dict</em>. If the dictionary type is inherently ordered,
-  associations appear in that order; otherwise in an arbitrary order.
+  associations appear in that order; otherwise, in an arbitrary order.
   The order may change when new elements are added to <em>dict</em>.</p>
 <blockquote><pre>(dict-keys aed dict) =&gt; (1 3 5)</pre></blockquote>
 <p><code>(dict-values</code>&nbsp;<em>dto dict</em><code>)</code></p>
@@ -402,7 +402,7 @@ one for each of the four procedures:
 <p>Invokes <em>proc</em> on each key of <em>dict</em> and its corresponding value in that order.
   This procedure is used for doing operations on the whole dictionary.
   If the dictionary type is inherently ordered, associations are processed in the order specified
-  by the dictionary's comparator; otherwise they are processed in an arbitrary order.
+  by the dictionary's comparator; otherwise, they are processed in an arbitrary order.
   The <em>start</em> and <em>end</em> arguments specify the inclusive lower bound and exclusive upper bound
   of the keys (in the sense of the dictionary's comparator).
   They can can provide additional efficiency when iterating over part of the dictionary
@@ -412,9 +412,9 @@ one for each of the four procedures:
   ; writes &quot;135&quot; to current output</pre></blockquote>
 <p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158 generator</a>
-  that when invoked returns the associations of <em>dict</em> as pairs.
+  that, when invoked, returns the associations of <em>dict</em> as pairs.
   If the dictionary type is inherently ordered, associations are generated in the order specified
-  by the dictionary's comparator; otherwise they are generated in an arbitrary order.
+  by the dictionary's comparator; otherwise, they are generated in an arbitrary order.
   <p>The <em>start</em> and <em>end</em> arguments specify the inclusive lower bound and exclusive upper bound
   of the keys to be processed (in the sense of the dictionary's comparator).
   They can can provide additional efficiency when iterating over part of the dictionary
@@ -423,7 +423,7 @@ one for each of the four procedures:
   When all the associations have been processed, returns an end-of-file object.</p>
   <p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
 <code>(dict-set!-accumulator</code>&nbsp;<em>dto dict accum</em><code>)</code></p>
-<p>Returns a SRFI 158 accumulator procedure that when invoked on a pair adds the <code>car</code> and <code>cdr</code> of the pair
+<p>Returns a SRFI 158 accumulator procedure that, when invoked on a pair, adds the <code>car</code> and <code>cdr</code> of the pair
   as a key and value of <em>dict</em> as if by <code>dict-set</code>, eventually returning the new value of <em>dict</em>.
   If invoked on an end-of-file object, no action is taken and <em>dict</em> is returned.</p>
 <p>The <code>!</code> variant uses <code>dict-set!</code> instead.
@@ -502,7 +502,7 @@ This allows the ability to call a particular DTO procedure multiple times more e
 If a particular procedure in a DTO cannot be implemented, it instead
 should signal an appropriate dictionary error that can be reliably caught.
 <p><code>(dictionary-error?</code>&nbsp;<em>obj</em><code>)</code></p>
-<p>Returns <code>#t</code> if <em>obj</em> is a dictionary error
+<p>Returns <code>#t</code> if <em>obj</em> is a dictionary error,
 and <code>#f</code> otherwise.
 <p><code>(dictionary-message</code>&nbsp;<em>dictionary-error</em><code>)</code></p>
 <p>Returns the message associated with <em>dictionary-error.</em></p>
