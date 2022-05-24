@@ -42,7 +42,9 @@ None at present.
 
 <p>Until recently there was only one universally available mechanism for managing key-value pairs: alists.
   Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations
-  do not provide that interface.</p>
+  do not provide that interface..p>/p>
+In addition, alists can have multiple entries with the
+same key, which makes them atypical instances of persistent dictionaries.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables,
   there are R7RS persistent inherently ordered and hashed mappings from SRFI 146,
   inherently ordered mappings with fixnum keys from SRFI 224,
@@ -74,7 +76,7 @@ None at present.
   <code>dict-copy</code>, or similar procedures provided by this SRFI.</p>
 <h2 id="specification">Specification</h2>
 <p>We call a specific key-value combination an <em>association</em>.
-  This is why an alist, or association list, is called that; it is a list of associations represented as pairs.</p>
+  (This is why an alist, or association list, is called that; it is a list of associations represented as pairs.)</p>
 <p>A <em>dictionary</em> or <em>dict</em> is a collection of associations which may or may not be inherently ordered by their keys.
   In principle an <em>equality predicate</em> is enough, given a key,
   to determine whether an association with that key exists in the dictionary.
@@ -89,15 +91,6 @@ None at present.
 <blockquote><pre>(dict-delete '((1 . 2) (1 . 3) (2 . 4)) 1) => ((1 . 3) (2 . 4))
 </pre></blockquote>
 <h3 id="alists">Alists</h3>
-<p>Alists are supported as dictionaries, but are given special treatment.
-  New values are added to the beginning of the alist and the new alist is returned.
-  If an association has been updated, then both the new and the old association
-  may be processed by the whole-dictionary procedures.  The examples in this SRFI use alists.</p>
-<p>An alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.
-  Therefore, rather than exporting a single DTO for all alists,
-  this SRFI provides a procedure <code>make-alist-dto</code> that takes an equality predicate
-  and returns a DTO specialized for manipulation of alists using that predicate.
-  For convenience, DTOs for <code>eqv?</code> and <code>equal?</code> are exported.</p>
 <p>Each of the following examples is assumed to be prefixed by the following definitions:</p>
 <blockquote><pre>(define dict (list '(1 . 2) '(3 . 4) '(5 . 6)))
 (define aed alist-eqv-dto)
