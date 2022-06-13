@@ -32,7 +32,6 @@
 
 <p>The procedures of this SRFI allow callers to manipulate an object that maps keys to values
   without the caller needing to know exactly what the type of the object is.
-  However, what procedures can be called on the object is partly determined by whether it is pure.
   Such an object is called a <em>dictionary</em> or <em>dict</em> in this SRFI.
 <h2 id="issues">Issues</h2>
 
@@ -58,22 +57,16 @@ same key, which makes them atypical instances of persistent dictionaries.</p>
 <p>By using the procedures of this SRFI, a procedure can take a DTO and a dictionary as arguments
   and make flexible use of the dictionary without knowing its exact type.
   For the purposes of this SRFI, such a procedure is called a <em>generic procedure</em>.
-  However, it is still necessary to distinguish between pure and impure dictionary types.
-  A pure dictionary type either exposes pure functional update operations or no update operations at all,
-  whereas an impure dictionary type exposes mutation operations.
+<p>However, it is still necessary to distinguish between pure and impure dictionary types.
+A pure dictionary either does not support updates at all,
+or else updates are persistent so that a new dictionary is
+returned by an update that can share storage with the original
+dictionary but is distinct from it.  Impure dictionaries,
+on the other hand, perform updates by mutation.  SRFI 146
+mappings are pure dictionaries; SRFI 125 hash tables are impure.
   Note that if an instance of an impure dictionary type like SRFI 126 is in fact immutable, it still counts as impure.
-The generic predicate <code>dto-pure?</code>
+The generic predicate <code>dict-pure?</code>
 can be used to distinguish the two types.</p>
-<p>Note that there are no generic constructors:
-dictionaries need to be constructed by type-specific procedures.
-Consequently, there are no <code>make-dict</code>,
-<code>dict</code>, or <code>dict-unfold</code> generic procedures.
-It is just as convenient to call <code>make-hash-table</code>,
-for instance, as to call a <code>make-dict</code> procedure
-and pass it <code>hash-table-dto</code> as an argument.
-It is the procedure that constructs a dictionary that knows
-which type of dictionary is needed, rather than the caller
-of that procedure.</p>
 <h3 id="definitions">Definitions</h3>
 <p>We call a specific key-value combination an <em>association</em>.
   (This is why an alist, or association list, is called that; it is a list of associations represented as pairs.)</p>
@@ -106,15 +99,15 @@ Consequently, previous examples don't affect later ones.
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate
   stored in <em>dto</em> and <code>#f</code> otherwise.</p>
 <blockquote><pre>(dictionary? dto dict) =&gt; #t
-(dictionary? dto 35) =&gt; #t</pre></blockquote>
+(dictionary? dto 35) =&gt; #f</pre></blockquote>
 <p><code>(dict-empty?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dict</em> contains no associations and <code>#f</code> if it does contain associations.</p>
 <blockquote><pre>(dict-empty? dto {}) =&gt; #t
 (dict-empty? dto dict) =&gt; #f</pre></blockquote>
 <p><code>(dict-contains?</code>&nbsp;<em>dto dict key</em><code>)</code></p>
+<p>Returns <code>#t</code> if one of the keys of <em>dict</em> is the same as <em>key</em>, and <code>#f</code> otherwise.</p>
 <blockquote><pre>(dict-contains? dto dict 1) =&gt; #t
 (dict-contains? dto dict 2) =&gt; #f</pre></blockquote>
-<p>Returns <code>#t</code> if one of the keys of <em>dict</em> is the same as <em>key</em>, and <code>#f</code> otherwise.</p>
 <p><code>(dict=?</code>&nbsp;<em>dto = dict1 dict2</em><code>)</code></p>
 <p>Returns <code>#t</code> if the keys of <em>dict1</em> and <em>dict2</em> are the same,
   and the corresponding values are the same in the sense of the <em>=</em> argument.</p>
@@ -123,15 +116,9 @@ Consequently, previous examples don't affect later ones.
 (dict=? dto = dict {1:2, 3:5}) => #f</pre></blockquote>
 <p><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dto</em> describes pure dictionaries.
-A pure dictionary either does not support updates at all,
-or else updates are persistent so that a new dictionary is
-returned by an update that can share storage with the original
-dictionary but is distinct from it.  Impure dictionaries,
-on the other hand, perform updates by mutation.  SRFI 146
-mappings are pure dictionaries; SRFI 125 hash tables are impure.
 The <em>dict</em> argument is required for the sake of uniformity
 with other generic procedures, but it can have any value.</p>
-<h3 id="lookup-procedures">Lookup procedures</h3>
+<h3 id="accessors">Accessors</h3>
 <p><code>(dict-ref</code>&nbsp;<em>dto dict key</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, then invokes <em>success</em>
   on the corresponding value and returns its result. If <em>key</em> is not a key of <em>dict</em>,
@@ -146,6 +133,13 @@ with other generic procedures, but it can have any value.</p>
   If not, returns <em>default</em>.</p>
 <blockquote><pre>(dict-ref/default dto dict 1 #f) =&gt; 1
 (dict-ref/default dto dict 1 #f) =&gt; #f</pre></blockquote>
+<p><code>(dict-comparator</code>&nbsp;<em>dto dict</em><code>)</code></p>
+<p>Return a comparator representing the type predicate, equality predicate,
+  ordering predicate, and hash function of <em>dict</em>.
+  The last two may be <code>#f</code> if the comparator
+  does not make use of these functions.</p>
+<p>If no comparator is known or is relevant to the dictionary type,
+returns <code>#f</code>.</p>
 <h3 id="update-procedures">Update procedures</h3>
 <p>Note that the following procedures apply to both pure and impure
 dictionaries (see <code>dict-pure?</code>: the <code>!</code>
@@ -170,8 +164,7 @@ convention is not used in this SRFI.</p>
 <p><code>(dict-delete</code>&nbsp;<em>dto dict key</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   except those whose keys are the same as one of the <em>keys</em>.
-<blockquote><pre>; new values are prepended
-(dict-delete dto dict 1 3) =&gt;
+<blockquote><pre>(dict-delete dto dict 1 3) =&gt;
   {5:6}
 (dict-delete dto dict 5) =&gt;
   {1:2, 3:4}</pre></blockquote>
@@ -229,20 +222,6 @@ Otherwise, returns two values, a dictionary that contains
   {3:4, 5:6}
   1
   2</pre></blockquote>
-<p><code>(dict-map</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
-<p>Returns a dictionary similar to <em>dict</em> that maps each  of <em>dict</em>
-  to the result of applying <em>proc</em> to the key and corresponding value of <em>dict</em>.</p>
-<blockquote><pre>(dict-map (lambda (k v) (cons v k)) dto dict) =&gt;
-   {2:1, 4:3, 6:5}</pre></blockquote>
-<p><code>(dict-filter</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
-<code>(dict-remove</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
-<p>Returns a dictionary similar to <em>dict</em> that contains
-  just the associations of <em>dict</em> that satisfy / do not satisfy <em>pred</em>
-  when it is invoked on the key and value of the association.</p>
-<blockquote><pre>(dict-filter (lambda (k v) (= k 1)) dto dict) =&gt;
-  {1:2}
-(dict-remove (lambda (k) (= k 1)) dto dict) =&gt;
-  {3:4, 5:6}</pre></blockquote>
 <p><code>(dict-find-update</code>&nbsp;<em>dto dict key failure success</em><code>)</code></p>
 <p>This procedure is a workhorse for dictionary lookup, insert, and delete.
   The dictionary <em>dict</em> is searched for an association whose key is the same as <em>key</em>.
@@ -266,6 +245,21 @@ sense of the dictionary’s equality predicate.</p></li>
 <li><p>Invoking <code>(</code><em>delete</em><code>)</code> returns a dictionary that contains all the associations of <em>dict</em>, except for the association with
 key <em>key</em>.
 </ul>
+<h3 id="mapping-and-filtering">Mapping and filtering</h3>
+<p><code>(dict-map</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
+<p>Returns a dictionary similar to <em>dict</em> that maps each  of <em>dict</em>
+  to the result of applying <em>proc</em> to the key and corresponding value of <em>dict</em>.</p>
+<blockquote><pre>(dict-map (lambda (k v) (cons v k)) dto dict) =&gt;
+   {2:1, 4:3, 6:5}</pre></blockquote>
+<p><code>(dict-filter</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
+<code>(dict-remove</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
+<p>Returns a dictionary similar to <em>dict</em> that contains
+  just the associations of <em>dict</em> that satisfy / do not satisfy <em>pred</em>
+  when it is invoked on the key and value of the association.</p>
+<blockquote><pre>(dict-filter (lambda (k v) (= k 1)) dto dict) =&gt;
+  {1:2}
+(dict-remove (lambda (k) (= k 1)) dto dict) =&gt;
+  {3:4, 5:6}</pre></blockquote>
 <h3 id="the-whole-dictionary">The whole dictionary</h3>
 <p><code>(dict-size</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns an exact integer representing the number of associations in <em>dict</em>.</p>
@@ -303,8 +297,7 @@ key <em>key</em>.
   The results returned by <code>dict-keys</code> and <code>dict-values</code> are not necessarily ordered consistently.</p>
 <blockquote><pre>(dict-values dto dict) =&gt; (2 4 6)</pre></blockquote>
 <p><code>(dict-entries</code>&nbsp;<em>dto dict</em><code>)</code></p>
-<p>Returns two list values, the result of calling <code>dict-keys</code>
-  and the result of mapping <code>proc</code> over the first list.</p>
+<p>Returns two list values, the keys and the corresponding values.</p>
 <blockquote><pre>(dict-entries dto dict) =&gt; ; 2 values
   (1 3 5)
   (2 4 6)</pre></blockquote>
@@ -330,11 +323,6 @@ key <em>key</em>.
 (dict-&gt;alist dto dict) =&gt;
   {1:2, 3:4, 5:6}
 </pre></blockquote>
-<p><code>(dict-comparator</code>&nbsp;<em>dto dict</em><code>)</code></p>
-<p>Return a comparator representing the type predicate, equality predicate,
-  ordering predicate, and hash function of <em>dict</em>.
-  The last two may be <code>#f</code> if the dictionary does not make use of these functions.</p>
-<p>If no comparator is relevant to the dictionary type, returns <code>#f</code>.</p>
 <h3 id="iteration">Iteration</h3>
   <p><code>(dict-for-each</code>&nbsp;<em>dto proc dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Invokes <em>proc</em> on each key of <em>dict</em> and its corresponding value in that order.
@@ -359,20 +347,19 @@ key <em>key</em>.
   if the dictionary is ordered.</p>
   <p>It is an error to mutate <em>dict</em> until after the generator is exhausted.
   When all the associations have been processed, returns an end-of-file object.</p>
-  <p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
-<code>(dict-set!-accumulator</code>&nbsp;<em>dto dict accum</em><code>)</code></p>
+  <p><code>(dict-set-accumulator</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns a SRFI 158 accumulator procedure that, when invoked on a pair, adds the <code>car</code> and <code>cdr</code> of the pair
   as a key and value of <em>dict</em> as if by <code>dict-set</code>, eventually returning the new value of <em>dict</em>.
   If invoked on an end-of-file object, no action is taken and <em>dict</em> is returned.</p>
-<p>The <code>!</code> variant uses <code>dict-set!</code> instead.
-<p><code>(dict-adjoin-accumulator</code>&nbsp;<em>dto dict</em><code>)</code><br>
-<code>(dict-adjoin!-accumulator!</code>&nbsp;<em>dto dict</em><code>)</code></p>
-<p>The same as <code>dict-set(!)-accumulator</code>, except using <code>dict-adjoin(!)</code>. </p>
+<p><code>(dict-adjoin-accumulator</code>&nbsp;<em>dto dict</em><code>)</code></p>
+<p>The same as <code>dict-set(!)-accumulator</code>, except using <code>dict-adjoin</code>. </p>
 <h3 id="dictionary-type-object-procedures">Dictionary type object procedures (non-generic)</h3>
 <p><code>(dto?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTO, and <code>#f</code> otherwise.</p>
-<p><code>(make-dto</code>&nbsp;<em>arg</em> …<code>)</code><br>
-<p>The following proc-id variables (and corresponding primitive procedures) need to be provided
+<p><code>(make-dto</code>&nbsp;<em>arg</em> …<code>)</code></p>
+<p>The <em>args</em> alternate between the values of exported proc-id variables and corresponding
+procedures.  The following proc-id variables need to be provided
+  in each call to <code>make-dto</code>
   in order for the DTO to support the full set of dictionary procedures:</p>
 <ul>
 <li><code>dictionary?-id</code></li>
@@ -384,7 +371,8 @@ key <em>key</em>.
 <li><code>dict-size-id</code></li>
 </ul>
 <p>Note that if any of these are not provided, an implementation-defined set
-  of generic procedures will generate errors if invoked.</p>
+  of generic procedures will signal an error satisfying
+  <code>dictionary-error?</code> if invoked.</p>
 <p>There are additional proc-id variables that may be provided with corresponding procedures
   in order to increase efficiency.
   For example, it is not necessary to provide a <code>dict-ref</code> procedure,
