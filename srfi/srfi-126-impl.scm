@@ -23,50 +23,60 @@
              #t
              (begin
                (t126-hashtable-set! table (car obj) (cadr obj))
-               (loop (cddr obj))))))
+               (loop (cddr obj)))))
+      table)
 
     (define (t126-hashtable-delete-all* dto table keys)
       (for-each
           (lambda (key)
             (t126-hashtable-delete! table key))
-          keys))
+          keys)
+      table)
 
     (define (t126-hashtable-intern* dto table key default)
-      (t126-hashtable-intern! table key default))
+      (values table (t126-hashtable-intern! table key default)))
 
     (define (t126-hashtable-update/default* dto table key updater default)
-      (t126-hashtable-update! table key updater default))
+      (t126-hashtable-update! table key updater default)
+      table)
 
     (define (t126-hashtable-pop* dto table)
       (if (t126-hashtable-empty? table)
           (error "popped empty dictionary")
-          (t126-hashtable-pop! table)))
+          (call-with-values (lambda () (t126-hashtable-pop! table))
+                            (lambda (key value) (values table key value)))))
 
     (define (t126-hashtable-update-all* dto proc table)
-      (t126-hashtable-update-all! table proc))
+      (t126-hashtable-update-all! table proc)
+      table)
 
     (define (t126-hashtable-filter* dto proc table)
       (t126-hashtable-prune! table
                                (lambda (key value)
-                                 (not (proc key value)))))
+                                 (not (proc key value))))
+      table)
 
     (define (t126-hashtable-remove* dto proc table)
-      (t126-hashtable-prune! table proc))
+      (t126-hashtable-prune! table proc)
+      table)
 
     (define (t126-hashtable-find-update* dto table key fail success)
       (define (handle-success value)
         (define (update new-key new-value)
           (unless (eq? new-key key)
               (t126-hashtable-delete! table key))
-            (t126-hashtable-set! table new-key new-value))
+          (t126-hashtable-set! table new-key new-value)
+          table)
         (define (remove)
-          (t126-hashtable-delete! table key))
+          (t126-hashtable-delete! table key)
+          table)
         (success key value update remove))
       (define (handle-fail)
         (define (ignore)
           table)
         (define (insert value)
-          (t126-hashtable-set! table key value))
+          (t126-hashtable-set! table key value)
+          table)
         (fail insert ignore))
 
       (define default (cons #f #f))

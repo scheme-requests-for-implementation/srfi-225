@@ -21,7 +21,8 @@
             table
             (begin
               (t69-hash-table-set! table (car obj) (cadr obj))
-              (loop (cddr obj))))))
+              (loop (cddr obj)))))
+      table)
 
     (define (t69-hash-table-update!/default* dto table key proc default)
       (t69-hash-table-update!/default table key proc default)
