@@ -41,7 +41,7 @@ None at present.
 
 <p>Until recently, there was only one universally available mechanism for managing key-value pairs: alists.
   Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations
-  do not provide that interface..p>/p>
+  do not provide that interface.</p>
 In addition, alists can have multiple entries with the
 same key, which makes them atypical instances of persistent dictionaries.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables,
@@ -67,6 +67,13 @@ mappings are pure dictionaries; SRFI 125 hash tables are impure.
   Note that if an instance of an impure dictionary type like SRFI 126 is in fact immutable, it still counts as impure.
 The generic predicate <code>dict-pure?</code>
 can be used to distinguish the two types.</p>
+<p>In addition, dictionaries need to be constructed using type-specific constructors,
+  as the performance characteristics differ in each case.
+  In addition, in cases where the dictionary has persistent storage of some type
+  there is generally some ancillary information required such as a file name or
+  DBMS table name needed.
+  Consequently there are no <code>make-dict</code>, <code>dict</code>, <code>dict-unfold</code>,
+  <code>dict-copy</code>, or similar procedures provided by this SRFI.</p>
 <h3 id="definitions">Definitions</h3>
 <p>We call a specific key-value combination an <em>association</em>.
   (This is why an alist, or association list, is called that; it is a list of associations represented as pairs.)</p>
@@ -138,7 +145,7 @@ with other generic procedures, but it can have any value.</p>
   ordering predicate, and hash function of <em>dict</em>.
   The last two may be <code>#f</code> if the comparator
   does not make use of these functions.</p>
-<p>If no comparator is known or is relevant to the dictionary type,
+<p>If the comparator is unavailable or is irrelevant to the dictionary type,
 returns <code>#f</code>.</p>
 <h3 id="update-procedures">Update procedures</h3>
 <p>Note that the following procedures apply to both pure and impure
@@ -357,8 +364,12 @@ key <em>key</em>.
 <p><code>(dto?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTO, and <code>#f</code> otherwise.</p>
 <p><code>(make-dto</code>&nbsp;<em>arg</em> …<code>)</code></p>
-<p>The <em>args</em> alternate between the values of exported proc-id variables and corresponding
-procedures.  The following proc-id variables need to be provided
+<p>Returns a new DTO providing procedures that allow manipulation of dictionaries of a new type.
+  The <em>args</em> are alternately <em>proc-ids</em> and corresponding <em>procs</em>.</p>
+<p>A <em>proc-id</em> argument is the value of a variable whose name is the same as a procedure
+  suffixed with <code>-id</code>,
+  and a <em>proc</em> argument is the specific procedure implementing it for this type.
+The following proc-id variables and associated procedures need to be provided
   in each call to <code>make-dto</code>
   in order for the DTO to support the full set of dictionary procedures:</p>
 <ul>
