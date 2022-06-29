@@ -328,7 +328,7 @@ key <em>key</em>.
 <p>Returns an alist whose keys and values are the keys and values of <em>dict</em>.</p>
 <blockquote><pre>
 (dict-&gt;alist dto dict) =&gt;
-  {1:2, 3:4, 5:6}
+  ((1 . 2) (3 . 4) (5 . 6))
 </pre></blockquote>
 <h3 id="iteration">Iteration</h3>
   <p><code>(dict-for-each</code>&nbsp;<em>dto proc dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
@@ -359,7 +359,7 @@ key <em>key</em>.
   as a key and value of <em>dict</em> as if by <code>dict-set</code>, eventually returning the new value of <em>dict</em>.
   If invoked on an end-of-file object, no action is taken and <em>dict</em> is returned.</p>
 <p><code>(dict-adjoin-accumulator</code>&nbsp;<em>dto dict</em><code>)</code></p>
-<p>The same as <code>dict-set(!)-accumulator</code>, except using <code>dict-adjoin</code>. </p>
+<p>The same as <code>dict-set-accumulator</code>, except using <code>dict-adjoin</code>. </p>
 <h3 id="dictionary-type-object-procedures">Dictionary type object procedures (non-generic)</h3>
 <p><code>(dto?</code>&nbsp;<em>obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> is a DTO, and <code>#f</code> otherwise.</p>
@@ -532,7 +532,7 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dd>dict-fold</dd>
 
     <dt>dict-for-each</dt>
-    <dd>dict-map or dict-map!</dd>
+    <dd>dict-map</dd>
 
     <dt>dict-&gt;generator</dt>
     <dd>dict-for-each</dd>
@@ -540,15 +540,8 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dt>dict-set-accumulator</dt>
     <dd>dict-set</dd>
 
-    <dt>dict-set!-accumulator</dt>
-    <dd>dict-set!</dd>
-
     <dt>dict-adjoin-accumulator</dt>
     <dd>dict-set</dd>
-
-    <dt>dict-adjoin!-accumulator</dt>
-    <dd>dict-adjoin!</dd>
-
 </dl>
 </code>
 

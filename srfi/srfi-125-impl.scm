@@ -5,27 +5,32 @@
      #f)
 
     (define (t125-hash-table-set* dto table . obj)
-      (apply t125-hash-table-set! (cons table obj)))
+      (apply t125-hash-table-set! (cons table obj))
+      table)
 
     (define (t125-hash-table-update* dto table key updater fail success)
-      (t125-hash-table-update! table key updater fail success))
+      (t125-hash-table-update! table key updater fail success)
+      table)
 
     (define (t125-hash-table-update/default* dto table key proc default)
-      (t125-hash-table-update!/default table key proc default))
+      (t125-hash-table-update!/default table key proc default)
+      table)
 
     (define (t125-hash-table-intern* dto table key failure)
-      (t125-hash-table-intern! table key failure))
+      (values table (t125-hash-table-intern! table key failure)))
 
     (define (t125-hash-table-pop* dto table)
       (if (t125-hash-table-empty? table)
           (error "popped empty dictionary")
-          (t125-hash-table-pop! table)))
+          (call-with-values (lambda () (t125-hash-table-pop! table))
+                            (lambda (key value) (values table key value)))))
 
     (define (t125-hash-table-delete-all* dto table keys)
       (for-each
           (lambda (key)
             (t125-hash-table-delete! table key))
-          keys))
+          keys)
+      table)
 
     (define (t125-hash-table-map* dto proc table)
       (t125-hash-table-map! proc table))
@@ -34,10 +39,12 @@
       (t125-hash-table-prune!
           (lambda (key value)
             (not (proc key value)))
-          table))
+          table)
+      table)
 
     (define (t125-hash-table-remove* dto proc table)
-      (t125-hash-table-prune! proc table))
+      (t125-hash-table-prune! proc table)
+      table)
 
     (define (t125-hash-table-find-update* dto table key fail success)
       ;; instead of running immediately,
@@ -47,19 +54,21 @@
         (define (update new-key new-value)
           (unless (eq? new-key key)
             (t125-hash-table-delete! table key))
-          (t125-hash-table-set! table new-key new-value))
+          (t125-hash-table-set! table new-key new-value)
+          table)
         (define (remove)
-          (t125-hash-table-delete! table key))
+          (t125-hash-table-delete! table key)
+          table)
         (lambda ()
           (success key value update remove) ))
       (define (make-failure-thunk)
         (define (ignore)
           table)
         (define (insert value)
-          (t125-hash-table-set! table key value))
+          (t125-hash-table-set! table key value)
+          table)
         (lambda ()
           (fail insert ignore)))
-
       (define thunk (t125-hash-table-ref table key make-failure-thunk make-success-thunk))
       (thunk))
 
