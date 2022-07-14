@@ -23,34 +23,22 @@
     ;; lookup
     dict-ref
     dict-ref/default
+    dict-comparator
 
     ;; mutation
     dict-set
-    dict-set!
     dict-adjoin
-    dict-adjoin!
     dict-delete
-    dict-delete!
     dict-delete-all
-    dict-delete-all!
     dict-replace
-    dict-replace!
     dict-intern
-    dict-intern!
     dict-update
-    dict-update!
     dict-update/default
-    dict-update/default!
     dict-pop
-    dict-pop!
     dict-map
-    dict-map!
     dict-filter
-    dict-filter!
     dict-remove
-    dict-remove!
     dict-find-update
-    dict-find-update!
 
     ;; whole dictionary
     dict-size
@@ -63,20 +51,16 @@
     dict-fold
     dict-map->list
     dict->alist
-    dict-comparator
 
     ;; iteration
     dict-for-each
     dict->generator
     dict-set-accumulator
-    dict-set!-accumulator
     dict-adjoin-accumulator
-    dict-adjoin!-accumulator
 
     ;; dictionary type descriptors
     dto?
     make-dto
-    make-alist-dto
     dto-ref
 
     ;; exceptions
@@ -126,17 +110,12 @@
     dict-update/default-id
     dict-values-id
     dict=?-id
-    dict->generator-id
-
-    ;; basic DTOs
-    alist-eqv-dto
-    alist-equal-dto)
+    dict->generator-id)
 
     ;; implementations
     (include "indexes.scm")
     (include "externals.scm")
     (include "default-impl.scm")
-    (include "alist-impl.scm")
 
     ;; library-dependent DTO exports
     ;; and implementations

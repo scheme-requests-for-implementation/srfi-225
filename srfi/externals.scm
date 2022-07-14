@@ -26,38 +26,6 @@
        (assume (dto? dto))
        (apply (dto-ref-stx dto index) dto args)))))
 
-;; define mutable and immutable versions of a procedure (such as dict-set! and dict-set)
-;; with appropriate assertion for dict-mutable? value
-;; when dto is first arg, and dict is second arg
-(define-syntax define/dict-proc-pair
-  (syntax-rules ()
-    ((_ proc-immutable proc-mutable index)
-     (begin
-       (define (proc-mutable dto dict . args)
-         (assume (dto? dto))
-         (assume (not ((dto-ref-stx dto dict-pure?-id) dto dict)) index)
-         (apply (dto-ref-stx dto index) dto dict args))
-       (define (proc-immutable dto dict . args)
-         (assume (dto? dto))
-         (assume ((dto-ref-stx dto dict-pure?-id) dto dict) index)
-         (apply (dto-ref-stx dto index) dto dict args))))))
-
-;; define mutable and immutable versions of a procedure (such as dict-set! and dict-set)
-;; with appropriate assertion for dict-mutable? value
-;; when dto is first arg, and dict is third arg (ie filter, map shape signature)
-(define-syntax define/dict-proc-pair*
-  (syntax-rules ()
-    ((_ proc-immutable proc-mutable index)
-     (begin
-       (define (proc-mutable dto proc dict)
-         (assume (dto? dto))
-         (assume (not ((dto-ref-stx dto dict-pure?-id) dto dict)) index)
-         ((dto-ref-stx dto index) dto proc dict))
-       (define (proc-immutable dto proc dict)
-         (assume (dto? dto))
-         (assume ((dto-ref-stx dto dict-pure?-id) dto dict) index)
-         ((dto-ref-stx dto index) dto proc dict))))))
-
 (define/dict-proc dictionary? dictionary?-id)
 (define/dict-proc dict-empty? dict-empty?-id)
 (define/dict-proc dict-contains? dict-contains?-id)
@@ -79,12 +47,12 @@
      ((dto-ref-stx dto dict-ref-id) dto dict key failure success))))
 
 (define/dict-proc dict-ref/default dict-ref/default-id)
-(define/dict-proc-pair dict-set dict-set! dict-set-id)
-(define/dict-proc-pair dict-adjoin dict-adjoin! dict-adjoin-id)
-(define/dict-proc-pair dict-delete dict-delete! dict-delete-id)
-(define/dict-proc-pair dict-delete-all dict-delete-all! dict-delete-all-id)
-(define/dict-proc-pair dict-replace dict-replace! dict-replace-id)
-(define/dict-proc-pair dict-intern dict-intern! dict-intern-id)
+(define/dict-proc dict-set dict-set-id)
+(define/dict-proc dict-adjoin dict-adjoin-id)
+(define/dict-proc dict-delete dict-delete-id)
+(define/dict-proc dict-delete-all dict-delete-all-id)
+(define/dict-proc dict-replace dict-replace-id)
+(define/dict-proc dict-intern dict-intern-id)
 
 (define dict-update
   (case-lambda
@@ -98,30 +66,14 @@
 
     ((dto dict key updater failure success)
      (assume (dto? dto))
-     (assume ((dto-ref-stx dto dict-pure?-id) dto dict))
      ((dto-ref-stx dto dict-update-id) dto dict key updater failure success))))
 
-(define dict-update!
-  (case-lambda
-    ((dto dict key updater)
-     (dict-update dto dict key updater
-                  (lambda () (error "Key not found in dictionary" dict key))
-                  values))
-
-    ((dto dict key updater failure)
-     (dict-update dto dict key  updater failure values))
-
-    ((dto dict key updater failure success)
-     (assume (dto? dto))
-     (assume (not ((dto-ref-stx dto dict-pure?-id) dto dict)))
-     ((dto-ref-stx dto dict-update-id) dto dict key updater failure success))))
-
-(define/dict-proc-pair dict-update/default dict-update/default! dict-update/default-id)
-(define/dict-proc-pair dict-pop dict-pop! dict-pop-id)
-(define/dict-proc-pair* dict-map dict-map! dict-map-id)
-(define/dict-proc-pair* dict-filter dict-filter! dict-filter-id)
-(define/dict-proc-pair* dict-remove dict-remove! dict-remove-id)
-(define/dict-proc-pair dict-find-update dict-find-update! dict-find-update-id)
+(define/dict-proc dict-update/default dict-update/default-id)
+(define/dict-proc dict-pop dict-pop-id)
+(define/dict-proc dict-map dict-map-id)
+(define/dict-proc dict-filter dict-filter-id)
+(define/dict-proc dict-remove dict-remove-id)
+(define/dict-proc dict-find-update dict-find-update-id)
 (define/dict-proc dict-size dict-size-id)
 (define/dict-proc dict-count dict-count-id)
 (define/dict-proc dict-any dict-any-id)
@@ -146,8 +98,8 @@
     ((dto dict start) (dict->generator dto dict start #f))
     ((dto dict start end) ((dto-ref-stx dto dict->generator-id) dto dict start end))))
 
-(define/dict-proc-pair dict-set-accumulator dict-set!-accumulator dict-set-accumulator-id)
-(define/dict-proc-pair dict-adjoin-accumulator dict-adjoin!-accumulator dict-adjoin-accumulator-id)
+(define/dict-proc dict-set-accumulator dict-set-accumulator-id)
+(define/dict-proc dict-adjoin-accumulator dict-adjoin-accumulator-id)
 
 (define (dto-ref dto procindex)
   (dto-ref-stx dto procindex))

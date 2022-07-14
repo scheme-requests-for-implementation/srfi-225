@@ -13,46 +13,6 @@
     (define default-dict-size (not-implemented "dict-size"))
     (define default-dict-find-update (not-implemented "dict-find-update"))
 
-    (define (dict-find-update* dto dict key fail success)
-      (if (dict-pure? dto dict)
-          (dict-find-update dto dict key fail success)
-          (dict-find-update! dto dict key fail success)))
-    
-    (define (dict-find-update*/dict dto dict key fail success)
-      (if (dict-pure? dto dict)
-          (dict-find-update dto dict key fail success)
-          (begin
-            (dict-find-update! dto dict key fail success)
-            dict)))
-
-    (define (dict-delete-all* dto dict keys)
-      (if (dict-pure? dto dict)
-          (dict-delete-all dto dict keys)
-          (begin
-            (dict-delete-all! dto dict keys)
-            dict)))
-
-    (define (dict-update* dto dict key updater fail success)
-      (if (dict-pure? dto dict)
-          (dict-update dto dict key updater fail success)
-          (begin
-            (dict-update! dto dict key updater fail success)
-            dict)))
-
-    (define (dict-filter* dto pred dictionary)
-      (if (dict-pure? dto dictionary)
-          (dict-filter dto pred dictionary)
-          (begin
-            (dict-filter! dto pred dictionary)
-            dictionary)))
-
-    (define (dict-replace* dto dict key val)
-      (if (dict-pure? dto dict)
-          (dict-replace dto dict key val)
-          (begin
-            (dict-replace! dto dict key val)
-            dict)))
-
     (define (default-dict-empty? dto dictionary)
       (= 0 (dict-size dto dictionary)))
 
@@ -78,7 +38,7 @@
                 (lambda (x) #t)))
 
     (define (default-dict-ref dto dictionary key failure success)
-      (dict-find-update* dto dictionary key
+      (dict-find-update dto dictionary key
                      (lambda (insert ignore)
                        (failure))
                      (lambda (key value update remove)
@@ -100,7 +60,7 @@
           (error "mismatch of key / values argument list" objs))
          (else (let* ((key (car objs))
                       (value (cadr objs))
-                      (new-d (dict-find-update*/dict dto dictionary key
+                      (new-d (dict-find-update dto dictionary key
                                          (lambda (insert ignore)
                                            (insert value))
                                          (lambda (key old-value update delete)
@@ -115,7 +75,7 @@
       (default-dict-set* dto dictionary #t objs))
 
     (define (default-dict-delete dto dictionary . keys)
-      (dict-delete-all* dto dictionary keys))
+      (dict-delete-all dto dictionary keys))
 
     (define (default-dict-delete-all dto dictionary keylist)
       (let loop ((keylist keylist)
@@ -123,7 +83,7 @@
         (cond
           ((null? keylist) d)
           (else (let* ((key (car keylist))
-                       (new-d (dict-find-update*/dict dto d key
+                       (new-d (dict-find-update dto d key
                                           (lambda (_ ignore)
                                             (ignore))
                                           (lambda (key old-value _ delete)
@@ -132,36 +92,29 @@
                         new-d))))))
 
     (define (default-dict-replace dto dictionary key value)
-      (dict-find-update* dto dictionary key
+      (dict-find-update dto dictionary key
                   (lambda (_ ignore)
                     (ignore))
                   (lambda (key old-value update _)
                     (update key value))))
 
     (define (default-dict-intern dto dictionary key failure)
-      (define pure (dict-pure? dto dictionary))
-      (dict-find-update* dto dictionary key
+      (dict-find-update dto dictionary key
                   (lambda (insert _)
                     (let ((value (failure)))
-                     (if pure
-                         (values (insert value) value)   
-                         (begin
-                           (insert value)
-                           value))))
+                     (values (insert value) value)))
                   (lambda (key value update _)
-                    (if pure
-                        (values dictionary value)
-                        value))))
+                    (values dictionary value))))
 
     (define (default-dict-update dto dictionary key updater failure success)
-      (dict-find-update* dto dictionary key
+      (dict-find-update dto dictionary key
                   (lambda (insert ignore)
                     (insert (updater (failure))))
                   (lambda (key value update _)
                     (update key (updater (success value))))))
 
     (define (default-dict-update/default dto dictionary key updater default)
-      (dict-update* dto dictionary key updater
+      (dict-update dto dictionary key updater
                     (lambda () default)
                     (lambda (x) x)))
 
@@ -172,10 +125,8 @@
            (dict-for-each dto
                           (lambda (key value)
                             (define new-dict
-                              (dict-delete-all* dto dictionary (list key)))
-                            (if (dict-pure? dto dictionary)
-                                (cont new-dict key value)   
-                                (cont key value)))
+                              (dict-delete-all dto dictionary (list key)))
+                            (cont new-dict key value))
                           dictionary))))
       (define empty? (dict-empty? dto dictionary))
       (if empty?
@@ -191,10 +142,10 @@
          (lambda (key)
            (not (pred key (dict-ref dto dictionary key))))
          keys))
-      (dict-delete-all* dto dictionary keys-to-delete))
+      (dict-delete-all dto dictionary keys-to-delete))
 
     (define (default-dict-remove dto pred dictionary)
-      (dict-filter* dto (lambda (key value)
+      (dict-filter dto (lambda (key value)
                           (not (pred key value)))
                     dictionary))
 
@@ -295,12 +246,8 @@
             any))
       (define (accept el)
         (and (upper el) (lower el)))
-      (define map-proc
-        (if (dict-pure? dto dict)
-            dict-map
-            dict-map!))
       
-      (map-proc 
+      (dict-map 
         dto
         (lambda (key value)
           (when (accept key)
@@ -370,23 +317,16 @@
         (call/cc get-next-value)))
 
     (define (default-dict-accumulator dto dict acc-proc)
-      (define pure (dict-pure? dto dict))
       (lambda (arg)
         (if (eof-object? arg)
             dict
-            (if pure
-                (set! dict (acc-proc dto dict (car arg) (cdr arg)))   
-                (acc-proc dto dict (car arg) (cdr arg))))))
+            (set! dict (acc-proc dto dict (car arg) (cdr arg))))))
 
     (define (default-dict-set-accumulator dto dict)
-      (if (dict-pure? dto dict)
-          (default-dict-accumulator dto dict dict-set)
-          (default-dict-accumulator dto dict dict-set!)))
+      (default-dict-accumulator dto dict dict-set))
 
     (define (default-dict-adjoin-accumulator dto dict)
-      (if (dict-pure? dto dict)
-          (default-dict-accumulator dto dict dict-adjoin)
-          (default-dict-accumulator dto dict dict-adjoin!)))
+      (default-dict-accumulator dto dict dict-adjoin))
 
     (let ()
       (define null-dto (make-dto-private (make-vector dict-procedures-count #f)))
