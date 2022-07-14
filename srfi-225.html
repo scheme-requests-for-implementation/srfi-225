@@ -74,6 +74,14 @@ can be used to distinguish the two types.</p>
   DBMS table name needed.
   Consequently there are no <code>make-dict</code>, <code>dict</code>, <code>dict-unfold</code>,
   <code>dict-copy</code>, or similar procedures provided by this SRFI.</p>
+<p>Each of the following examples is assumed to be prefixed by the following definitions:</p>
+<blockquote><pre>(define dict '((1 . 2) (3 . 4) (5 . 6)))
+(define aed eqv-alist-dto)
+</pre></blockquote>
+Consequently, previous examples don't affect later ones.
+<p>The <em>dto</em> argument is not discussed in the individual procedure descriptions below,
+  but it is an error if invoking <code>dictionary?</code> on <em>dto</em> and <em>dict</em> would return <code>#f</code>.
+  The <code>dictionary?</code> generic procedure itself is an exception to this.</p>
 <h3 id="definitions">Definitions</h3>
 <p>We call a specific key-value combination an <em>association</em>.
   (This is why an alist, or association list, is called that; it is a list of associations represented as pairs.)</p>
@@ -85,22 +93,14 @@ can be used to distinguish the two types.</p>
   it means that they are the same in the sense of the dictionary’s implicit or explicit equality predicate.
   Two dictionaries are <em>similar</em> if they have the same DTO
   and have the same equality predicate and the same ordering predicate and/or hash function.</p>
-<h3 id="notations">Notations</h3>
-<p>JSON notation is used in this SRFI to represent a dictionary of an unspecified
-type: thus <code>{1:2, 3:4, 5:6}</code> represents a dictionary with
-three associations.
-However, the appearance of JSON notation in the examples of this SRFI
-is purely conventional and does not mean that it can be used in actual code
-to represent a dictionary.</p>
-
-<p>Each of the following examples is assumed to be prefixed by the following definitions:</p>
-<blockquote><pre>(define dict {1:2, 3:4, 5:6})
-(define dto &lt;a DTO referring to <em>dict</em>&gt;)
-</pre></blockquote>
-Consequently, previous examples don't affect later ones.
-<p>The <em>dto</em> argument is not discussed in the individual procedure descriptions below,
-  but it is an error if invoking <code>dictionary?</code> on <em>dto</em> and <em>dict</em> would return <code>#f</code>.
-  The <code>dictionary?</code> generic procedure itself is an exception to this.</p>
+<h3 id="alists">Alists</h3>
+<p>Alists are supported as dictionaries, but are given special treatment.  Associations with new keys are added to the beginning of the alist and the new alist is returned.  The examples in this SRFI use alists.
+Alists are treated as pure, but copying is done as necessary to guarantee
+that no two associations in an alist constructed by the procedures
+in this SRFI have the same key.  However, an alist constructed by other means
+may have duplicate keys, in which case the first occurrence of the key
+is the relevant one.</p>
+<p>An alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTO for all alists, this SRFI provides a procedure <code>make-alist-dto</code> that takes an equality predicate and returns a DTO specialized for manipulation of alists using that predicate.  For convenience, DTOs for <code>eqv?</code> and <code>equal?</code> are exported.</p>
 <h3 id="predicates">Predicates</h3>
 <p><code>(dictionary?</code>&nbsp;<em>dto obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate
@@ -109,7 +109,7 @@ Consequently, previous examples don't affect later ones.
 (dictionary? dto 35) =&gt; #f</pre></blockquote>
 <p><code>(dict-empty?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dict</em> contains no associations and <code>#f</code> if it does contain associations.</p>
-<blockquote><pre>(dict-empty? dto {}) =&gt; #t
+<blockquote><pre>(dict-empty? dto ()) =&gt; #t
 (dict-empty? dto dict) =&gt; #f</pre></blockquote>
 <p><code>(dict-contains?</code>&nbsp;<em>dto dict key</em><code>)</code></p>
 <p>Returns <code>#t</code> if one of the keys of <em>dict</em> is the same as <em>key</em>, and <code>#f</code> otherwise.</p>
@@ -119,8 +119,8 @@ Consequently, previous examples don't affect later ones.
 <p>Returns <code>#t</code> if the keys of <em>dict1</em> and <em>dict2</em> are the same,
   and the corresponding values are the same in the sense of the <em>=</em> argument.</p>
 <blockquote><pre>
-(dict=? dto = dict {5:6, 3:4, 1:2})> #t
-(dict=? dto = dict {1:2, 3:5}) => #f</pre></blockquote>
+(dict=? dto = dict ((5 . 6) (3 . 4) (1 . 2)))> #t
+(dict=? dto = dict ((1 . 2) (3 . 5))) => #f</pre></blockquote>
 <p><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dto</em> describes pure dictionaries.
 The <em>dict</em> argument is required for the sake of uniformity
@@ -157,27 +157,27 @@ convention is not used in this SRFI.</p>
   plus those specified by <em>objs</em>, which alternate between keys and values.
   If a key to be added already exists in <em>dict</em>, the new value prevails.</p>
 <blockquote><pre> (dict-set dto dict 7 8) =&gt;
-   {1:2, 3:4, 5:6, 7:8})
+   ((1 . 2) (3 . 4) (5 . 6) (7 . 8)))
 (dict-set dto dict 3 5) =&gt;
-   {1:2, 3:5, 5:6})</pre></blockquote>
+   ((1 . 2) (3 . 5) (5 . 6)))</pre></blockquote>
 <p><code>(dict-adjoin</code>&nbsp;<em>dto dict obj</em> ...<code>)</code><br>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   plus those specified by <em>objs</em>, which alternate between keys and values.
   If a key to be added already exists in <em>dict</em>, the old value prevails.</p>
 <blockquote><pre> (dict-adjoin dto dict 7 8) =&gt;
-  {1:2, 3:4, 5:6, 7:8}
+  ((1 . 2) (3 . 4) (5 . 6) (7 . 8))
 (dict-adjoin dto dict 3 5) =&gt;
-  {1:2, 3:4, 5:6}</pre></blockquote>
+  ((1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
 <p><code>(dict-delete</code>&nbsp;<em>dto dict key</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   except those whose keys are the same as one of the <em>keys</em>.
 <blockquote><pre>(dict-delete dto dict 1 3) =&gt;
-  {5:6}
+  ((5 . 6))
 (dict-delete dto dict 5) =&gt;
-  {1:2, 3:4}</pre></blockquote>
+  ((1 . 2) (3 . 4))</pre></blockquote>
 <p><code>(dict-delete-all</code>&nbsp;<em>dto dict keylist</em><code>)</code></p>
 <p>The same as <code>dict-delete</code>, except that the keys to be deleted are in the list <em>keylist</em>.</p>
-<blockquote><pre>(dict-delete-all dto dict '(1 3)) =&gt; {5:6}</pre></blockquote>
+<blockquote><pre>(dict-delete-all dto dict '(1 3)) =&gt; ((5 . 6))</pre></blockquote>
 <p><code>(dict-replace</code>&nbsp;<em>dto dict key value</em><code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> except as follows:
 If <em>key</em> is the same as a key of <em>dict</em>,
@@ -185,7 +185,7 @@ If <em>key</em> is the same as a key of <em>dict</em>,
   defined by the pair <em>key</em> and <em>value</em>.
 If there is no such key in <em>dict</em>, then dictionary is returned unchanged.</p>
 <blockquote><pre>(dict-replace dto dict 1 3) =&gt;
-  {1:3, 3:4, 5:6}} </pre></blockquote>
+  ((1 . 3) (3 . 4) (5 . 6))) </pre></blockquote>
 <p><code>(dict-intern</code>&nbsp;<em>dto dict key failure</em>)</p>
 <p>If there is a key in <em>dict</em> that is the same as <em>key</em>, returns two values,
   <em>dict</em> and the value associated with <em>key</em>.
@@ -193,16 +193,16 @@ Otherwise, returns two values, a dictionary that contains
   all the associations of <em>dict</em> and in addition a new association that maps <em>key</em>
   to the result of invoking <em>failure</em>, and the result of invoking <em>failure</em>.<br>
 <blockquote><pre>(dict-intern dto dict 1 (lambda () #f)) =&gt; ; 2 values
-  {1:2, 3:4, 5:6}
+  ((1 . 2) (3 . 4) (5 . 6))
   2
-(dict-intern dto dict 2 (lambda () 10)) =&gt; ; 2 values
-  {1:2, 2:10, 3:4, 5:6}
+(dict-intern dto dict 2 (lambda () 0)) =&gt; ; 2 values
+  ((1 . 2) (2 . 0) (3 . 4) (5 . 6))
   #f</pre></blockquote>
 <p><code>(dict-update</code>&nbsp;<em>dto dict key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
 <blockquote><pre>
 (dict-update dto dict 1 (lambda (x) (+ 1 x))) =&gt;
-  {1:3, 3:4, 5:6}
+  ((1 . 3) (3 . 4) (5 . 6))
 (dict-update dto dict 2 (lambda (x) (+ 1 x))) =&gt;
   <em>error</em>
 </pre></blockquote>
@@ -213,10 +213,10 @@ Otherwise, returns two values, a dictionary that contains
 <blockquote><pre>
 (dict-update/default dto dict 1
   (lambda (x) (+ 1 x)) 0) =&gt;
-  {1:3, 3:4, 5:6}
+  ((1 . 3) (3 . 4) (5 . 6))
 (dict-update/default dto dict 2
   (lambda (x) (+ 1 x)) 0) =&gt;
-  {1:0, 3:4, 5:6}
+  ((1 . 0) (3 . 4) (5 . 6))
 </pre></blockquote>
 <p><code>(dict-pop</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Chooses an association from <em>dict</em> and returns three values:
@@ -226,7 +226,7 @@ Otherwise, returns two values, a dictionary that contains
   otherwise, the chosen association is arbitrary.</p>
 <p>If <em>dict</em> contains no associations, it is an error.</p>
 <blockquote><pre>(dict-pop dto dict) =&gt; ; 3 values
-  {3:4, 5:6}
+  ((3 . 4) (5 . 6))
   1
   2</pre></blockquote>
 <p><code>(dict-find-update</code>&nbsp;<em>dto dict key failure success</em><code>)</code></p>
@@ -257,16 +257,16 @@ key <em>key</em>.
 <p>Returns a dictionary similar to <em>dict</em> that maps each  of <em>dict</em>
   to the result of applying <em>proc</em> to the key and corresponding value of <em>dict</em>.</p>
 <blockquote><pre>(dict-map (lambda (k v) (cons v k)) dto dict) =&gt;
-   {2:1, 4:3, 6:5}</pre></blockquote>
+   ((2 . 1) (4 . 3) (6 . 5))</pre></blockquote>
 <p><code>(dict-filter</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <code>(dict-remove</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Returns a dictionary similar to <em>dict</em> that contains
   just the associations of <em>dict</em> that satisfy / do not satisfy <em>pred</em>
   when it is invoked on the key and value of the association.</p>
 <blockquote><pre>(dict-filter (lambda (k v) (= k 1)) dto dict) =&gt;
-  {1:2}
+  ((1 . 2))
 (dict-remove (lambda (k) (= k 1)) dto dict) =&gt;
-  {3:4, 5:6}</pre></blockquote>
+  ((3 . 4) (5 . 6))</pre></blockquote>
 <h3 id="the-whole-dictionary">The whole dictionary</h3>
 <p><code>(dict-size</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns an exact integer representing the number of associations in <em>dict</em>.</p>
@@ -282,8 +282,8 @@ key <em>key</em>.
   associations are processed in that order; otherwise, in an arbitrary order.
   If all calls return false, <code>dict-any</code> returns false.</p>
 <blockquote><pre>(define (both-even? k v) (and (even? k) (even? v)))
-(dict-any dto both-even? '{2:4, 3:5}) =&gt; #t
-(dict-any dto both-even? '{1:2, 3:4}) =&gt; #f</pre></blockquote>
+(dict-any dto both-even? '((2 . 4) (3 . 5))) =&gt; #t
+(dict-any dto both-even? '((1 . 2) (3 . 4))) =&gt; #f</pre></blockquote>
 <p><code>(dict-every</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns <code>#f</code> after the first call to <em>pred</em> that returns false,
@@ -292,8 +292,8 @@ key <em>key</em>.
   If all calls return true, <code>dict-any</code> returns the value of the last call,
   or <code>#t</code> if no calls are made.</p>
 <blockquote><pre>(define (some-even? k v) (or (even? k) (even? v)))
-(dict-every dto some-even? '{2:3, 3:4}) =&gt; #t
-(dict-every dto some-even? '{1:3, 3:4}) =&gt; #f</pre></blockquote>
+(dict-every dto some-even? '((2 . 3) (3 . 4))) =&gt; #t
+(dict-every dto some-even? '((1 . 3) (3 . 4))) =&gt; #f</pre></blockquote>
 <p><code>(dict-keys</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns a list of the keys of <em>dict</em>. If the dictionary type is inherently ordered,
   associations appear in that order; otherwise, in an arbitrary order.
@@ -314,7 +314,7 @@ key <em>key</em>.
   For the first invocation, <em>knil</em> is used as the third argument.
   Returns the result of the last invocation, or <em>knil</em> if there was no invocation.
   Note that there is no guarantee of a consistent result if the dictionary does not have an inherent order.</p>
-<blockquote><pre>(dict-fold + 0 {1:2, 3:4} =&gt; 10</pre></blockquote>
+<blockquote><pre>(dict-fold + 0 ((1 . 2) (3 . 4)) =&gt; 10</pre></blockquote>
 <p><code>(dict-map-&gt;list</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
 <p>Returns a list of values that result from invoking <em>proc</em> on the keys
   and corresponding values of <em>dict</em>.</p>
@@ -328,7 +328,7 @@ key <em>key</em>.
 <p>Returns an alist whose keys and values are the keys and values of <em>dict</em>.</p>
 <blockquote><pre>
 (dict-&gt;alist dto dict) =&gt;
-  {1:2, 3:4, 5:6}
+  ((1 . 2) (3 . 4) (5 . 6))
 </pre></blockquote>
 <h3 id="iteration">Iteration</h3>
   <p><code>(dict-for-each</code>&nbsp;<em>dto proc dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
@@ -426,6 +426,8 @@ The following proc-id variables and associated procedures need to be provided
 <p><code>(dto-ref</code>&nbsp;<em>dto proc-id</em><code>)</code></p>
 <p>Returns the procedure designated by <em>proc-id</em> from <em>dto</em>.
 This allows the ability to call a particular DTO procedure multiple times more efficiently.</p>
+<p><code>(make-alist-dto</code>&nbsp;<em>equal</em><code>)</code></p>
+<p>Returns a DTO for manipulating an alist using the equality predicate <em>equal</em>.</p>
 <h3 id="exceptions">Exception procedures (non-generic)</h3>
 <p><code>(dictionary-error</code>&nbsp;<em>message irritant</em> ... <code>)</code></p>
 <p>Returns a dictionary error with the given <em>message</em> (a string) and
@@ -443,7 +445,9 @@ and <code>#f</code> otherwise.
 <p>The following DTOs are exported from this SRFI:
 <code>srfi-69-dto</code>, <code>hash-table-dto</code>, <code>srfi-126-dto</code>,
 <code>mapping-dto</code>, and <code>hash-mapping-dto</code>,
-provided that the corresponding libraries are available.</p>
+provided that the corresponding libraries are available.
+In addition, <code>eqv-alist-dto</code> and <code>equal-alist-dto</code>
+are unconditionally exported.
 <h2 id="implementation">Implementation</h2>
 
 <p>The sample implementation is found in the <a href="https://github.com/scheme-requests-for-implementation/srfi-225">GitHub repository</a>.</p>
