@@ -1,5 +1,12 @@
-(define hash-table-dto
-  (let ()
+(define-library
+  (srfi 225 srfi-125-impl)
+  (import (scheme base)
+          (srfi 128)
+          (prefix (srfi 125) t125-)
+          (srfi 225 default-impl)
+          (srfi 225 indexes))
+  (export hash-table-dto)
+  (begin
 
    (define (t125-hash-table-pure?* dto table)
      #f)
@@ -78,9 +85,6 @@
                        #f
                        (t125-hash-table-hash-function table)))
 
-    (define (t125-hash-table-copy* dto table)
-      (t125-hash-table-copy table #t))
-
     (define (t125-hash-table-size* dto table)
       (t125-hash-table-size table))
 
@@ -117,28 +121,29 @@
     (define (t125-hash-table-ref/default* dto table key default)
       (t125-hash-table-ref/default table key default))
 
-    (make-dto
-     dictionary?-id t125-hash-table?*
-     dict-pure?-id t125-hash-table-pure?*
-     dict-empty?-id t125-hash-table-empty?*
-     dict-contains?-id t125-hash-table-contains?*
-     dict-ref-id t125-hash-table-ref*
-     dict-ref/default-id t125-hash-table-ref/default*
-     dict-set-id t125-hash-table-set*
-     dict-delete-all-id t125-hash-table-delete-all*
-     dict-intern-id t125-hash-table-intern*
-     dict-update-id t125-hash-table-update*
-     dict-update/default-id t125-hash-table-update/default*
-     dict-pop-id t125-hash-table-pop*
-     dict-map-id t125-hash-table-map*
-     dict-filter-id t125-hash-table-filter*
-     dict-remove-id t125-hash-table-remove*
-     dict-find-update-id t125-hash-table-find-update*
-     dict-size-id t125-hash-table-size*
-     dict-keys-id t125-hash-table-keys*
-     dict-values-id t125-hash-table-values*
-     dict-entries-id t125-hash-table-entries*
-     dict-fold-id t125-hash-table-fold*
-     dict-map->list-id t125-hash-table-map->list*
-     dict->alist-id t125-hash-table->alist*
-     dict-comparator-id t125-hash-table-comparator*)))
+    (define hash-table-dto
+      (make-dto
+        dictionary?-id t125-hash-table?*
+        dict-pure?-id t125-hash-table-pure?*
+        dict-empty?-id t125-hash-table-empty?*
+        dict-contains?-id t125-hash-table-contains?*
+        dict-ref-id t125-hash-table-ref*
+        dict-ref/default-id t125-hash-table-ref/default*
+        dict-set-id t125-hash-table-set*
+        dict-delete-all-id t125-hash-table-delete-all*
+        dict-intern-id t125-hash-table-intern*
+        dict-update-id t125-hash-table-update*
+        dict-update/default-id t125-hash-table-update/default*
+        dict-pop-id t125-hash-table-pop*
+        dict-map-id t125-hash-table-map*
+        dict-filter-id t125-hash-table-filter*
+        dict-remove-id t125-hash-table-remove*
+        dict-find-update-id t125-hash-table-find-update*
+        dict-size-id t125-hash-table-size*
+        dict-keys-id t125-hash-table-keys*
+        dict-values-id t125-hash-table-values*
+        dict-entries-id t125-hash-table-entries*
+        dict-fold-id t125-hash-table-fold*
+        dict-map->list-id t125-hash-table-map->list*
+        dict->alist-id t125-hash-table->alist*
+        dict-comparator-id t125-hash-table-comparator*))))

@@ -18,7 +18,16 @@ for i in\
 do
     CLASSPATH=target kawa -d target -C "dependencies/$i.sld"
 done
-CLASSPATH=target kawa --r7rs -d target -C "test/srfi-225/srfi/225.sld"
 
 cd "/test/srfi-225"
-CLASSPATH=/target kawa --r7rs "srfi-225-test.scm"
+CLASSPATH=/target kawa -d /target -C "srfi/225/core.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/default-impl.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/indexes.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/alist-impl.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/srfi-69-impl.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/srfi-125-impl.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/srfi-126-impl.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/srfi-146-impl.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225/srfi-146-hash-impl.sld"
+CLASSPATH=/target kawa -d /target -C "srfi/225.sld"
+CLASSPATH=/target kawa "srfi-225-test.scm"

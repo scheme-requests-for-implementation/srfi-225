@@ -1,10 +1,17 @@
-(define mapping-dto
-  (let ()
+(define-library
+  (srfi 225 srfi-146-impl)
+  (import (scheme base)
+          (srfi 146)
+          (srfi 225 core)
+          (srfi 225 default-impl)
+          (srfi 225 indexes))
+  (export mapping-dto)
+  (begin
 
     (define (prep-dto-arg proc)
       (lambda (dto . args)
         (apply proc args)))
-    
+
     (define (mapping-map* dto proc dict)
       (mapping-map (lambda (key value)
                      (values key (proc key value))) 
@@ -41,32 +48,33 @@
                                          (k result))))))
           new-dict)))
 
-    (make-dto
-     dictionary?-id (prep-dto-arg mapping?)
-     dict-pure?-id (lambda _ #t)
-     dict-map-id mapping-map*
-     dict-empty?-id (prep-dto-arg mapping-empty?)
-     dict-contains?-id (prep-dto-arg mapping-contains?)
-     dict-ref-id (prep-dto-arg mapping-ref)
-     dict-ref/default-id (prep-dto-arg mapping-ref/default)
-     dict-set-id (prep-dto-arg mapping-set)
-     dict-adjoin-id (prep-dto-arg mapping-adjoin)
-     dict-delete-id (prep-dto-arg mapping-delete)
-     dict-delete-all-id (prep-dto-arg mapping-delete-all)
-     dict-replace-id (prep-dto-arg mapping-replace)
-     dict-intern-id (prep-dto-arg mapping-intern)
-     dict-update-id (prep-dto-arg mapping-update)
-     dict-update/default-id (prep-dto-arg mapping-update/default)
-     dict-pop-id (prep-dto-arg mapping-pop)
-     dict-filter-id (prep-dto-arg mapping-filter)
-     dict-remove-id (prep-dto-arg mapping-remove)
-     dict-find-update-id mapping-find-update*
-     dict-size-id (prep-dto-arg mapping-size)
-     dict-count-id (prep-dto-arg mapping-count)
-     dict-keys-id (prep-dto-arg mapping-keys)
-     dict-values-id (prep-dto-arg mapping-values)
-     dict-entries-id (prep-dto-arg mapping-entries)
-     dict-fold-id (prep-dto-arg mapping-fold)
-     dict-map->list-id (prep-dto-arg mapping-map->list)
-     dict->alist-id (prep-dto-arg mapping->alist)
-     dict-comparator-id (prep-dto-arg mapping-key-comparator))))
+    (define mapping-dto
+      (make-dto
+        dictionary?-id (prep-dto-arg mapping?)
+        dict-pure?-id (lambda _ #t)
+        dict-map-id mapping-map*
+        dict-empty?-id (prep-dto-arg mapping-empty?)
+        dict-contains?-id (prep-dto-arg mapping-contains?)
+        dict-ref-id (prep-dto-arg mapping-ref)
+        dict-ref/default-id (prep-dto-arg mapping-ref/default)
+        dict-set-id (prep-dto-arg mapping-set)
+        dict-adjoin-id (prep-dto-arg mapping-adjoin)
+        dict-delete-id (prep-dto-arg mapping-delete)
+        dict-delete-all-id (prep-dto-arg mapping-delete-all)
+        dict-replace-id (prep-dto-arg mapping-replace)
+        dict-intern-id (prep-dto-arg mapping-intern)
+        dict-update-id (prep-dto-arg mapping-update)
+        dict-update/default-id (prep-dto-arg mapping-update/default)
+        dict-pop-id (prep-dto-arg mapping-pop)
+        dict-filter-id (prep-dto-arg mapping-filter)
+        dict-remove-id (prep-dto-arg mapping-remove)
+        dict-find-update-id mapping-find-update*
+        dict-size-id (prep-dto-arg mapping-size)
+        dict-count-id (prep-dto-arg mapping-count)
+        dict-keys-id (prep-dto-arg mapping-keys)
+        dict-values-id (prep-dto-arg mapping-values)
+        dict-entries-id (prep-dto-arg mapping-entries)
+        dict-fold-id (prep-dto-arg mapping-fold)
+        dict-map->list-id (prep-dto-arg mapping-map->list)
+        dict->alist-id (prep-dto-arg mapping->alist)
+        dict-comparator-id (prep-dto-arg mapping-key-comparator)))))

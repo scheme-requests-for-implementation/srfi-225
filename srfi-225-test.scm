@@ -859,58 +859,27 @@
  "default"
  ;; test defaults by overring only procedures that raise error otherwise
 
-  (define (alist-find-update dto alist key failure success)
-    (define (handle-success pair)
-      (define old-key (car pair))
-      (define old-value (cdr pair))
-      (define (update new-key new-value)
-        (cond
-          ((and (eq? old-key
-                     new-key)
-                (eq? old-value
-                     new-value))
-           alist)
-          (else
-            (let ((new-list
-                    (alist-cons
-                      new-key new-value
-                      (alist-delete old-key alist))))
-              new-list))))
-      (define (remove)
-        (alist-delete old-key alist))
-      (success old-key old-value update remove))
-
-    (define (handle-failure)
-      (define (insert value)
-        (alist-cons key value alist))
-      (define (ignore)
-        alist)
-      (failure insert ignore))
-    (cond
-      ((assoc key alist equal?) => handle-success)
-      (else (handle-failure))))
-
-  (define (alist-map dto proc alist)
-    (map
-     (lambda (e)
-       (define key (car e))
-       (define value (cdr e))
-       (cons key (proc key value)))
-     alist))
-
  (define minimal-alist-dto
    (make-dto
-    dictionary?-id (lambda (dto obj) (list? obj))
-    dict-pure?-id (lambda _ #t)
-    dict-size-id (lambda (dto alist) (length alist))
-    dict-find-update-id alist-find-update
-    dict-map-id alist-map
-    dict-comparator-id (lambda _ #f)))
+    dictionary?-id (dto-ref equal-alist-dto dictionary?-id)
+    dict-pure?-id (dto-ref equal-alist-dto dict-pure?-id)
+    dict-size-id (dto-ref equal-alist-dto dict-size-id)
+    dict-find-update-id (dto-ref equal-alist-dto dict-find-update-id)
+    dict-map-id (dto-ref equal-alist-dto dict-map-id)
+    dict-comparator-id (dto-ref equal-alist-dto dict-comparator-id)))
  (do-test
   minimal-alist-dto
   alist-copy
   #f
   #f))
+
+(test-group
+  "alist"
+  (do-test
+    equal-alist-dto
+    alist-copy
+    #f
+    #f))
 
 (cond-expand
   ((and (library (srfi 69))
