@@ -104,7 +104,7 @@
 (define (dto-ref dto procindex)
   (dto-ref-stx dto procindex))
 
-(define (make-modified-dto dto . lst)
+(define (make-modified-dto dto lst)
   (define vec (vector-copy (procvec dto)))
   (do ((lst lst (cddr lst)))
       ((null? lst))
@@ -116,9 +116,6 @@
         (error "Not a procedure" proc))
       (vector-set! vec proc-id proc)))
   (make-dto-private vec))
-
-(define (make-dto . lst)
-  (apply make-modified-dto default-dto lst))
 
 (define-syntax dto-helper
   (syntax-rules ()
