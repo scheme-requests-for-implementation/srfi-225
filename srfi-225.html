@@ -96,8 +96,8 @@ Consequently, previous examples don't affect later ones.
 <h3 id="alists">Alists</h3>
 <p>Alists are supported as dictionaries, but are given special treatment.  Associations with new keys are added to the beginning of the alist and the new alist is returned.  The examples in this SRFI use alists.
 Alists are treated as pure, but copying is done as necessary to guarantee
-that no two associations in an alist constructed by the procedures
-in this SRFI have the same key.  However, an alist constructed by other means
+that the update procedures of this SRFI never result in an alist with duplicate keys.
+However, an alist constructed by other means
 may have duplicate keys, in which case the first occurrence of the key
 is the relevant one.</p>
 <p>An alist (unlike a hashtable or mapping) does not know which equality predicate its users intend to use on it.  Therefore, rather than exporting a single DTO for all alists, this SRFI provides a procedure <code>make-alist-dto</code> that takes an equality predicate and returns a DTO specialized for manipulation of alists using that predicate.  For convenience, DTOs for <code>eqv?</code> and <code>equal?</code> are exported.</p>
