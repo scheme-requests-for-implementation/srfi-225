@@ -65,7 +65,7 @@ dictionary but is distinct from it.  Impure dictionaries,
 on the other hand, perform updates by mutation.  SRFI 146
 mappings are pure dictionaries; SRFI 125 hash tables are impure.
   Note that if an instance of an impure dictionary type like SRFI 126 is in fact immutable, it still counts as impure.
-The generic predicate <code>dict-pure?</code>
+The generic predicate <a href="#dict-purep"><code>dict-pure?</code></a>
 can be used to distinguish the two types.</p>
 <p>In addition, dictionaries need to be constructed using type-specific constructors,
   as the performance characteristics differ in each case.
@@ -75,8 +75,8 @@ can be used to distinguish the two types.</p>
   Consequently there are no <code>make-dict</code>, <code>dict</code>, <code>dict-unfold</code>,
   <code>dict-copy</code>, or similar procedures provided by this SRFI.</p>
 <p>Each of the following examples is assumed to be prefixed by the following definitions:</p>
-<blockquote><pre>(define dict '((1 . 2) (3 . 4) (5 . 6)))
-(define aed eqv-alist-dto)
+<blockquote><pre>(define dict '((1 . 2) (3 . 4) (5 . 6))
+(define dto eqv-alist-dto)
 </pre></blockquote>
 Consequently, previous examples don't affect later ones.
 <p>The <em>dto</em> argument is not discussed in the individual procedure descriptions below,
@@ -109,7 +109,7 @@ is the relevant one.</p>
 (dictionary? dto 35) =&gt; #f</pre></blockquote>
 <p><code>(dict-empty?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dict</em> contains no associations and <code>#f</code> if it does contain associations.</p>
-<blockquote><pre>(dict-empty? dto ()) =&gt; #t
+<blockquote><pre>(dict-empty? dto '()) =&gt; #t
 (dict-empty? dto dict) =&gt; #f</pre></blockquote>
 <p><code>(dict-contains?</code>&nbsp;<em>dto dict key</em><code>)</code></p>
 <p>Returns <code>#t</code> if one of the keys of <em>dict</em> is the same as <em>key</em>, and <code>#f</code> otherwise.</p>
@@ -119,9 +119,9 @@ is the relevant one.</p>
 <p>Returns <code>#t</code> if the keys of <em>dict1</em> and <em>dict2</em> are the same,
   and the corresponding values are the same in the sense of the <em>=</em> argument.</p>
 <blockquote><pre>
-(dict=? dto = dict ((5 . 6) (3 . 4) (1 . 2)))> #t
-(dict=? dto = dict ((1 . 2) (3 . 5))) => #f</pre></blockquote>
-<p><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
+(dict=? dto = dict '((5 . 6) (3 . 4) (1 . 2)))> #t
+(dict=? dto = dict '((1 . 2) (3 . 5))) => #f</pre></blockquote>
+<a name="dict-purep"><p><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dto</em> describes pure dictionaries.
 The <em>dict</em> argument is required for the sake of uniformity
 with other generic procedures, but it can have any value.</p>
@@ -132,14 +132,14 @@ with other generic procedures, but it can have any value.</p>
   then invokes the thunk <em>failure</em> and returns its result.
   The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
 <blockquote><pre>(dict-ref dto dict 1 (lambda () '()) list) =&gt;
-  (1) ; Success wraps value in a list
+  (2) ; Success wraps value in a list
 (dict-ref dto dict 2 (lambda () '()) list) =&gt;
   ()  ; Failure returns empty list</pre></blockquote>
 <p><code>(dict-ref/default</code>&nbsp;<em>dto dict key default</em><code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, returns the corresponding value.
   If not, returns <em>default</em>.</p>
-<blockquote><pre>(dict-ref/default dto dict 1 #f) =&gt; 1
-(dict-ref/default dto dict 1 #f) =&gt; #f</pre></blockquote>
+<blockquote><pre>(dict-ref/default dto dict 1 #f) =&gt; 2
+(dict-ref/default dto dict 2 #f) =&gt; #f</pre></blockquote>
 <p><code>(dict-comparator</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate,
   ordering predicate, and hash function of <em>dict</em>.
@@ -149,7 +149,7 @@ with other generic procedures, but it can have any value.</p>
 returns <code>#f</code>.</p>
 <h3 id="update-procedures">Update procedures</h3>
 <p>Note that the following procedures apply to both pure and impure
-dictionaries (see <code>dict-pure?</code>: the <code>!</code>
+dictionaries (see <a href="#dict-purep"><code>dict-pure?</code></a>): the <code>!</code>
 convention is not used in this SRFI.</p>
 <p>Updates are not permitted while any generic procedure is running that takes a procedure argument.</p>
 <p><code>(dict-set</code>&nbsp;<em>dto dict obj</em> …<code>)</code><br>
@@ -159,13 +159,13 @@ convention is not used in this SRFI.</p>
 <blockquote><pre> (dict-set dto dict 7 8) =&gt;
    ((1 . 2) (3 . 4) (5 . 6) (7 . 8)))
 (dict-set dto dict 3 5) =&gt;
-   ((1 . 2) (3 . 5) (5 . 6)))</pre></blockquote>
+   ((3 . 5) (1 . 2) (5 . 6)))</pre></blockquote>
 <p><code>(dict-adjoin</code>&nbsp;<em>dto dict obj</em> ...<code>)</code><br>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   plus those specified by <em>objs</em>, which alternate between keys and values.
   If a key to be added already exists in <em>dict</em>, the old value prevails.</p>
 <blockquote><pre> (dict-adjoin dto dict 7 8) =&gt;
-  ((1 . 2) (3 . 4) (5 . 6) (7 . 8))
+  ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
 (dict-adjoin dto dict 3 5) =&gt;
   ((1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
 <p><code>(dict-delete</code>&nbsp;<em>dto dict key</em> …<code>)</code></p>
@@ -197,7 +197,7 @@ Otherwise, returns two values, a dictionary that contains
   2
 (dict-intern dto dict 2 (lambda () 0)) =&gt; ; 2 values
   ((1 . 2) (2 . 0) (3 . 4) (5 . 6))
-  #f</pre></blockquote>
+  0</pre></blockquote>
 <p><code>(dict-update</code>&nbsp;<em>dto dict key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
 <blockquote><pre>
@@ -216,7 +216,7 @@ Otherwise, returns two values, a dictionary that contains
   ((1 . 3) (3 . 4) (5 . 6))
 (dict-update/default dto dict 2
   (lambda (x) (+ 1 x)) 0) =&gt;
-  ((1 . 0) (3 . 4) (5 . 6))
+  ((1 . 0) (3 . 4) (5 . 6)) <b>FIXME</b>
 </pre></blockquote>
 <p><code>(dict-pop</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Chooses an association from <em>dict</em> and returns three values:
@@ -256,17 +256,17 @@ key <em>key</em>.
 <p><code>(dict-map</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
 <p>Returns a dictionary similar to <em>dict</em> that maps each  of <em>dict</em>
   to the result of applying <em>proc</em> to the key and corresponding value of <em>dict</em>.</p>
-<blockquote><pre>(dict-map (lambda (k v) (cons v k)) dto dict) =&gt;
-   ((2 . 1) (4 . 3) (6 . 5))</pre></blockquote>
+<blockquote><pre>(dict-map dto (lambda (k v) (cons v k)) dict) =&gt;
+   ((2 . 1) (4 . 3) (6 . 5))</pre></blockquote> <b>FIXME</b>
 <p><code>(dict-filter</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <code>(dict-remove</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Returns a dictionary similar to <em>dict</em> that contains
   just the associations of <em>dict</em> that satisfy / do not satisfy <em>pred</em>
   when it is invoked on the key and value of the association.</p>
-<blockquote><pre>(dict-filter (lambda (k v) (= k 1)) dto dict) =&gt;
+<blockquote><pre>(dict-filter dto (lambda (k v) (= k 1)) dict) =&gt;
   ((1 . 2))
-(dict-remove (lambda (k) (= k 1)) dto dict) =&gt;
-  ((3 . 4) (5 . 6))</pre></blockquote>
+(dict-remove dto (lambda (k) (= k 1)) dict) =&gt;
+  ((3 . 4) (5 . 6))</pre></blockquote> <b>FIXME</b>
 <h3 id="the-whole-dictionary">The whole dictionary</h3>
 <p><code>(dict-size</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns an exact integer representing the number of associations in <em>dict</em>.</p>
@@ -274,7 +274,7 @@ key <em>key</em>.
 <p><code>(dict-count</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of dictionary as two arguments to <em>pred</em>
   and returns the number of times that <em>pred</em> returned true as an an exact integer.</p>
-<blockquote><pre>(dict-count dto dict (lambda (k v) (even? k))) =&gt; 0</pre></blockquote>
+<blockquote><pre>(dict-count dto dict (lambda (k v) (even? k))) =&gt; 0</pre></blockquote> <b>FIXME</b>
 <p><code>(dict-any</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns the value of the first call to <em>pred</em> that returns true,
@@ -314,14 +314,14 @@ key <em>key</em>.
   For the first invocation, <em>knil</em> is used as the third argument.
   Returns the result of the last invocation, or <em>knil</em> if there was no invocation.
   Note that there is no guarantee of a consistent result if the dictionary does not have an inherent order.</p>
-<blockquote><pre>(dict-fold + 0 ((1 . 2) (3 . 4)) =&gt; 10</pre></blockquote>
+<blockquote><pre>(dict-fold dto + 0 '((1 . 2) (3 . 4))) =&gt; 10</pre></blockquote>
 <p><code>(dict-map-&gt;list</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
 <p>Returns a list of values that result from invoking <em>proc</em> on the keys
   and corresponding values of <em>dict</em>.</p>
 <blockquote><pre>
-(dict-map->list (lambda (k v) v) dict) =&gt;
+(dict-map->list dto + (lambda (k v) v) dict) =&gt;
   (2 4 6),
-(dict-map->list - dto dict) =&gt;
+(dict-map->list dto - dict) =&gt;
   (-1 -1 -1) ; subtract value from key
 </pre></blockquote>
 <p><code>(dict-&gt;alist</code>&nbsp;<em>dto dict</em><code>)</code></p>
@@ -342,7 +342,7 @@ key <em>key</em>.
   if the dictionary is ordered.  The procedure returns an unspecified value.</p>
 <blockquote><pre>(define (write-key key value) (write key))
 (dict-for-each write-key dto dict) =&gt; unspecified
-  ; writes &quot;135&quot; to current output</pre></blockquote>
+  ; writes &quot;135&quot; to current output</pre></blockquote> <b>FIXME</b>
 <p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158 generator</a>
   that, when invoked, returns the associations of <em>dict</em> as pairs.
