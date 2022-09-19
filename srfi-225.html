@@ -105,23 +105,23 @@ is the relevant one.</p>
 <p><code>(dictionary?</code>&nbsp;<em>dto obj</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>obj</em> answers <code>#t</code> to the type predicate
   stored in <em>dto</em> and <code>#f</code> otherwise.</p>
-<blockquote><pre>(dictionary? dto dict) =&gt; #t
-(dictionary? dto 35) =&gt; #f</pre></blockquote>
+<blockquote><pre>(dictionary? dto dict) &rArr; #t
+(dictionary? dto 35) &rArr; #f</pre></blockquote>
 <p><code>(dict-empty?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dict</em> contains no associations and <code>#f</code> if it does contain associations.</p>
-<blockquote><pre>(dict-empty? dto '()) =&gt; #t
-(dict-empty? dto dict) =&gt; #f</pre></blockquote>
+<blockquote><pre>(dict-empty? dto '()) &rArr; #t
+(dict-empty? dto dict) &rArr; #f</pre></blockquote>
 <p><code>(dict-contains?</code>&nbsp;<em>dto dict key</em><code>)</code></p>
 <p>Returns <code>#t</code> if one of the keys of <em>dict</em> is the same as <em>key</em>, and <code>#f</code> otherwise.</p>
-<blockquote><pre>(dict-contains? dto dict 1) =&gt; #t
-(dict-contains? dto dict 2) =&gt; #f</pre></blockquote>
+<blockquote><pre>(dict-contains? dto dict 1) &rArr; #t
+(dict-contains? dto dict 2) &rArr; #f</pre></blockquote>
 <p><code>(dict=?</code>&nbsp;<em>dto = dict1 dict2</em><code>)</code></p>
 <p>Returns <code>#t</code> if the keys of <em>dict1</em> and <em>dict2</em> are the same,
   and the corresponding values are the same in the sense of the <em>=</em> argument.</p>
 <blockquote><pre>
-(dict=? dto = dict '((5 . 6) (3 . 4) (1 . 2)))> #t
-(dict=? dto = dict '((1 . 2) (3 . 5))) => #f</pre></blockquote>
 <p>Returns <code>#t</code> if <em>dto</em> describes pure dictionaries.
+(dict=? dto = dict '((5 . 6) (3 . 4) (1 . 2))) &rArr; #t
+(dict=? dto = dict '((1 . 2) (3 . 5))) &rArr; #f</pre></blockquote>
 <p id="dict-purep"><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 The <em>dict</em> argument is required for the sake of uniformity
 with other generic procedures, but it can have any value.</p>
@@ -131,15 +131,15 @@ with other generic procedures, but it can have any value.</p>
   on the corresponding value and returns its result. If <em>key</em> is not a key of <em>dict</em>,
   then invokes the thunk <em>failure</em> and returns its result.
   The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
-<blockquote><pre>(dict-ref dto dict 1 (lambda () '()) list) =&gt;
+<blockquote><pre>(dict-ref dto dict 1 (lambda () '()) list) &rArr;
   (2) ; Success wraps value in a list
-(dict-ref dto dict 2 (lambda () '()) list) =&gt;
+(dict-ref dto dict 2 (lambda () '()) list) &rArr;
   ()  ; Failure returns empty list</pre></blockquote>
 <p><code>(dict-ref/default</code>&nbsp;<em>dto dict key default</em><code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, returns the corresponding value.
   If not, returns <em>default</em>.</p>
-<blockquote><pre>(dict-ref/default dto dict 1 #f) =&gt; 2
-(dict-ref/default dto dict 2 #f) =&gt; #f</pre></blockquote>
+<blockquote><pre>(dict-ref/default dto dict 1 #f) &rArr; 2
+(dict-ref/default dto dict 2 #f) &rArr; #f</pre></blockquote>
 <p><code>(dict-comparator</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Return a comparator representing the type predicate, equality predicate,
   ordering predicate, and hash function of <em>dict</em>.
@@ -156,35 +156,35 @@ convention is not used in this SRFI.</p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   plus those specified by <em>objs</em>, which alternate between keys and values.
   If a key to be added already exists in <em>dict</em>, the new value prevails.</p>
-<blockquote><pre> (dict-set dto dict 7 8) =&gt;
+<blockquote><pre> (dict-set dto dict 7 8) &rArr;
    ((1 . 2) (3 . 4) (5 . 6) (7 . 8)))
-(dict-set dto dict 3 5) =&gt;
+(dict-set dto dict 3 5) &rArr;
    ((3 . 5) (1 . 2) (5 . 6)))</pre></blockquote>
 <p><code>(dict-adjoin</code>&nbsp;<em>dto dict obj</em> ...<code>)</code><br>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   plus those specified by <em>objs</em>, which alternate between keys and values.
   If a key to be added already exists in <em>dict</em>, the old value prevails.</p>
-<blockquote><pre> (dict-adjoin dto dict 7 8) =&gt;
+<blockquote><pre> (dict-adjoin dto dict 7 8) &rArr;
   ((7 . 8) (1 . 2) (3 . 4) (5 . 6))
-(dict-adjoin dto dict 3 5) =&gt;
+(dict-adjoin dto dict 3 5) &rArr;
   ((1 . 2) (3 . 4) (5 . 6))</pre></blockquote>
 <p><code>(dict-delete</code>&nbsp;<em>dto dict key</em> …<code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   except those whose keys are the same as one of the <em>keys</em>.
-<blockquote><pre>(dict-delete dto dict 1 3) =&gt;
+<blockquote><pre>(dict-delete dto dict 1 3) &rArr;
   ((5 . 6))
-(dict-delete dto dict 5) =&gt;
+(dict-delete dto dict 5) &rArr;
   ((1 . 2) (3 . 4))</pre></blockquote>
 <p><code>(dict-delete-all</code>&nbsp;<em>dto dict keylist</em><code>)</code></p>
 <p>The same as <code>dict-delete</code>, except that the keys to be deleted are in the list <em>keylist</em>.</p>
-<blockquote><pre>(dict-delete-all dto dict '(1 3)) =&gt; ((5 . 6))</pre></blockquote>
+<blockquote><pre>(dict-delete-all dto dict '(1 3)) &rArr; ((5 . 6))</pre></blockquote>
 <p><code>(dict-replace</code>&nbsp;<em>dto dict key value</em><code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> except as follows:
 If <em>key</em> is the same as a key of <em>dict</em>,
   then the association for that key is omitted and replaced by the association
   defined by the pair <em>key</em> and <em>value</em>.
 If there is no such key in <em>dict</em>, then dictionary is returned unchanged.</p>
-<blockquote><pre>(dict-replace dto dict 1 3) =&gt;
+<blockquote><pre>(dict-replace dto dict 1 3) &rArr;
   ((1 . 3) (3 . 4) (5 . 6))) </pre></blockquote>
 <p><code>(dict-intern</code>&nbsp;<em>dto dict key failure</em>)</p>
 <p>If there is a key in <em>dict</em> that is the same as <em>key</em>, returns two values,
@@ -192,18 +192,18 @@ If there is no such key in <em>dict</em>, then dictionary is returned unchanged.
 Otherwise, returns two values, a dictionary that contains
   all the associations of <em>dict</em> and in addition a new association that maps <em>key</em>
   to the result of invoking <em>failure</em>, and the result of invoking <em>failure</em>.<br>
-<blockquote><pre>(dict-intern dto dict 1 (lambda () #f)) =&gt; ; 2 values
+<blockquote><pre>(dict-intern dto dict 1 (lambda () #f)) &rArr; ; 2 values
   ((1 . 2) (3 . 4) (5 . 6))
   2
-(dict-intern dto dict 2 (lambda () 0)) =&gt; ; 2 values
+(dict-intern dto dict 2 (lambda () 0)) &rArr; ; 2 values
   ((1 . 2) (2 . 0) (3 . 4) (5 . 6))
   0</pre></blockquote>
 <p><code>(dict-update</code>&nbsp;<em>dto dict key updater</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref</code>, invokes <em>updater</em> on it, and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>, but may do so more efficiently. Returns the updated dictionary. The default value of <em>failure</em> signals an error; the default value of <em>success</em> is the identity procedure.</p>
 <blockquote><pre>
-(dict-update dto dict 1 (lambda (x) (+ 1 x))) =&gt;
+(dict-update dto dict 1 (lambda (x) (+ 1 x))) &rArr;
   ((1 . 3) (3 . 4) (5 . 6))
-(dict-update dto dict 2 (lambda (x) (+ 1 x))) =&gt;
+(dict-update dto dict 2 (lambda (x) (+ 1 x))) &rArr;
   <em>error</em>
 </pre></blockquote>
 <p><code>(dict-update/default</code>&nbsp;<em>dto dict key updater default</em><code>)</code></p>
@@ -212,10 +212,10 @@ Otherwise, returns two values, a dictionary that contains
   but may do so more efficiently. Returns the updated dictionary.</p>
 <blockquote><pre>
 (dict-update/default dto dict 1
-  (lambda (x) (+ 1 x)) 0) =&gt;
+  (lambda (x) (+ 1 x)) 0) &rArr;
   ((1 . 3) (3 . 4) (5 . 6))
 (dict-update/default dto dict 2
-  (lambda (x) (+ 1 x)) 0) =&gt;
+  (lambda (x) (+ 1 x)) 0) &rArr;
   ((2 . 1) (3 . 4) (5 . 6))
 </pre></blockquote>
 <p><code>(dict-pop</code>&nbsp;<em>dto dict</em><code>)</code></p>
@@ -225,7 +225,7 @@ Otherwise, returns two values, a dictionary that contains
   If the dictionary is inherently ordered, the first association is chosen;
   otherwise, the chosen association is arbitrary.</p>
 <p>If <em>dict</em> contains no associations, it is an error.</p>
-<blockquote><pre>(dict-pop dto dict) =&gt; ; 3 values
+<blockquote><pre>(dict-pop dto dict) &rArr; ; 3 values
   ((3 . 4) (5 . 6))
   1
   2</pre></blockquote>
@@ -256,25 +256,25 @@ key <em>key</em>.
 <p><code>(dict-map</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
 <p>Returns a dictionary similar to <em>dict</em> that maps each  of <em>dict</em>
   to the result of applying <em>proc</em> to the key and corresponding value of <em>dict</em>.</p>
-<blockquote><pre>(dict-map dto (lambda (k v) (- v)) dict) =&gt;
+<blockquote><pre>(dict-map dto (lambda (k v) (- v)) dict) &rArr;
    (((1 . -2) (3 . -4) (5 . -6))</pre></blockquote>
 <p><code>(dict-filter</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p><code>(dict-remove</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Returns a dictionary similar to <em>dict</em> that contains
   just the associations of <em>dict</em> that satisfy / do not satisfy <em>pred</em>
   when it is invoked on the key and value of the association.</p>
-<blockquote><pre>(dict-filter dto (lambda (k v) (= k 1)) dict) =&gt;
+<blockquote><pre>(dict-filter dto (lambda (k v) (= k 1)) dict) &rArr;
   ((1 . 2))
-(dict-remove dto (lambda (k v) (= k 1)) dict) =&gt;
+(dict-remove dto (lambda (k v) (= k 1)) dict) &rArr;
   ((3 . 4) (5 . 6))</pre></blockquote>
 <h3 id="the-whole-dictionary">The whole dictionary</h3>
 <p><code>(dict-size</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns an exact integer representing the number of associations in <em>dict</em>.</p>
-<blockquote><pre>(dict-size dto dict) =&gt; 3</pre></blockquote>
+<blockquote><pre>(dict-size dto dict) &rArr; 3</pre></blockquote>
 <p><code>(dict-count</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of dictionary as two arguments to <em>pred</em>
   and returns the number of times that <em>pred</em> returned true as an an exact integer.</p>
-<blockquote><pre>(dict-count dto (lambda (k v) (even? k)) dict) =&gt; 0</pre></blockquote>
+<blockquote><pre>(dict-count dto (lambda (k v) (even? k)) dict) &rArr; 0</pre></blockquote>
 <p><code>(dict-any</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns the value of the first call to <em>pred</em> that returns true,
@@ -282,8 +282,8 @@ key <em>key</em>.
   associations are processed in that order; otherwise, in an arbitrary order.
   If all calls return false, <code>dict-any</code> returns false.</p>
 <blockquote><pre>(define (both-even? k v) (and (even? k) (even? v)))
-(dict-any dto both-even? '((2 . 4) (3 . 5))) =&gt; #t
-(dict-any dto both-even? '((1 . 2) (3 . 4))) =&gt; #f</pre></blockquote>
+(dict-any dto both-even? '((2 . 4) (3 . 5))) &rArr; #t
+(dict-any dto both-even? '((1 . 2) (3 . 4))) &rArr; #f</pre></blockquote>
 <p><code>(dict-every</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns <code>#f</code> after the first call to <em>pred</em> that returns false,
@@ -292,20 +292,20 @@ key <em>key</em>.
   If all calls return true, <code>dict-any</code> returns the value of the last call,
   or <code>#t</code> if no calls are made.</p>
 <blockquote><pre>(define (some-even? k v) (or (even? k) (even? v)))
-(dict-every dto some-even? '((2 . 3) (3 . 4))) =&gt; #t
-(dict-every dto some-even? '((1 . 3) (3 . 4))) =&gt; #f</pre></blockquote>
+(dict-every dto some-even? '((2 . 3) (3 . 4))) &rArr; #t
+(dict-every dto some-even? '((1 . 3) (3 . 4))) &rArr; #f</pre></blockquote>
 <p><code>(dict-keys</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns a list of the keys of <em>dict</em>. If the dictionary type is inherently ordered,
   associations appear in that order; otherwise, in an arbitrary order.
   The order may change when new elements are added to <em>dict</em>.</p>
-<blockquote><pre>(dict-keys dto dict) =&gt; (1 3 5)</pre></blockquote>
+<blockquote><pre>(dict-keys dto dict) &rArr; (1 3 5)</pre></blockquote>
 <p><code>(dict-values</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns a list of the values of <em>dict</em>.
   The results returned by <code>dict-keys</code> and <code>dict-values</code> are not necessarily ordered consistently.</p>
-<blockquote><pre>(dict-values dto dict) =&gt; (2 4 6)</pre></blockquote>
+<blockquote><pre>(dict-values dto dict) &rArr; (2 4 6)</pre></blockquote>
 <p><code>(dict-entries</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns two list values, the keys and the corresponding values.</p>
-<blockquote><pre>(dict-entries dto dict) =&gt; ; 2 values
+<blockquote><pre>(dict-entries dto dict) &rArr; ; 2 values
   (1 3 5)
   (2 4 6)</pre></blockquote>
 <p><code>(dict-fold</code>&nbsp;<em>dto proc knil dict</em><code>)</code></p>
@@ -314,20 +314,20 @@ key <em>key</em>.
   For the first invocation, <em>knil</em> is used as the third argument.
   Returns the result of the last invocation, or <em>knil</em> if there was no invocation.
   Note that there is no guarantee of a consistent result if the dictionary does not have an inherent order.</p>
-<blockquote><pre>(dict-fold dto + 0 '((1 . 2) (3 . 4))) =&gt; 10</pre></blockquote>
+<blockquote><pre>(dict-fold dto + 0 '((1 . 2) (3 . 4))) &rArr; 10</pre></blockquote>
 <p><code>(dict-map-&gt;list</code>&nbsp;<em>dto proc dict</em><code>)</code></p>
 <p>Returns a list of values that result from invoking <em>proc</em> on the keys
   and corresponding values of <em>dict</em>.</p>
 <blockquote><pre>
-(dict-map->list dto + (lambda (k v) v) dict) =&gt;
+(dict-map->list dto + (lambda (k v) v) dict) &rArr;
   (2 4 6),
-(dict-map->list dto - dict) =&gt;
+(dict-map->list dto - dict) &rArr;
   (-1 -1 -1) ; subtract value from key
 </pre></blockquote>
 <p><code>(dict-&gt;alist</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns an alist whose keys and values are the keys and values of <em>dict</em>.</p>
 <blockquote><pre>
-(dict-&gt;alist dto dict) =&gt;
+(dict-&gt;alist dto dict) &rArr;
   ((1 . 2) (3 . 4) (5 . 6))
 </pre></blockquote>
 <h3 id="iteration">Iteration</h3>
@@ -341,7 +341,7 @@ key <em>key</em>.
   They can can provide additional efficiency when iterating over part of the dictionary
   if the dictionary is ordered.  The procedure returns an unspecified value.</p>
 <blockquote><pre>(define (write-key key value) (write key))
-(dict-for-each dto write-key dict) =&gt; unspecified
+(dict-for-each dto write-key dict) &rArr; unspecified
   ; writes &quot;135&quot; to current output</pre></blockquote> <b>FIXME</b>
 <p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158 generator</a>
