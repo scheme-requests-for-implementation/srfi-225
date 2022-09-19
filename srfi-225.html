@@ -42,7 +42,7 @@ None at present.
 <p>Until recently, there was only one universally available mechanism for managing key-value pairs: alists.
   Most Schemes also support hash tables, but until R6RS there was no standard interface to them, and many implementations
   do not provide that interface.</p>
-In addition, alists can have multiple entries with the
+<p>In addition, alists can have multiple entries with the
 same key, which makes them atypical instances of persistent dictionaries.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables,
   there are R7RS persistent inherently ordered and hashed mappings from SRFI 146,
@@ -121,8 +121,8 @@ is the relevant one.</p>
 <blockquote><pre>
 (dict=? dto = dict '((5 . 6) (3 . 4) (1 . 2)))> #t
 (dict=? dto = dict '((1 . 2) (3 . 5))) => #f</pre></blockquote>
-<a name="dict-purep"><p><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 <p>Returns <code>#t</code> if <em>dto</em> describes pure dictionaries.
+<p id="dict-purep"><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 The <em>dict</em> argument is required for the sake of uniformity
 with other generic procedures, but it can have any value.</p>
 <h3 id="accessors">Accessors</h3>
@@ -259,7 +259,7 @@ key <em>key</em>.
 <blockquote><pre>(dict-map dto (lambda (k v) (- v)) dict) =&gt;
    (((1 . -2) (3 . -4) (5 . -6))</pre></blockquote>
 <p><code>(dict-filter</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
-<code>(dict-remove</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
+<p><code>(dict-remove</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Returns a dictionary similar to <em>dict</em> that contains
   just the associations of <em>dict</em> that satisfy / do not satisfy <em>pred</em>
   when it is invoked on the key and value of the association.</p>
@@ -274,7 +274,7 @@ key <em>key</em>.
 <p><code>(dict-count</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of dictionary as two arguments to <em>pred</em>
   and returns the number of times that <em>pred</em> returned true as an an exact integer.</p>
-//blockquote><pre>(dict-count dto (lambda (k v) (even? k)) dict) =&gt; 0</pre></blockquote>
+<blockquote><pre>(dict-count dto (lambda (k v) (even? k)) dict) =&gt; 0</pre></blockquote>
 <p><code>(dict-any</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns the value of the first call to <em>pred</em> that returns true,
@@ -454,100 +454,98 @@ are unconditionally exported.
 <p>The following list of dependencies is designed to ease defining
 new dictionary types that may not have complete dictionary APIs:</p>
 
-<code>
 <dl>
-    <dt>dict-empty?</dt>
-    <dd>dict-size</dd>
+    <dt><code>dict-empty?</code></dt>
+    <dd><code>dict-size</code></dd>
 
-    <dt>dict=?</dt>
-    <dd>dict-ref</dd>
-    <dd>dict-keys</dd>
-    <dd>dict-size</dd>
+    <dt><code>dict=?</code></dt>
+    <dd><code>dict-ref</code></dd>
+    <dd><code>dict-keys</code></dd>
+    <dd><code>dict-size</code></dd>
 
-    <dt>dict-contains?</dt>
-    <dd>dict-ref</dd>
+    <dt><code>dict-contains?</code></dt>
+    <dd><code>dict-ref</code></dd>
 
-    <dt>dict-ref</dt>
-    <dd>dict-pure?</dd>
-    <dd>dict-find-update</dd>
+    <dt><code>dict-ref</code></dt>
+    <dd><code>dict-pure?</code></dd>
+    <dd><code>dict-find-update</code></dd>
 
-    <dt>dict-ref/default</dt>
-    <dd>dict-ref</dd>
+    <dt><code>dict-ref/default</code></dt>
+    <dd><code>dict-ref</code></dd>
 
-    <dt>dict-set</dt>
-    <dd>dict-find-update</dd>
+    <dt><code>dict-set</code></dt>
+    <dd><code>dict-find-update</code></dd>
 
-    <dt>dict-adjoin</dt>
-    <dd>dict-find-update</dd>
+    <dt><code>dict-adjoin</code></dt>
+    <dd><code>dict-find-update</code></dd>
 
-    <dt>dict-delete</dt>
-    <dd>dict-delete-all</dd>
+    <dt><code>dict-delete</code></dt>
+    <dd><code>dict-delete-all</code></dd>
 
-    <dt>dict-delete-all</dt>
-    <dd>dict-find-update</dd>
+    <dt><code>dict-delete-all</code></dt>
+    <dd><code>dict-find-update</code></dd>
 
-    <dt>dict-replace</dt>
-    <dd>dict-find-update</dd>
+    <dt><code>dict-replace</code></dt>
+    <dd><code>dict-find-update</code></dd>
 
-    <dt>dict-intern</dt>
-    <dd>dict-find-update</dd>
+    <dt><code>dict-intern</code></dt>
+    <dd><code>dict-find-update</code></dd>
 
-    <dt>dict-update</dt>
-    <dd>dict-find-update</dd>
+    <dt><code>dict-update</code></dt>
+    <dd><code>dict-find-update</code></dd>
 
-    <dt>dict-update/default</dt>
-    <dd>dict-update</dd>
+    <dt><code>dict-update/default</code></dt>
+    <dd><code>dict-update</code></dd>
 
-    <dt>dict-pop</dt>
-    <dd>dict-for-each</dd>
-    <dd>dict-delete-all</dd>
-    <dd>dict-empty?</dd>
+    <dt><code>dict-pop</code></dt>
+    <dd><code>dict-for-each</code></dd>
+    <dd><code>dict-delete-all</code></dd>
+    <dd><code>dict-empty?</code></dd>
 
-    <dt>dict-filter</dt>
-    <dd>dict-keys</dd>
-    <dd>dict-ref</dd>
-    <dd>dict-delete-all</dd>
+    <dt><code>dict-filter</code></dt>
+    <dd><code>dict-keys</code></dd>
+    <dd><code>dict-ref</code></dd>
+    <dd><code>dict-delete-all</code></dd>
 
-    <dt>dict-remove</dt>
-    <dd>dict-filter</dd>
+    <dt><code>dict-remove</code></dt>
+    <dd><code>dict-filter</code></dd>
 
-    <dt>dict-count</dt>
-    <dd>dict-fold</dd>
+    <dt><code>dict-count</code></dt>
+    <dd><code>dict-fold</code></dd>
 
-    <dt>dict-any</dt>
-    <dd>dict-for-each</dd>
+    <dt><code>dict-any</code></dt>
+    <dd><code>dict-for-each</code></dd>
 
-    <dt>dict-every</dt>
-    <dd>dict-for-each</dd>
+    <dt><code>dict-every</code></dt>
+    <dd><code>dict-for-each</code></dd>
 
-    <dt>dict-keys</dt>
-    <dd>dict-fold</dd>
+    <dt><code>dict-keys</code></dt>
+    <dd><code>dict-fold</code></dd>
 
-    <dt>dict-values</dt>
-    <dd>dict-fold</dd>
+    <dt><code>dict-values</code></dt>
+    <dd><code>dict-fold</code></dd>
 
-    <dt>dict-entries</dt>
-    <dd>dict-fold</dd>
+    <dt><code>dict-entries</code></dt>
+    <dd><code>dict-fold</code></dd>
 
-    <dt>dict-fold</dt>
-    <dd>dict-for-each</dd>
+    <dt><code>dict-fold</code></dt>
+    <dd><code>dict-for-each</code></dd>
 
-    <dt>dict-map-&gt;list</dt>
-    <dd>dict-fold</dd>
+    <dt><code>dict-map-&gt;list</code></dt>
+    <dd><code>dict-fold</code></dd>
 
-    <dt>dict-for-each</dt>
-    <dd>dict-map</dd>
+    <dt><code>dict-for-each</code></dt>
+    <dd><code>dict-map</code></dd>
 
-    <dt>dict-&gt;generator</dt>
-    <dd>dict-for-each</dd>
+    <dt><code>dict-&gt;generator</code></dt>
+    <dd><code>dict-for-each</code></dd>
 
-    <dt>dict-set-accumulator</dt>
-    <dd>dict-set</dd>
+    <dt><code>dict-set-accumulator</code></dt>
+    <dd><code>dict-set</code></dd>
 
-    <dt>dict-adjoin-accumulator</dt>
-    <dd>dict-set</dd>
+    <dt><code>dict-adjoin-accumulator</code></dt>
+    <dd><code>dict-set</code></dd>
 </dl>
-</code>
 
 <h2 id="acknowledgements">Acknowledgements</h2>
 
