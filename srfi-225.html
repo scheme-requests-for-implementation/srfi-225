@@ -342,7 +342,7 @@ key <em>key</em>.
   if the dictionary is ordered.  The procedure returns an unspecified value.</p>
 <blockquote><pre>(define (write-key key value) (write key))
 (dict-for-each dto write-key dict) =&gt; unspecified
-  ; writes &quot;135&quot; to current output</pre></blockquote> <b>FIXME</b>
+  ; writes &quot;135&quot; to current output</pre></blockquote>
 <p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
 <p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158 generator</a>
   that, when invoked, returns the associations of <em>dict</em> as pairs.
