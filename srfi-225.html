@@ -125,6 +125,8 @@ is the relevant one.</p>
 <p id="dict-purep"><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
 The <em>dict</em> argument is required for the sake of uniformity
 with other generic procedures, but it can have any value.</p>
+<blockquote><pre>
+(dict-pure? dto dict) &rArr; #t</pre></blockquote>
 <h3 id="accessors">Accessors</h3>
 <p><code>(dict-ref</code>&nbsp;<em>dto dict key</em> [<em>failure</em> [<em>success</em>] ]<code>)</code></p>
 <p>If <em>key</em> is the same as some key of <em>dict</em>, then invokes <em>success</em>
