@@ -14,7 +14,7 @@
 
     (define (mapping-map* dto proc dict)
       (mapping-map (lambda (key value)
-                     (values key (proc key value))) 
+                     (values key (proc key value)))
                    (dict-comparator dto dict) dict))
 
     (define (mapping-find-update* dto dict key failure success)

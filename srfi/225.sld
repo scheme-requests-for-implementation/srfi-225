@@ -1,7 +1,7 @@
 (define-library
   (srfi 225)
 
-  (import 
+  (import
     (scheme base)
     (srfi 1)
     (srfi 128)

@@ -254,7 +254,7 @@
       (define (accept el)
         (and (upper el) (lower el)))
 
-      (dict-map 
+      (dict-map
         dto
         (lambda (key value)
           (when (accept key)

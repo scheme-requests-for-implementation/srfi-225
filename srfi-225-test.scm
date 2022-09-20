@@ -654,7 +654,7 @@
 
   (test-group
    "dict-fold"
-   
+
    ;; simple case
    (let ()
     (define value
@@ -666,7 +666,7 @@
     (test-assert
       (or (equal? '(a b c d) value)
           (equal? '(c d a b) value))))
-   
+
    (let ()
 
      ;; continuation captured in a middle of fold
@@ -737,7 +737,7 @@
                                       (3 . c)
                                       (4 . d)))))
       '(1 2 3 4))
-    
+
     (test-for-each (let* ((cmp (dict-comparator dto (alist->dict '())))
                           (ordering (and cmp (comparator-ordered? cmp))))
                      ordering)
@@ -815,7 +815,7 @@
     (acc (cons 2 'b))
     (acc (cons 2 'c))
     (test-assert (dict=? dto equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . c))))))
-  
+
   (unless mutable?
     (test-skip 1))
   (test-group
@@ -835,7 +835,7 @@
     (acc (cons 2 'b))
     (acc (cons 2 'c))
     (test-assert (dict=? dto equal? (acc (eof-object)) (alist->dict '((1 . a) (2 . b))))))
-  
+
   (unless mutable?
     (test-skip 1))
   (test-group
