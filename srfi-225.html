@@ -119,10 +119,10 @@ is the relevant one.</p>
 <p>Returns <code>#t</code> if the keys of <em>dict1</em> and <em>dict2</em> are the same,
   and the corresponding values are the same in the sense of the <em>=</em> argument.</p>
 <blockquote><pre>
-<p>Returns <code>#t</code> if <em>dto</em> describes pure dictionaries.
 (dict=? dto = dict '((5 . 6) (3 . 4) (1 . 2))) &rArr; #t
 (dict=? dto = dict '((1 . 2) (3 . 5))) &rArr; #f</pre></blockquote>
 <p id="dict-purep"><code>(dict-pure?</code>&nbsp;<em>dto dict</em><code>)</code></p>
+<p>Returns <code>#t</code> if <em>dto</em> describes a pure dictionary.
 The <em>dict</em> argument is required for the sake of uniformity
 with other generic procedures, but it can have any value.</p>
 <blockquote><pre>
@@ -143,7 +143,7 @@ with other generic procedures, but it can have any value.</p>
 <blockquote><pre>(dict-ref/default dto dict 1 #f) &rArr; 2
 (dict-ref/default dto dict 2 #f) &rArr; #f</pre></blockquote>
 <p><code>(dict-comparator</code>&nbsp;<em>dto dict</em><code>)</code></p>
-<p>Return a comparator representing the type predicate, equality predicate,
+<p>Returns a comparator representing the type predicate, equality predicate,
   ordering predicate, and hash function of <em>dict</em>.
   The last two may be <code>#f</code> if the comparator
   does not make use of these functions.</p>
@@ -151,9 +151,9 @@ with other generic procedures, but it can have any value.</p>
 returns <code>#f</code>.</p>
 <h3 id="update-procedures">Update procedures</h3>
 <p>Note that the following procedures apply to both pure and impure
-dictionaries (see <a href="#dict-purep"><code>dict-pure?</code></a>): the <code>!</code>
+dictionaries (see <a href="#dict-purep"><code>dict-pure?</code></a>).  The <code>!</code>
 convention is not used in this SRFI.</p>
-<p>Updates are not permitted while any generic procedure is running that takes a procedure argument.</p>
+<p>Updates are not permitted while any generic procedure that takes a procedure argument is running.</p>
 <p><code>(dict-set</code>&nbsp;<em>dto dict obj</em> …<code>)</code><br>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
   plus those specified by <em>objs</em>, which alternate between keys and values.
@@ -213,11 +213,9 @@ Otherwise, returns two values, a dictionary that contains
   and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set</code>,
   but may do so more efficiently. Returns the updated dictionary.</p>
 <blockquote><pre>
-(dict-update/default dto dict 1
-  (lambda (x) (+ 1 x)) 0) &rArr;
+(dict-update/default dto dict 1 (lambda (x) (+ 1 x)) 0) &rArr;
   ((1 . 3) (3 . 4) (5 . 6))
-(dict-update/default dto dict 2
-  (lambda (x) (+ 1 x)) 0) &rArr;
+(dict-update/default dto dict 2 (lambda (x) (+ 1 x)) 0) &rArr;
   ((2 . 1) (3 . 4) (5 . 6))
 </pre></blockquote>
 <p><code>(dict-pop</code>&nbsp;<em>dto dict</em><code>)</code></p>
@@ -321,8 +319,8 @@ key <em>key</em>.
 <p>Returns a list of values that result from invoking <em>proc</em> on the keys
   and corresponding values of <em>dict</em>.</p>
 <blockquote><pre>
-(dict-map->list dto + (lambda (k v) v) dict) &rArr;
-  (2 4 6),
+(dict-map->list dto (lambda (k v) v) dict) &rArr;
+  (2 4 6)
 (dict-map->list dto - dict) &rArr;
   (-1 -1 -1) ; subtract value from key
 </pre></blockquote>
@@ -581,4 +579,3 @@ new dictionary types that may not have complete dictionary APIs:</p>
 
   <hr>
   <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
-
