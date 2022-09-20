@@ -274,7 +274,7 @@ key <em>key</em>.
 <p><code>(dict-count</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of dictionary as two arguments to <em>pred</em>
   and returns the number of times that <em>pred</em> returned true as an an exact integer.</p>
-//blockquote><pre>(dict-count dto (lambda (k v) (even? k)) dict) =&gt; 0</pre></blockquote>
+<blockquote><pre>(dict-count dto (lambda (k v) (even? k)) dict) =&gt; 0</pre></blockquote>
 <p><code>(dict-any</code>&nbsp;<em>dto pred dict</em><code>)</code></p>
 <p>Passes each association of <em>dict</em> as two arguments to <em>pred</em>
   and returns the value of the first call to <em>pred</em> that returns true,
