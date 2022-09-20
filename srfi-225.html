@@ -45,9 +45,9 @@ None at present.
 <p>In addition, alists can have multiple entries with the
 same key, which makes them atypical instances of persistent dictionaries.</p>
 <p>Now, however, the number of such mechanisms is growing. In addition to both R6RS and R7RS hash tables,
-  there are R7RS persistent inherently ordered and hashed mappings from SRFI 146,
-  inherently ordered mappings with fixnum keys from SRFI 224,
-  and inherently ordered bytevector key-value stores (often on a disk or a remote machine) from SRFI 167.</p>
+  there are R7RS persistent inherently ordered and hashed mappings from <a href="https://srfi.schemers.org/srfi-146/">SRFI 146</a>,
+  inherently ordered mappings with fixnum keys from <a href="https://srfi.schemers.org/srfi-224/">SRFI 224</a>,
+  and inherently ordered bytevector key-value stores (often on a disk or a remote machine) from <a href="https://srfi.schemers.org/srfi-167/">SRFI 167</a>.</p>
 <p>It’s inconvenient for users if SRFIs or other libraries accept only a specific type of dictionary.
   This SRFI exposes a number of accessors, updaters, and other procedures that can be called on any dictionary,
   provided that a <em>dictionary type object</em> (DTO) is available for it:
@@ -63,8 +63,8 @@ or else updates are persistent so that a new dictionary is
 returned by an update that can share storage with the original
 dictionary but is distinct from it.  Impure dictionaries,
 on the other hand, perform updates by mutation.  SRFI 146
-mappings are pure dictionaries; SRFI 125 hash tables are impure.
-  Note that if an instance of an impure dictionary type like SRFI 126 is in fact immutable, it still counts as impure.
+mappings are pure dictionaries; <a href="https://srfi.schemers.org/srfi-125/">SRFI 125</a> hash tables are impure.
+  Note that if an instance of an impure dictionary type like <a href="https://srfi.schemers.org/srfi-126/">SRFI 126</a> is in fact immutable, it still counts as impure.
 The generic predicate <a href="#dict-purep"><code>dict-pure?</code></a>
 can be used to distinguish the two types.</p>
 <p>In addition, dictionaries need to be constructed using type-specific constructors,
@@ -344,7 +344,7 @@ key <em>key</em>.
 (dict-for-each dto write-key dict) &rArr; unspecified
   ; writes &quot;135&quot; to current output</pre></blockquote>
 <p><code>(dict-&gt;generator</code>&nbsp;<em>dto dict</em> [ <em>start</em> [ <em>end</em> ] ] <code>)</code></p>
-<p>Returns a <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158 generator</a>
+<p>Returns a <a href="https://srfi.schemers.org/srfi-158/">SRFI 158 generator</a>
   that, when invoked, returns the associations of <em>dict</em> as pairs.
   If the dictionary type is inherently ordered, associations are generated in the order specified
   by the dictionary's comparator; otherwise, they are generated in an arbitrary order.
