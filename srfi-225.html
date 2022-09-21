@@ -23,7 +23,7 @@
   <li>Draft #4 published: 2021-10-29</li>
   <li>Draft #5 published: 2021-11-13</li>
   <li>Draft #6 published: 2022-03-16</li>
-  <li>John Cowan's <a href="https://github.com/pre-srfi/dictionaries">personal
+  <li>John Cowan's <a href="https://github.com/johnwcowan/srfi-225">personal
     Git repo for this SRFI</a> for reference while the SRFI is in
     <em>draft</em> status (<a href="https://htmlpreview.github.io/?https://github.com/johnwcowan/srfi-225/blob/master/srfi-225.html">preview</a>)</li>
 </ul>
@@ -149,8 +149,9 @@ with other generic procedures, but it can have any value.</p>
 returns <code>#f</code>.</p>
 <h3 id="update-procedures">Update procedures</h3>
 <p>Note that the following procedures apply to both pure and impure
-dictionaries (see <a href="#dict-purep"><code>dict-pure?</code></a>): the <code>!</code>
-convention is not used in this SRFI.</p>
+dictionaries (see <a href="#dict-purep"><code>dict-pure?</code></a>).
+Their names uniformly end in <code>!</code> even though
+it depends on the dictionary whether any mutation is done.</p>
 <p>Updates are not permitted while any generic procedure is running that takes a procedure argument.</p>
 <p><code>(dict-set!</code>&nbsp;<em>dto dict obj</em> …<code>)</code><br>
 <p>Returns a dictionary that contains all the associations of <em>dict</em>
