@@ -94,10 +94,10 @@
         dict-pure?-id t69-hash-table-pure?*
         dict-ref-id t69-hash-table-ref*
         dict-ref/default-id (prep-dto-arg t69-hash-table-ref/default)
-        dict-set-id t69-hash-table-set!*
-        dict-delete-all-id t69-hash-table-delete-all!*
+        dict-set!-id t69-hash-table-set!*
+        dict-delete!-all!-id t69-hash-table-delete-all!*
         dict-contains?-id (prep-dto-arg t69-hash-table-exists?)
-        dict-update/default-id t69-hash-table-update!/default*
+        dict-update!/default!-id t69-hash-table-update!/default*
         dict-size-id (prep-dto-arg t69-hash-table-size)
         dict-keys-id (prep-dto-arg t69-hash-table-keys)
         dict-values-id (prep-dto-arg t69-hash-table-values)
@@ -105,5 +105,5 @@
         dict-filter-id t69-hash-table-filter!*
         dict-fold-id t69-hash-table-fold*
         dict->alist-id (prep-dto-arg t69-hash-table->alist)
-        dict-find-update-id t69-hash-table-find-update!*
+        dict-find-update!-id t69-hash-table-find-update!*
         dict-comparator-id t69-hash-table-comparator*))))

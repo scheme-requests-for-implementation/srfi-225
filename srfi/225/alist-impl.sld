@@ -91,7 +91,7 @@
         dict-pure?-id alist-pure?
         dict-map-id alist-map
         dict-filter-id alist-filter
-        dict-find-update-id (make-alist-find-update key=)
+        dict-find-update!-id (make-alist-find-update key=)
         dict-size-id alist-size
         dict->alist-id alist->alist
         dict-comparator-id alist-comparator))

@@ -47,33 +47,33 @@
      ((dto-ref-stx dto dict-ref-id) dto dict key failure success))))
 
 (define/dict-proc dict-ref/default dict-ref/default-id)
-(define/dict-proc dict-set dict-set-id)
-(define/dict-proc dict-adjoin dict-adjoin-id)
-(define/dict-proc dict-delete dict-delete-id)
-(define/dict-proc dict-delete-all dict-delete-all-id)
-(define/dict-proc dict-replace dict-replace-id)
-(define/dict-proc dict-intern dict-intern-id)
+(define/dict-proc dict-set! dict-set!-id)
+(define/dict-proc dict-adjoin! dict-adjoin!-id)
+(define/dict-proc dict-delete! dict-delete!-id)
+(define/dict-proc dict-delete!-all! dict-delete!-all!-id)
+(define/dict-proc dict-replace! dict-replace!-id)
+(define/dict-proc dict-intern! dict-intern!-id)
 
-(define dict-update
+(define dict-update!
   (case-lambda
     ((dto dict key updater)
-     (dict-update dto dict key updater
+     (dict-update! dto dict key updater
                   (lambda () (error "Key not found in dictionary" dict key))
                   values))
 
     ((dto dict key updater failure)
-     (dict-update dto dict key  updater failure values))
+     (dict-update! dto dict key  updater failure values))
 
     ((dto dict key updater failure success)
      (assume (dto? dto))
-     ((dto-ref-stx dto dict-update-id) dto dict key updater failure success))))
+     ((dto-ref-stx dto dict-update!-id) dto dict key updater failure success))))
 
-(define/dict-proc dict-update/default dict-update/default-id)
-(define/dict-proc dict-pop dict-pop-id)
+(define/dict-proc dict-update!/default! dict-update!/default!-id)
+(define/dict-proc dict-pop! dict-pop!-id)
 (define/dict-proc dict-map dict-map-id)
 (define/dict-proc dict-filter dict-filter-id)
 (define/dict-proc dict-remove dict-remove-id)
-(define/dict-proc dict-find-update dict-find-update-id)
+(define/dict-proc dict-find-update! dict-find-update!-id)
 (define/dict-proc dict-size dict-size-id)
 (define/dict-proc dict-count dict-count-id)
 (define/dict-proc dict-any dict-any-id)
@@ -98,8 +98,8 @@
     ((dto dict start) (dict->generator dto dict start #f))
     ((dto dict start end) ((dto-ref-stx dto dict->generator-id) dto dict start end))))
 
-(define/dict-proc dict-set-accumulator dict-set-accumulator-id)
-(define/dict-proc dict-adjoin-accumulator dict-adjoin-accumulator-id)
+(define/dict-proc dict-set!-accumulator dict-set!-accumulator-id)
+(define/dict-proc dict-adjoin!-accumulator dict-adjoin!-accumulator-id)
 
 (define (dto-ref dto procindex)
   (dto-ref-stx dto procindex))
