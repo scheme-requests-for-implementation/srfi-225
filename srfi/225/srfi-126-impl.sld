@@ -118,15 +118,15 @@
         dict-contains?-id (prep-dto-arg t126-hashtable-contains?)
         dict-ref-id t126-hashtable-ref*
         dict-ref/default-id t126-hashtable-ref/default*
-        dict-set-id t126-hashtable-set*
-        dict-delete-all-id t126-hashtable-delete-all*
-        dict-intern-id t126-hashtable-intern*
-        dict-update/default-id t126-hashtable-update/default*
-        dict-pop-id t126-hashtable-pop*
+        dict-set!-id t126-hashtable-set*
+        dict-delete!-all!-id t126-hashtable-delete-all*
+        dict-intern!-id t126-hashtable-intern*
+        dict-update!/default!-id t126-hashtable-update/default*
+        dict-pop!-id t126-hashtable-pop*
         dict-map-id t126-hashtable-update-all*
         dict-filter-id t126-hashtable-filter*
         dict-remove-id t126-hashtable-remove*
-        dict-find-update-id t126-hashtable-find-update*
+        dict-find-update!-id t126-hashtable-find-update*
         dict-size-id (prep-dto-arg t126-hashtable-size)
         dict-keys-id t126-hashtable-keys*
         dict-values-id t126-hashtable-values*

@@ -12,19 +12,19 @@
     dict-comparator
 
     ;; mutation
-    dict-set
-    dict-adjoin
-    dict-delete
-    dict-delete-all
-    dict-replace
-    dict-intern
-    dict-update
-    dict-update/default
-    dict-pop
+    dict-set!
+    dict-adjoin!
+    dict-delete!
+    dict-delete!-all!
+    dict-replace!
+    dict-intern!
+    dict-update!
+    dict-update!/default!
+    dict-pop!
     dict-map
     dict-filter
     dict-remove
-    dict-find-update
+    dict-find-update!
 
     ;; whole dictionary
     dict-size
@@ -41,8 +41,8 @@
     ;; iteration
     dict-for-each
     dict->generator
-    dict-set-accumulator
-    dict-adjoin-accumulator
+    dict-set!-accumulator
+    dict-adjoin!-accumulator
 
     ;; dictionary type descriptors
     dto?

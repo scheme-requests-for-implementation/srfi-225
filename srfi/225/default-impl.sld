@@ -18,7 +18,7 @@
     (define default-dictionary? (not-implemented "dictionary?"))
     (define default-dict-pure? (not-implemented "dict-pure?"))
     (define default-dict-size (not-implemented "dict-size"))
-    (define default-dict-find-update (not-implemented "dict-find-update"))
+    (define default-dict-find-update! (not-implemented "dict-find-update!"))
 
     (define (default-dict-empty? dto dictionary)
       (= 0 (dict-size dto dictionary)))
@@ -45,7 +45,7 @@
                 (lambda (x) #t)))
 
     (define (default-dict-ref dto dictionary key failure success)
-      (dict-find-update dto dictionary key
+      (dict-find-update! dto dictionary key
                         (lambda (insert ignore)
                           (failure))
                         (lambda (key value update remove)
@@ -57,7 +57,7 @@
                 (lambda (x) x)))
 
     ;; private
-    (define (default-dict-set* dto dictionary use-old? objs)
+    (define (default-dict-set!* dto dictionary use-old? objs)
       (let loop ((objs objs)
                  (dictionary dictionary))
         (cond
@@ -67,7 +67,7 @@
            (error "mismatch of key / values argument list" objs))
           (else (let* ((key (car objs))
                        (value (cadr objs))
-                       (new-d (dict-find-update dto dictionary key
+                       (new-d (dict-find-update! dto dictionary key
                                                 (lambda (insert ignore)
                                                   (insert value))
                                                 (lambda (key old-value update delete)
@@ -75,22 +75,22 @@
                   (loop (cddr objs)
                         new-d))))))
 
-    (define (default-dict-set dto dictionary . objs)
-      (default-dict-set* dto dictionary #f objs))
+    (define (default-dict-set! dto dictionary . objs)
+      (default-dict-set!* dto dictionary #f objs))
 
-    (define (default-dict-adjoin dto dictionary . objs)
-      (default-dict-set* dto dictionary #t objs))
+    (define (default-dict-adjoin! dto dictionary . objs)
+      (default-dict-set!* dto dictionary #t objs))
 
-    (define (default-dict-delete dto dictionary . keys)
-      (dict-delete-all dto dictionary keys))
+    (define (default-dict-delete! dto dictionary . keys)
+      (dict-delete!-all! dto dictionary keys))
 
-    (define (default-dict-delete-all dto dictionary keylist)
+    (define (default-dict-delete!-all! dto dictionary keylist)
       (let loop ((keylist keylist)
                  (d dictionary))
         (cond
           ((null? keylist) d)
           (else (let* ((key (car keylist))
-                       (new-d (dict-find-update dto d key
+                       (new-d (dict-find-update! dto d key
                                                 (lambda (_ ignore)
                                                   (ignore))
                                                 (lambda (key old-value _ delete)
@@ -98,41 +98,41 @@
                   (loop (cdr keylist)
                         new-d))))))
 
-    (define (default-dict-replace dto dictionary key value)
-      (dict-find-update dto dictionary key
+    (define (default-dict-replace! dto dictionary key value)
+      (dict-find-update! dto dictionary key
                         (lambda (_ ignore)
                           (ignore))
                         (lambda (key old-value update _)
                           (update key value))))
 
-    (define (default-dict-intern dto dictionary key failure)
-      (dict-find-update dto dictionary key
+    (define (default-dict-intern! dto dictionary key failure)
+      (dict-find-update! dto dictionary key
                         (lambda (insert _)
                           (let ((value (failure)))
                             (values (insert value) value)))
                         (lambda (key value update _)
                           (values dictionary value))))
 
-    (define (default-dict-update dto dictionary key updater failure success)
-      (dict-find-update dto dictionary key
+    (define (default-dict-update! dto dictionary key updater failure success)
+      (dict-find-update! dto dictionary key
                         (lambda (insert ignore)
                           (insert (updater (failure))))
                         (lambda (key value update _)
                           (update key (updater (success value))))))
 
-    (define (default-dict-update/default dto dictionary key updater default)
-      (dict-update dto dictionary key updater
+    (define (default-dict-update!/default! dto dictionary key updater default)
+      (dict-update! dto dictionary key updater
                    (lambda () default)
                    (lambda (x) x)))
 
-    (define (default-dict-pop dto dictionary)
+    (define (default-dict-pop! dto dictionary)
       (define (do-pop)
         (call/cc
           (lambda (cont)
             (dict-for-each dto
                            (lambda (key value)
                              (define new-dict
-                               (dict-delete-all dto dictionary (list key)))
+                               (dict-delete!-all! dto dictionary (list key)))
                              (cont new-dict key value))
                            dictionary))))
       (define empty? (dict-empty? dto dictionary))
@@ -149,7 +149,7 @@
           (lambda (key)
             (not (pred key (dict-ref dto dictionary key))))
           keys))
-      (dict-delete-all dto dictionary keys-to-delete))
+      (dict-delete!-all! dto dictionary keys-to-delete))
 
     (define (default-dict-remove dto pred dictionary)
       (dict-filter dto (lambda (key value)
@@ -329,11 +329,11 @@
           dict
           (set! dict (acc-proc dto dict (car arg) (cdr arg))))))
 
-    (define (default-dict-set-accumulator dto dict)
-      (default-dict-accumulator dto dict dict-set))
+    (define (default-dict-set!-accumulator dto dict)
+      (default-dict-accumulator dto dict dict-set!))
 
-    (define (default-dict-adjoin-accumulator dto dict)
-      (default-dict-accumulator dto dict dict-adjoin))
+    (define (default-dict-adjoin!-accumulator dto dict)
+      (default-dict-accumulator dto dict dict-adjoin!))
 
     (define null-dto (make-dto-private (make-vector dict-procedures-count #f)))
 
@@ -348,19 +348,19 @@
             dict-pure?-id default-dict-pure?
             dict-ref-id default-dict-ref
             dict-ref/default-id default-dict-ref/default
-            dict-set-id default-dict-set
-            dict-adjoin-id default-dict-adjoin
-            dict-delete-id default-dict-delete
-            dict-delete-all-id default-dict-delete-all
-            dict-replace-id default-dict-replace
-            dict-intern-id default-dict-intern
-            dict-update-id default-dict-update
-            dict-update/default-id default-dict-update/default
-            dict-pop-id default-dict-pop
+            dict-set!-id default-dict-set!
+            dict-adjoin!-id default-dict-adjoin!
+            dict-delete!-id default-dict-delete!
+            dict-delete!-all!-id default-dict-delete!-all!
+            dict-replace!-id default-dict-replace!
+            dict-intern!-id default-dict-intern!
+            dict-update!-id default-dict-update!
+            dict-update!/default!-id default-dict-update!/default!
+            dict-pop!-id default-dict-pop!
             dict-map-id default-dict-map
             dict-filter-id default-dict-filter
             dict-remove-id default-dict-remove
-            dict-find-update-id default-dict-find-update
+            dict-find-update!-id default-dict-find-update!
             dict-size-id default-dict-size
             dict-count-id default-dict-count
             dict-any-id default-dict-any
@@ -377,8 +377,8 @@
 
             ;; generator procedures
             dict->generator-id default-dict->generator
-            dict-set-accumulator-id default-dict-set-accumulator
-            dict-adjoin-accumulator-id default-dict-adjoin-accumulator)))
+            dict-set!-accumulator-id default-dict-set!-accumulator
+            dict-adjoin!-accumulator-id default-dict-adjoin!-accumulator)))
 
     (define (make-dto . lst)
       (make-modified-dto default-dto lst))
