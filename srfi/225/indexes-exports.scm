@@ -15,7 +15,7 @@
     dict-any-id
     dict-contains?-id
     dict-count-id
-    dict-delete!-all!-id
+    dict-delete-all!-id
     dict-delete!-id
     dict-empty?-id
     dict-entries-id
@@ -35,7 +35,7 @@
     dict-set!-accumulator-id
     dict-set!-id
     dict-update!-id
-    dict-update!/default!-id
+    dict-update/default!-id
     dict-values-id
     dict=?-id
     dict->generator-id)

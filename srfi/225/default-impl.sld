@@ -82,9 +82,9 @@
       (default-dict-set!* dto dictionary #t objs))
 
     (define (default-dict-delete! dto dictionary . keys)
-      (dict-delete!-all! dto dictionary keys))
+      (dict-delete-all! dto dictionary keys))
 
-    (define (default-dict-delete!-all! dto dictionary keylist)
+    (define (default-dict-delete-all! dto dictionary keylist)
       (let loop ((keylist keylist)
                  (d dictionary))
         (cond
@@ -120,7 +120,7 @@
                         (lambda (key value update _)
                           (update key (updater (success value))))))
 
-    (define (default-dict-update!/default! dto dictionary key updater default)
+    (define (default-dict-update/default! dto dictionary key updater default)
       (dict-update! dto dictionary key updater
                    (lambda () default)
                    (lambda (x) x)))
@@ -132,7 +132,7 @@
             (dict-for-each dto
                            (lambda (key value)
                              (define new-dict
-                               (dict-delete!-all! dto dictionary (list key)))
+                               (dict-delete-all! dto dictionary (list key)))
                              (cont new-dict key value))
                            dictionary))))
       (define empty? (dict-empty? dto dictionary))
@@ -149,7 +149,7 @@
           (lambda (key)
             (not (pred key (dict-ref dto dictionary key))))
           keys))
-      (dict-delete!-all! dto dictionary keys-to-delete))
+      (dict-delete-all! dto dictionary keys-to-delete))
 
     (define (default-dict-remove dto pred dictionary)
       (dict-filter dto (lambda (key value)
@@ -351,11 +351,11 @@
             dict-set!-id default-dict-set!
             dict-adjoin!-id default-dict-adjoin!
             dict-delete!-id default-dict-delete!
-            dict-delete!-all!-id default-dict-delete!-all!
+            dict-delete-all!-id default-dict-delete-all!
             dict-replace!-id default-dict-replace!
             dict-intern!-id default-dict-intern!
             dict-update!-id default-dict-update!
-            dict-update!/default!-id default-dict-update!/default!
+            dict-update/default!-id default-dict-update/default!
             dict-pop!-id default-dict-pop!
             dict-map-id default-dict-map
             dict-filter-id default-dict-filter

@@ -95,9 +95,9 @@
         dict-ref-id t69-hash-table-ref*
         dict-ref/default-id (prep-dto-arg t69-hash-table-ref/default)
         dict-set!-id t69-hash-table-set!*
-        dict-delete!-all!-id t69-hash-table-delete-all!*
+        dict-delete-all!-id t69-hash-table-delete-all!*
         dict-contains?-id (prep-dto-arg t69-hash-table-exists?)
-        dict-update!/default!-id t69-hash-table-update!/default*
+        dict-update/default!-id t69-hash-table-update!/default*
         dict-size-id (prep-dto-arg t69-hash-table-size)
         dict-keys-id (prep-dto-arg t69-hash-table-keys)
         dict-values-id (prep-dto-arg t69-hash-table-values)

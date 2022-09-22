@@ -172,9 +172,9 @@ it depends on the dictionary whether any mutation is done.</p>
   ((5 . 6))
 (dict-delete! dto dict 5) &rArr;
   ((1 . 2) (3 . 4))</pre></blockquote>
-<p><code>(dict-delete!-all!</code>&nbsp;<em>dto dict keylist</em><code>)</code></p>
+<p><code>(dict-delete-all!</code>&nbsp;<em>dto dict keylist</em><code>)</code></p>
 <p>The same as <code>dict-delete!</code>, except that the keys to be deleted are in the list <em>keylist</em>.</p>
-<blockquote><pre>(dict-delete!-all! dto dict '(1 3)) &rArr; ((5 . 6))</pre></blockquote>
+<blockquote><pre>(dict-delete-all! dto dict '(1 3)) &rArr; ((5 . 6))</pre></blockquote>
 <p><code>(dict-replace!</code>&nbsp;<em>dto dict key value</em><code>)</code></p>
 <p>Returns a dictionary that contains all the associations of <em>dict</em> except as follows:
 If <em>key</em> is the same as a key of <em>dict</em>,
@@ -203,14 +203,14 @@ Otherwise, returns two values, a dictionary that contains
 (dict-update! dto dict 2 (lambda (x) (+ 1 x))) &rArr;
   <em>error</em>
 </pre></blockquote>
-<p><code>(dict-update!/default!</code>&nbsp;<em>dto dict key updater default</em><code>)</code></p>
+<p><code>(dict-update/default!</code>&nbsp;<em>dto dict key updater default</em><code>)</code></p>
 <p>Retrieves the value of <em>key</em> as if by <code>dict-ref/default</code>, invokes <em>updater</em> on it,
   and sets the value of <em>key</em> to be the result of calling <em>updater</em> as if by <code>dict-set!</code>,
   but may do so more efficiently. Returns the updated dictionary.</p>
 <blockquote><pre>
-(dict-update!/default! dto dict 1 (lambda (x) (+ 1 x)) 0) &rArr;
+(dict-update/default! dto dict 1 (lambda (x) (+ 1 x)) 0) &rArr;
   ((1 . 3) (3 . 4) (5 . 6))
-(dict-update!/default! dto dict 2 (lambda (x) (+ 1 x)) 0) &rArr;
+(dict-update/default! dto dict 2 (lambda (x) (+ 1 x)) 0) &rArr;
   ((2 . 1) (3 . 4) (5 . 6))
 </pre></blockquote>
 <p><code>(dict-pop!</code>&nbsp;<em>dto dict</em><code>)</code></p>
@@ -393,7 +393,7 @@ The following proc-id variables and associated procedures need to be provided
 <li><code>dict-any-id</code></li>
 <li><code>dict-contains?-id</code></li>
 <li><code>dict-count-id</code></li>
-<li><code>dict-delete!-all!-id</code></li>
+<li><code>dict-delete-all!-id</code></li>
 <li><code>dict-delete!-id</code></li>
 <li><code>dict-empty?-id</code></li>
 <li><code>dict-entries-id</code></li>
@@ -413,7 +413,7 @@ The following proc-id variables and associated procedures need to be provided
 <li><code>dict-set!-accumulator-id</code></li>
 <li><code>dict-set!-id</code></li>
 <li><code>dict-update!-id</code></li>
-<li><code>dict-update!/default!-id</code></li>
+<li><code>dict-update/default!-id</code></li>
 <li><code>dict-values-id</code></li>
 <li><code>dict=?-id</code></li>
 <li><code>dict-&gt;generator-id</code></li>
@@ -475,9 +475,9 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dd><code>dict-find-update!</code></dd>
 
     <dt><code>dict-delete!</code></dt>
-    <dd><code>dict-delete!-all!</code></dd>
+    <dd><code>dict-delete-all!</code></dd>
 
-    <dt><code>dict-delete!-all!</code></dt>
+    <dt><code>dict-delete-all!</code></dt>
     <dd><code>dict-find-update!</code></dd>
 
     <dt><code>dict-replace!</code></dt>
@@ -489,18 +489,18 @@ new dictionary types that may not have complete dictionary APIs:</p>
     <dt><code>dict-update!</code></dt>
     <dd><code>dict-find-update!</code></dd>
 
-    <dt><code>dict-update!/default!</code></dt>
+    <dt><code>dict-update/default!</code></dt>
     <dd><code>dict-update!</code></dd>
 
     <dt><code>dict-pop!</code></dt>
     <dd><code>dict-for-each</code></dd>
-    <dd><code>dict-delete!-all!</code></dd>
+    <dd><code>dict-delete-all!</code></dd>
     <dd><code>dict-empty?</code></dd>
 
     <dt><code>dict-filter</code></dt>
     <dd><code>dict-keys</code></dd>
     <dd><code>dict-ref</code></dd>
-    <dd><code>dict-delete!-all!</code></dd>
+    <dd><code>dict-delete-all!</code></dd>
 
     <dt><code>dict-remove</code></dt>
     <dd><code>dict-filter</code></dd>

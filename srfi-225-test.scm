@@ -197,18 +197,18 @@
   (when mutable?
     (test-skip 1))
   (test-group
-   "dict-delete!-all!"
+   "dict-delete-all!"
    (define dict-original (alist->dict '((a . b) (c . d))))
-   (define d (dict-delete!-all! dto dict-original '(a b)))
+   (define d (dict-delete-all! dto dict-original '(a b)))
    (test-equal (dict->alist dto d) '((c . d)))
    (test-equal 'b (dict-ref dto dict-original 'a)))
 
   (unless mutable?
     (test-skip 1))
   (test-group
-   "dict-delete!-all!"
+   "dict-delete-all!"
    (define d (alist->dict '((a . b) (c . d))))
-   (dict-delete!-all! dto d '(a b))
+   (dict-delete-all! dto d '(a b))
    (test-equal (dict->alist dto d) '((c . d))))
 
   (when mutable?
@@ -320,11 +320,11 @@
   (when mutable?
     (test-skip 1))
   (test-group
-   "dict-update!/default!"
+   "dict-update/default!"
    ;; update existing
    (define dict-original (alist->dict '((a . "b"))))
    (let ()
-     (define d (dict-update!/default! dto dict-original 'a
+     (define d (dict-update/default! dto dict-original 'a
                                     (lambda (value)
                                       (string-append value "2"))
                                     "d1"))
@@ -333,7 +333,7 @@
 
    ;; update missing
    (let ()
-     (define d (dict-update!/default! dto dict-original 'c
+     (define d (dict-update/default! dto dict-original 'c
                                     (lambda (value)
                                       (string-append value "2"))
                                     "d1"))
@@ -343,11 +343,11 @@
   (unless mutable?
     (test-skip 1))
   (test-group
-   "dict-update!/default!"
+   "dict-update/default!"
    ;; update existing
    (let ()
     (define d (alist->dict '((a . "b"))))
-    (dict-update!/default! dto d 'a
+    (dict-update/default! dto d 'a
                           (lambda (value)
                             (string-append value "2"))
                           "d1")
@@ -356,7 +356,7 @@
    ;; update missing
    (let ()
     (define d (alist->dict '((a . "b"))))
-    (dict-update!/default! dto d 'c
+    (dict-update/default! dto d 'c
                           (lambda (value)
                             (string-append value "2"))
                           "d1")

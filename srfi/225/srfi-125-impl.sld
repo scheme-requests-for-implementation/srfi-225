@@ -130,10 +130,10 @@
         dict-ref-id t125-hash-table-ref*
         dict-ref/default-id t125-hash-table-ref/default*
         dict-set!-id t125-hash-table-set*
-        dict-delete!-all!-id t125-hash-table-delete-all*
+        dict-delete-all!-id t125-hash-table-delete-all*
         dict-intern!-id t125-hash-table-intern*
         dict-update!-id t125-hash-table-update*
-        dict-update!/default!-id t125-hash-table-update/default*
+        dict-update/default!-id t125-hash-table-update/default*
         dict-pop!-id t125-hash-table-pop*
         dict-map-id t125-hash-table-map*
         dict-filter-id t125-hash-table-filter*

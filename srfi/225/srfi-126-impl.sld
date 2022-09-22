@@ -119,9 +119,9 @@
         dict-ref-id t126-hashtable-ref*
         dict-ref/default-id t126-hashtable-ref/default*
         dict-set!-id t126-hashtable-set*
-        dict-delete!-all!-id t126-hashtable-delete-all*
+        dict-delete-all!-id t126-hashtable-delete-all*
         dict-intern!-id t126-hashtable-intern*
-        dict-update!/default!-id t126-hashtable-update/default*
+        dict-update/default!-id t126-hashtable-update/default*
         dict-pop!-id t126-hashtable-pop*
         dict-map-id t126-hashtable-update-all*
         dict-filter-id t126-hashtable-filter*

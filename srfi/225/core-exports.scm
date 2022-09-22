@@ -15,11 +15,11 @@
     dict-set!
     dict-adjoin!
     dict-delete!
-    dict-delete!-all!
+    dict-delete-all!
     dict-replace!
     dict-intern!
     dict-update!
-    dict-update!/default!
+    dict-update/default!
     dict-pop!
     dict-map
     dict-filter

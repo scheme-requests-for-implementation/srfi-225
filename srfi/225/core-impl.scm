@@ -50,7 +50,7 @@
 (define/dict-proc dict-set! dict-set!-id)
 (define/dict-proc dict-adjoin! dict-adjoin!-id)
 (define/dict-proc dict-delete! dict-delete!-id)
-(define/dict-proc dict-delete!-all! dict-delete!-all!-id)
+(define/dict-proc dict-delete-all! dict-delete-all!-id)
 (define/dict-proc dict-replace! dict-replace!-id)
 (define/dict-proc dict-intern! dict-intern!-id)
 
@@ -68,7 +68,7 @@
      (assume (dto? dto))
      ((dto-ref-stx dto dict-update!-id) dto dict key updater failure success))))
 
-(define/dict-proc dict-update!/default! dict-update!/default!-id)
+(define/dict-proc dict-update/default! dict-update/default!-id)
 (define/dict-proc dict-pop! dict-pop!-id)
 (define/dict-proc dict-map dict-map-id)
 (define/dict-proc dict-filter dict-filter-id)
